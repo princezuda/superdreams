@@ -35,7 +35,7 @@
   {"shot": "SK/pt-lmmenu.png"},
   {"eval": "document.getElementById('lmM').classList.remove('open'); __cam.game.goGalaxy(); 1"},
   {"wait": 3},
-  {"eval": "(() => { const g = __cam.game, st = g.state; st.money += 60000; const s = st.systems.find((q) => q.id !== 's0' && !q.scanned); g.scan(s.id); g.skipHours(7); return [s.id, s.scanned, s.type]; })()"},
+  {"eval": "(() => { const g = __cam.game, st = g.state; st.money += 60000; const h = st.systems[0].pos, d = (q) => Math.hypot(q.pos[0] - h[0], q.pos[1] - h[1], q.pos[2] - h[2]); const s = st.systems.filter((q) => !q.scanned).sort((a, b) => d(a) - d(b))[0]; g.scan(s.id); g.skipHours(7); return [s.id, s.scanned, s.type]; })()"},
   {"wait": 2},
   {"shot": "SK/pt-galaxy.png"},
   {"eval": "(() => { const g = __cam.game, st = g.state; const s = st.systems.find((q) => q.id !== 's0' && q.scanned); g.settle(s.id); return s.id; })()"},

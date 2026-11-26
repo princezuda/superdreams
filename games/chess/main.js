@@ -192,6 +192,7 @@ function newGame(o = {}, resume = null) {
   G.puzzle = null;
   let fen = START_FEN;
   if (resume) fen = resume.startFen;
+  else if (o.fen) fen = o.fen; // test hook / custom start position
   else if (mode === 'puzzle') { const idx = o.puzzleIndex ?? store.get('chess-puzzle', 0) % PUZZLES.length; G.puzzle = { idx, stage: 0, solved: false }; fen = PUZZLES[idx].fen; }
   else if ((o.variant || cfg.variant) === 'chess960') fen = chess960Fen(o.n960 ?? Math.floor(Math.random() * 960));
   if (resume && resume.puzzle != null) G.puzzle = { idx: resume.puzzle, stage: resume.ucis.length ? 1 : 0, solved: false };
