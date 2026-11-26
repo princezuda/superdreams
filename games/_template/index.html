@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Template · Super Dreams</title>
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.webgpu.js","three/webgpu":"/vendor/three/build/three.webgpu.js","three/tsl":"/vendor/three/build/three.tsl.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+<style>html,body{margin:0;height:100%;background:#05060f;overflow:hidden}
+#hud{position:fixed;left:16px;top:14px;z-index:20;font:600 16px Inter,system-ui,sans-serif;color:#eef2ff;text-shadow:0 2px 8px #000}
+</style></head><body>
+<div id="hud"></div>
+<script type="module">
+// ============================================================================================
+// SUPERDREAMS GAME TEMPLATE (three.js r187 + shared kit). Copy this folder to games/<id>/ and fill
+// sections A–F. Keep every tunable in DEFAULTS so it can be remixed (meta.json "remix" mirrors it).
+// ============================================================================================
+import { THREE, createRenderer, createPipeline, autoResize, probe, startLoop, stageLights, spaceBackground, dust,
+  initUI, startMenu, settingsButton, toast, store, loadDream, sfx, tween, ease, updateTweens, shake, applyShake, flash } from '/shared/sd-kit.js';
+
+// ---- A. DEFAULTS (remixable) --------------------------------------------------------------
+const DEFAULTS = { difficulty: 'normal', colors: { accent: '#ffb347', ground: '#2a3566' }, goal: 10 };
+let cfg = await loadDream(DEFAULTS, (live) => { cfg = live; applyConfig(); });
+
+// ---- B. RENDER STACK (kit gives shadows, tone mapping, bloom, vignette/grain, 3-point rig) ---
+initUI();
+const renderer = await createRenderer();
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300);
+camera.position.set(0, 9, 12); camera.lookAt(0, 0, 0);
+spaceBackground(scene); stageLights(scene); const motes = dust(scene);
+const post = createPipeline(renderer, scene, camera);
+autoResize(renderer, camera);
+
+// ---- C. WORLD -----------------------------------------------------------------------------
+const groundMat = new THREE.MeshStandardNodeMaterial({ roughness: 0.7 });
+const ground = new THREE.Mesh(new THREE.CylinderGeometry(8, 8.4, 0.6, 64), groundMat);
+ground.position.y = -0.3; ground.receiveShadow = true; scene.add(ground);
+const player = new THREE.Mesh(new THREE.SphereGeometry(0.45, 32, 16), new THREE.MeshStandardNodeMaterial({ color: 0xe8ecff, roughness: 0.3 }));
+player.position.y = 0.45; player.castShadow = true; scene.add(player);
+const orbMat = new THREE.MeshBasicNodeMaterial();
+const orb = new THREE.Mesh(new THREE.IcosahedronGeometry(0.3, 1), orbMat); orb.position.y = 0.6; scene.add(orb);
+function applyConfig() { groundMat.color.set(cfg.colors.ground); orbMat.color.set(cfg.colors.accent).multiplyScalar(3); }
+applyConfig();
+
+// ---- D. STATE + RULES ---------------------------------------------------------------------
+const state = { running: false, score: 0, best: store.get('template-best', 0) };
+const keys = new Set(); addEventListener('keydown', (e) => keys.add(e.code)); addEventListener('keyup', (e) => keys.delete(e.code));
+let touch = null; addEventListener('pointerdown', (e) => touch = e); addEventListener('pointermove', (e) => touch && (touch = e)); addEventListener('pointerup', () => touch = null);
+function placeOrb() { const a = Math.random() * Math.PI * 2, r = 1 + Math.random() * 6; orb.position.set(Math.cos(a) * r, 0.6, Math.sin(a) * r); }
+function collect() {
+  state.score++; sfx.chime(); shake(0.08); placeOrb();
+  tween(0.25, (k) => player.scale.setScalar(1 + 0.3 * Math.sin(k * Math.PI)), { ease: ease.outCubic });
+  if (state.score >= cfg.goal) win();
+}
+function win() { state.running = false; sfx.win(); flash('#ffd27a'); state.best = Math.max(state.best, state.score); store.set('template-best', state.best); toast('You win!'); menu.show(); }
+placeOrb();
+
+// ---- E. UI ----------------------------------------------------------------------------------
+settingsButton();
+const menu = startMenu({ title: 'Template', subtitle: 'Collect the glowing orbs. WASD/arrows or drag.',
+  options: [{ key: 'difficulty', label: 'Difficulty', value: cfg.difficulty, choices: [{ v: 'easy', label: 'Easy' }, { v: 'normal', label: 'Normal' }, { v: 'hard', label: 'Hard' }] }],
+  onStart: (v) => { cfg.difficulty = v.difficulty; state.score = 0; state.running = true; } });
+const hud = document.getElementById('hud');
+
+// ---- F. LOOP + PROBE -------------------------------------------------------------------------
+const speed = { easy: 4, normal: 6, hard: 8 };
+const P = probe(renderer, { dataReady: true, counts: {}, game: { state: () => ({ ...state }), collect, start: () => { state.running = true; menu.hide(); } } });
+startLoop(renderer, (dt, t) => {
+  if (state.running) {
+    const v = new THREE.Vector3((keys.has('KeyD') || keys.has('ArrowRight')) - (keys.has('KeyA') || keys.has('ArrowLeft')), 0, (keys.has('KeyS') || keys.has('ArrowDown')) - (keys.has('KeyW') || keys.has('ArrowUp')));
+    if (touch) v.set(touch.clientX / innerWidth - 0.5, 0, touch.clientY / innerHeight - 0.5).multiplyScalar(2);
+    if (v.lengthSq() > 0) player.position.addScaledVector(v.normalize(), speed[cfg.difficulty] * dt);
+    player.position.setLength(Math.min(player.position.length(), 7.6)); player.position.y = 0.45;
+    if (player.position.distanceTo(orb.position) < 0.8) collect();
+  }
+  orb.rotation.y = t * 2; orb.position.y = 0.6 + Math.sin(t * 3) * 0.1;
+  motes.update(t); updateTweens(dt);
+  camera.position.set(Math.sin(t * 0.1) * 0.6, 9, 12); camera.lookAt(0, 0, 0); applyShake(camera, dt);
+  hud.textContent = `Orbs ${state.score}/${cfg.goal} · Best ${state.best}`;
+  P.counts.score = state.score;
+}, post.render);
+</script></body></html>

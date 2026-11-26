@@ -1,0 +1,4 @@
+{"id":"_template","hidden":true,"title":"Template","genre":"Casual","subgenre":"Template","tier":"AA","tagline":"Copy me to start a game.","playTime":"1 min","controls":"Keyboard / touch","levels":false,
+"remix":[{"key":"difficulty","label":"Difficulty","type":"choice","choices":[{"v":"easy","label":"Easy"},{"v":"normal","label":"Normal"},{"v":"hard","label":"Hard"}],"default":"normal"},
+{"key":"colors.accent","label":"Orb colour","type":"color","default":"#ffb347"},{"key":"colors.ground","label":"Ground colour","type":"color","default":"#2a3566"},
+{"key":"goal","label":"Orbs to win","type":"range","min":3,"max":30,"step":1,"default":10}],"credits":[],"fablePass":["orb pickup animation","music"],"thumb":"thumb.jpg"}
