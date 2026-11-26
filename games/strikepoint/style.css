@@ -202,3 +202,4 @@ body.touch #killfeed{top:calc(118px + var(--st))}
 @media (max-width:700px){#obj{max-width:52vw}#obj .x{font-size:14px}.compass{width:52vw}#killfeed .kf{font-size:12px}#mm{width:130px;height:130px}#vitals{width:130px}#comms{bottom:calc(200px + var(--sb));max-width:60vw}#modeTop{top:calc(50px + var(--st));font-size:12px}.stats{grid-template-columns:repeat(2,1fr)}}
 @media (prefers-reduced-motion:reduce){.kf,#comms div,#xp div{animation:none}}
 .cb #hud{--en:#ff9f1c;--fr:#4cc9f0}
+@media (max-width:560px){.compass{top:calc(150px + var(--st));width:70vw}.compass-hd{top:calc(178px + var(--st))}#modeTop{top:calc(122px + var(--st))}#killfeed{top:calc(200px + var(--st))}}

@@ -49,7 +49,7 @@ export class Game {
     const world = this.world = new World(map.bounds, map.terrain || null, map.terrainSurf || (() => SURF[map.ground?.[0]] || 'concrete'));
     if (map.waterZ !== undefined || map.water) { const tsf = map.terrainSurf; world.terrainSurf = (x, z) => (map.isWater ? map.isWater(x, z) : z > map.waterZ) ? 'water' : tsf ? tsf(x, z) : SURF[map.ground[0]]; }
     const mats = makeMaterials(tex, { ground: map.ground, groundRough: map.groundRough });
-    const B = new Builder(world, mats, this.scene, map.seed || 7); B.groundA = map.ground?.[0]; B.maxLights = map.maxLights ?? 6;
+    const B = new Builder(world, mats, this.scene, map.seed || 7); B.groundA = map.ground?.[0]; B.maxLights = settings.quality === 'low' ? 3 : (map.maxLights ?? 6);
     this.builder = B; map.build(B, world, this);
     await new Promise((r) => setTimeout(r, 0));
     onProgress?.(0.82, 'Merging geometry');

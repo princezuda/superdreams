@@ -73,7 +73,7 @@ export class FX {
     this.scorch = new Pool(scene, new THREE.PlaneGeometry(1, 1), scMat, 24);
     // brass
     const brass = new THREE.MeshStandardNodeMaterial({ color: 0xc8a050, metalness: 0.85, roughness: 0.3 });
-    this.shells = new Pool(scene, new THREE.CylinderGeometry(0.006, 0.006, 0.028, 6).rotateX(Math.PI / 2), brass, 48);
+    this.shells = new Pool(scene, new THREE.CylinderGeometry(0.0045, 0.0045, 0.022, 6).rotateX(Math.PI / 2), brass, 48);
     this.dirty = new Set();
   }
   _hide(pool, it) { it.alive = false; pool.mesh.setMatrixAt(it.i, HIDE); this.dirty.add(pool); }

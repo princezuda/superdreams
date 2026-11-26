@@ -43,7 +43,7 @@ export class Atmosphere {
     this.sun = new THREE.DirectionalLight(0xffffff, 2);
     this.sun.castShadow = true;
     const s = 42; Object.assign(this.sun.shadow.camera, { left: -s, right: s, top: s, bottom: -s, near: 1, far: 160 });
-    this.sun.shadow.mapSize.set(2048, 2048); this.sun.shadow.radius = 2.5; this.sun.shadow.bias = -0.0005; this.sun.shadow.normalBias = 0.035;
+    const lo = settings.quality === 'low'; this.sun.shadow.mapSize.set(lo ? 1024 : 2048, lo ? 1024 : 2048); this.sun.shadow.radius = 2.5; this.sun.shadow.bias = -0.0005; this.sun.shadow.normalBias = 0.035;
     this.rim = new THREE.DirectionalLight(0xffffff, 0.5);
     this.amb = new THREE.AmbientLight(0xffffff, 0.1);
     scene.add(this.hemi, this.sun, this.sun.target, this.rim, this.amb);

@@ -55,7 +55,7 @@ class Kit {
 }
 const rail = (k, len, x, y, z) => { k.box('metal', 0.024, 0.008, len, x, y, z); for (let i = 0; i < Math.floor(len / 0.012); i += 1) k.box('metal', 0.026, 0.006, 0.005, x, y + 0.006, z - len / 2 + 0.006 + i * 0.012, 0, 0, 0, 0.001); };
 function redDot(k, z, y) { // tube-less reflex: base, hood, lens, dot
-  k.box('poly', 0.034, 0.012, 0.05, 0, y, z); k.box('poly', 0.006, 0.036, 0.046, 0.017, y + 0.024, z); k.box('poly', 0.006, 0.036, 0.046, -0.017, y + 0.024, z); k.box('poly', 0.04, 0.006, 0.046, 0, y + 0.044, z);
+  k.box('poly', 0.034, 0.012, 0.05, 0, y, z); k.box('poly', 0.0035, 0.034, 0.04, 0.0175, y + 0.023, z); k.box('poly', 0.0035, 0.034, 0.04, -0.0175, y + 0.023, z); k.box('poly', 0.038, 0.0035, 0.04, 0, y + 0.041, z);
   k.add('glass', new THREE.PlaneGeometry(0.028, 0.03), 0, y + 0.025, z - 0.018);
   k.add('dot', new THREE.CircleGeometry(0.0009, 10), 0, y + 0.025, z - 0.019);
   return y + 0.025;
@@ -114,7 +114,7 @@ const BUILD = {
     rightHand(k);
     const g = k.build();
     const m = new Kit(); m.box('metal', 0.03, 0.15, 0.06, 0, -0.06, 0, -0.18); m.box('metal', 0.03, 0.06, 0.06, 0, -0.16, 0.02, -0.4); const mag = m.build(); mag.position.set(0, -0.04, -0.075); g.add(mag);
-    return { group: g, mag, sightY, muzzle: [0, 0.022, -0.78], port: [0.03, 0.02, -0.02], hand: [0.0, -0.02, -0.38], ads: -0.075 };
+    return { group: g, mag, sightY, muzzle: [0, 0.022, -0.78], port: [0.03, 0.02, -0.02], hand: [0.0, -0.02, -0.38], ads: -0.12 };
   },
   smg() {
     const k = new Kit();
@@ -191,7 +191,7 @@ const BUILD = {
     rightHand(k);
     const g = k.build();
     const m = new Kit(); m.box('olive', 0.1, 0.12, 0.13, 0, -0.06, 0); m.box('metal', 0.03, 0.04, 0.05, 0.04, 0.0, 0); const mag = m.build(); mag.position.set(-0.02, -0.04, -0.1); g.add(mag);
-    return { group: g, mag, sightY, muzzle: [0, 0.022, -0.89], port: [0.04, 0.02, -0.02], hand: [0, -0.03, -0.42], ads: -0.19 };
+    return { group: g, mag, sightY, muzzle: [0, 0.022, -0.89], port: [0.04, 0.02, -0.02], hand: [0, -0.03, -0.42], ads: -0.24 };
   },
   pistol() {
     const k = new Kit();
@@ -415,6 +415,7 @@ export class Arsenal {
     // shells + effects
     const port = this.vm.portCam(_pt); cam.localToWorld(port);
     const ej = _ej.copy(right).multiplyScalar(2.2 + Math.random()).addScaledVector(up, 1.6 + Math.random()).addScaledVector(fwd, -0.4);
+    port.addScaledVector(right, 0.18).addScaledVector(fwd, 0.08);
     if (!w.pump && !w.bolt) g.fx.shell(port.x, port.y, port.z, ej.x + pl.vel.x, ej.y, ej.z + pl.vel.z, (x, y, z) => g.audio?.shellBounce(x, y, z));
     g.muzzleLight?.(muz, 1);
     g.audio?.shot(w, 0, 0, true);
