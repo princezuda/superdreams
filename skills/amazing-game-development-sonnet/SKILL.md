@@ -67,6 +67,9 @@ node tools/shot.mjs "http://127.0.0.1:8100/games/<id>/?webgl" out.png 4
 - Fog colour must match the horizon, not the zenith.
 - Noise gates set on [-1,1] fire almost never — real summed-octave noise has σ≈0.12–0.2.
 - Pointer lock throws outside a user gesture; never gate movement on it.
+- `ExtrudeGeometry`/`LatheGeometry` with flat normals: `mergeVertices()` before `computeVertexNormals()`.
+- A side panel over the board: `camera.setViewOffset` so the play area stays centred in the visible part.
+- Per-object highlight on one shared material: a per-vertex/instance attribute or `userData` uniform, not a cloned material.
 - `positionLocal` is post-instance in r187 — use `positionGeometry` for per-instance patterns.
 - Pale materials go white under a PMREM env — lower `envMapIntensity` per material.
 - ACES washes out neon; use `THREE.NeutralToneMapping` for neon/arcade and card/board games.

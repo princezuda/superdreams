@@ -155,7 +155,9 @@ export const ease = {
   inQuad: (t) => t * t,
 };
 export function tween(dur, fn, { ease: e = ease.outCubic, delay = 0 } = {}) {
-  return new Promise((res) => tweens.add({ t: -delay, dur: Math.max(dur, 1e-4), fn, e, res }));
+  // Returns a Promise with .cancel(): stops the tween where it is and resolves.
+  let tw; const p = new Promise((res) => tweens.add(tw = { t: -delay, dur: Math.max(dur, 1e-4), fn, e, res }));
+  p.cancel = () => { if (tweens.delete(tw)) tw.res(); }; return p;
 }
 export function updateTweens(dt) {
   for (const tw of tweens) {

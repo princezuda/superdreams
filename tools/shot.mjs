@@ -6,4 +6,4 @@ const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m
 await p.goto(url);
 try { await p.waitForFunction(n => window.__cam && window.__cam.frames >= n, +minFrames, { timeout: 60000 }); } catch (e) { errs.push('TIMEOUT ' + e.message.split('\n')[0]); }
 console.log(JSON.stringify(await p.evaluate(() => window.__cam || null)));
-await p.screenshot({ path: out }); console.log('errors:', errs.slice(0,8)); await b.close();
+await p.screenshot({ path: out, timeout: 180000 }); console.log('errors:', errs.slice(0,8)); await b.close();
