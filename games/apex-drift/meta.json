@@ -1,0 +1,40 @@
+{
+  "id": "apex-drift",
+  "title": "Apex Drift",
+  "genre": "Racing",
+  "subgenre": "Arcade Racer",
+  "tier": "AA",
+  "tagline": "Drift to charge boost, slipstream five rivals and win the cup across a sunset coast, a neon city and a snowbound alpine pass.",
+  "description": "An arcade racer built for flow. Hold drift through a corner to slide at an angle and charge your boost meter. Sparks change from blue to orange to purple as the drift goes on, and letting go fires a slingshot boost. Spend the meter on the straights, tuck in behind a rival to slipstream, and nail the lights for a rocket start. Race five rivals with their own lines and personalities. Their catch-up is subtle and fades out before the finish, so the last lap is decided by how you drive. There are three tracks: Amber Coast, a cliff road above a golden sea; Lumen City, neon downtown with an elevated sweeper; and Frostpeak Pass, alpine switchbacks in falling snow. Modes: a 3-race Grand Prix with points and grids reversed by the standings, Single Race, and Time Trial against a ghost of your best lap with Bronze/Silver/Gold/Apex medals. A podium finish in the Sunset Cup unlocks the Mirror Cup, which runs every track in reverse.",
+  "playTime": "5–15 min per cup · 2–3 min races",
+  "controls": "Keyboard: W/↑ gas · S/↓ brake/reverse · A/D or ←/→ steer · Space drift · Shift boost · R reset to track · C camera · B look back · Esc/P pause. Gamepad: RT/LT gas/brake · stick steer · A/RB drift · X/LB boost · Y reset · Back camera · Start pause. Touch: analog steering pad + GAS/BRAKE/DRIFT/BOOST pedals, optional auto-accelerate and tilt steering.",
+  "modes": ["Grand Prix", "Single Race", "Time Trial"],
+  "themes": ["Sunset coast", "Neon city at night", "Alpine snow"],
+  "levels": true,
+  "remix": [
+    { "key": "colors.car", "label": "Car paint", "type": "color", "default": "#ff4d2e" },
+    { "key": "colors.accent", "label": "Racing stripes", "type": "color", "default": "#ffffff" },
+    { "key": "colors.boost", "label": "Boost flame", "type": "color", "default": "#38c8ff" },
+    { "key": "difficulty", "label": "Rival skill", "type": "choice", "choices": [{ "v": "easy", "label": "Easy" }, { "v": "normal", "label": "Normal" }, { "v": "hard", "label": "Hard" }], "default": "normal" },
+    { "key": "laps", "label": "Laps per race", "type": "range", "min": 1, "max": 5, "step": 1, "default": 3 },
+    { "key": "rivals", "label": "Number of rivals", "type": "range", "min": 0, "max": 5, "step": 1, "default": 5 },
+    { "key": "catchup", "label": "Rival catch-up", "type": "choice", "choices": [{ "v": "off", "label": "Off" }, { "v": "subtle", "label": "Subtle" }, { "v": "strong", "label": "Strong" }], "default": "subtle" },
+    { "key": "startTrack", "label": "Default track", "type": "choice", "choices": [{ "v": "coast", "label": "Amber Coast" }, { "v": "city", "label": "Lumen City" }, { "v": "alpine", "label": "Frostpeak Pass" }], "default": "coast" },
+    { "key": "fov", "label": "Camera field of view", "type": "range", "min": 55, "max": 85, "step": 1, "default": 66 },
+    { "key": "snow", "label": "Snowfall on Frostpeak Pass", "type": "bool", "default": true }
+  ],
+  "credits": [
+    { "asset": "Asphalt Track (asphalt_track)", "author": "Dimitrios Savva", "license": "CC0", "url": "https://polyhaven.com/a/asphalt_track", "use": "Road surface colour + normal" },
+    { "asset": "Aerial Grass Rock (aerial_grass_rock)", "author": "Rob Tuytel", "license": "CC0", "url": "https://polyhaven.com/a/aerial_grass_rock", "use": "Amber Coast hillsides" },
+    { "asset": "Rock Face 03 (rock_face_03)", "author": "Dario Barresi, Rico Cilliers", "license": "CC0", "url": "https://polyhaven.com/a/rock_face_03", "use": "Cliffs, rocks, gravel run-off (triplanar)" },
+    { "asset": "Snow 02 (snow_02)", "author": "Rob Tuytel", "license": "CC0", "url": "https://polyhaven.com/a/snow_02", "use": "Frostpeak Pass snow detail + normal" }
+  ],
+  "fablePass": [
+    "Music: per-track driving loops (coastal synthwave, neon city drum & bass, alpine orchestral-electronic) with an intensity layer on the final lap",
+    "Start: driver intro on the grid and a gantry light-board animation; podium: drivers climbing out, trophy lift, champagne",
+    "Cars: suspension bounce on landing/kerbs, door-mirror and wing flex, wheel blur at speed, damage scuffs on hard wall hits",
+    "World: gulls and sailboats on Amber Coast, traffic-light and billboard animation in Lumen City, snow plough and chairlift on Frostpeak Pass",
+    "Crowd and marshal flag waves at the start/finish; finish-line photo-flash"
+  ],
+  "thumb": "thumb.jpg"
+}

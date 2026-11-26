@@ -1,0 +1,24 @@
+Apex Drift — asset credits
+==========================
+
+All 3D geometry (cars, terrain, roads, barriers, gantry, trees, buildings, props), the TSL sky/water/snow shaders,
+canvas-painted textures (banner, chevrons, wave normals, smoke) and all Web Audio sound effects are generated in
+code in this folder plus the shared kit. No music (deferred to the Fable pass). Track names, driver names and the
+car design are original.
+
+Textures (CC0, Poly Haven, https://polyhaven.com/license), downloaded at 1K and recompressed:
+colour 1024px (snow 512px) JPG q74, normal 512px JPG q82. Subjects checked on a contact sheet before use.
+- Asphalt Track (asphalt_track) by Dimitrios Savva: road surface on all tracks, city ground streets
+- Aerial Grass Rock (aerial_grass_rock) by Rob Tuytel: Amber Coast hillsides
+- Rock Face 03 (rock_face_03) by Dario Barresi (photography) and Rico Cilliers (processing): cliffs, rocks,
+  coast gravel run-off and beach sand (tinted), alpine rock faces (triplanar)
+- Snow 02 (snow_02) by Rob Tuytel: Frostpeak Pass snow detail and normal (colour used at low weight, because
+  the raw map has dark twig marks)
+
+Rejected / not used:
+- snow_field_aerial: the 1K diffuse download returned an error document, not an image. Dropped.
+- asphalt_track roughness map: almost uniform at 1K (456 bytes after compression), so a constant roughness is
+  used instead.
+- ambientCG sets: CC0 and preferred, but the download host is blocked by the sandbox network proxy (the same
+  finding as Strikepoint).
+- No CC-BY, CC-BY-NC or No-Derivatives assets are used.

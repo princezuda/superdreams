@@ -1,7 +1,15 @@
 // Apex Drift — pooled, instanced effects: tyre smoke / dust / snow spray, skid marks, sparks (wall hits, drift tiers),
 // podium confetti. Each pool is one draw call; nothing allocates per frame.
 import { THREE } from '/shared/sd-kit.js';
-import { vec3, float, instancedBufferAttribute, normalView, abs, pow, smoothstep, positionGeometry, mix, positionWorld, cameraPosition, length } from 'three/tsl';
+import { vec3, float, instancedBufferAttribute, abs, smoothstep, positionGeometry, mix, positionWorld, cameraPosition, length, texture, uv } from 'three/tsl';
+
+// soft billow texture: overlapping radial blobs, painted once
+function puffTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  for (let k = 0; k < 16; k++) { const a = Math.random() * 6.28, r = Math.random() * 30, x = 64 + Math.cos(a) * r, y = 64 + Math.sin(a) * r, s = 18 + Math.random() * 26;
+    const gr = g.createRadialGradient(x, y, 0, x, y, s); gr.addColorStop(0, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, s, 0, 7); g.fill(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
 
 export class FX {
   constructor(scene) {
@@ -10,8 +18,9 @@ export class FX {
     // smoke puffs: soft spheres (fresnel-faded edges read as billows without sorting sprites)
     const SM = this.SM = 150; this.smA = new THREE.InstancedBufferAttribute(new Float32Array(SM), 1); this.smA.setUsage(THREE.DynamicDrawUsage);
     const smM = new THREE.MeshBasicNodeMaterial({ transparent: true, depthWrite: false });
-    smM.colorNode = vec3(1, 1, 1); smM.opacityNode = pow(abs(normalView.z), 1.8).mul(instancedBufferAttribute(this.smA)).mul(smoothstep(2.0, 9.0, length(positionWorld.sub(cameraPosition)))); // never white-out the lens
-    this.smoke = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), smM, SM); this.smoke.frustumCulled = false; this.smoke.count = 0; this.smoke.renderOrder = 4;
+    const pt = texture(puffTexture(), uv());
+    smM.colorNode = pt.rgb.mul(0.6).add(0.4); smM.opacityNode = pt.a.mul(instancedBufferAttribute(this.smA)).mul(smoothstep(2.0, 9.0, length(positionWorld.sub(cameraPosition)))); // never white-out the lens
+    this.smoke = new THREE.InstancedMesh(new THREE.PlaneGeometry(2, 2), smM, SM); this.smoke.frustumCulled = false; this.smoke.count = 0; this.smoke.renderOrder = 4;
     this.smoke.instanceMatrix.setUsage(THREE.DynamicDrawUsage); this.smoke.setColorAt(0, new THREE.Color(1, 1, 1)); this.group.add(this.smoke);
     this.puffs = Array.from({ length: SM }, () => ({ on: false })); this.pHead = 0;
     // skid marks: ring buffer of dark quads laid on the road
@@ -39,7 +48,7 @@ export class FX {
   clearSkids() { this.skCount = 0; this.skHead = 0; this.skids.count = 0; this.lastSkid.clear(); }
   puff(x, y, z, vx, vz, size = 1, alpha = 0.5, tint = null) {
     const p = this.puffs[this.pHead]; this.pHead = (this.pHead + 1) % this.SM;
-    Object.assign(p, { on: true, x, y, z, vx: vx + (Math.random() - 0.5) * 1.5, vy: 0.6 + Math.random() * 0.7, vz: vz + (Math.random() - 0.5) * 1.5, t: 0, life: 0.9 + Math.random() * 0.7, s0: 0.3 * size, s1: (1.1 + Math.random() * 0.8) * size, a: alpha });
+    Object.assign(p, { on: true, x, y, z, vx: vx + (Math.random() - 0.5) * 1.5, vy: 0.6 + Math.random() * 0.7, vz: vz + (Math.random() - 0.5) * 1.5, t: 0, life: 0.9 + Math.random() * 0.7, s0: 0.4 * size, s1: (1.3 + Math.random() * 0.9) * size, a: alpha, rot: Math.random() * 6.28, spin: (Math.random() - 0.5) * 1.5 });
     p.col = tint || this.smokeTint;
   }
   spark(x, y, z, vx, vy, vz, r, g, b, life = 0.5) {
@@ -70,11 +79,11 @@ export class FX {
       c.col = new THREE.Color().setHSL(Math.random(), 0.9, 0.6);
     }
   }
-  update(dt) {
-    let n = 0;
+  update(dt, camera) {
+    let n = 0; const cq = camera ? camera.quaternion : this.q.identity(); const rz = this.rz || (this.rz = new THREE.Quaternion()), zAxis = this.zAxis || (this.zAxis = new THREE.Vector3(0, 0, 1)), q2 = this.q2 || (this.q2 = new THREE.Quaternion());
     for (let i = 0; i < this.SM; i++) { const p = this.puffs[i]; if (!p.on) continue; p.t += dt; if (p.t > p.life) { p.on = false; continue; }
       const k = p.t / p.life; p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt; p.vx *= 1 - dt * 1.8; p.vz *= 1 - dt * 1.8; p.vy *= 1 - dt * 0.8;
-      const s = p.s0 + (p.s1 - p.s0) * (1 - (1 - k) * (1 - k)); this.v.set(p.x, p.y, p.z); this.s.set(s, s * 0.8, s); this.q.identity(); this.m4.compose(this.v, this.q, this.s);
+      const s = p.s0 + (p.s1 - p.s0) * (1 - (1 - k) * (1 - k)); this.v.set(p.x, p.y, p.z); this.s.set(s, s, s); p.rot += p.spin * dt; rz.setFromAxisAngle(zAxis, p.rot); q2.copy(cq).multiply(rz); this.m4.compose(this.v, q2, this.s);
       this.smoke.setMatrixAt(n, this.m4); this.smoke.setColorAt(n, p.col); this.smA.setX(n, p.a * (1 - k) * Math.min(1, p.t * 8)); n++; }
     this.smoke.count = n; this.smoke.instanceMatrix.needsUpdate = true; this.smA.needsUpdate = true; if (this.smoke.instanceColor) this.smoke.instanceColor.needsUpdate = true;
     n = 0;

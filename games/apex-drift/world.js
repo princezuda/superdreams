@@ -327,7 +327,7 @@ function buildGantry(T, theme, colors) {
   const bt = new THREE.CanvasTexture(c); bt.colorSpace = THREE.SRGBColorSpace;
   const bm = new THREE.MeshStandardNodeMaterial({ map: bt, roughness: 0.5, side: THREE.FrontSide }); bm.emissiveNode = texture(bt).rgb.mul(theme === 'city' ? 0.9 : 0.25);
   const banner = new THREE.Mesh(new THREE.PlaneGeometry(w * 2 - 0.6, 1.45), bm); banner.position.set(0, 7.4, 0.6); banner.rotation.y = Math.PI; g.add(banner);
-  const banner2 = banner.clone(); banner2.position.z = 1.8; banner2.rotation.y = 0; g.add(banner2);
+  const banner2 = banner.clone(); banner2.position.z = 1.8; banner2.rotation.set(0, 0, 0); g.add(banner2); // set(): clone() re-derives Euler (π,0,π) from the quaternion
   // 5 start lights hanging under the beam, facing the grid (behind the line = -z local)
   const lampCol = new THREE.InstancedBufferAttribute(new Float32Array(15), 3);
   const lm = new THREE.MeshBasicNodeMaterial(); lm.colorNode = instancedBufferAttribute(lampCol);
@@ -389,7 +389,7 @@ function buildCoastProps(add, scatter, hAt, R, low, T, grid, props, roadside) {
   const beam = new THREE.Mesh(new THREE.ConeGeometry(9, 160, 16, 1, true), beamM); beam.rotation.z = Math.PI / 2; beam.position.set(80, 0, 0);
   const pivot = new THREE.Group(); pivot.position.y = 25.4; pivot.add(beam);
   lh.add(tower, lamp, cap, pivot); add(lh);
-  props.update = (dt, t) => { pivot.rotation.y = t * 0.6; };
+  props.update = (dt, t) => { pivot.rotation.y = t * 0.6; }; // FABLE: animation — gulls, sailboats, waves breaking at the cliff foot
   props.landmark = lh;
 }
 
@@ -451,7 +451,7 @@ function buildCityProps(add, scatter, R, low, T, grid, B, props, bOff) {
   instanced(add, pg, new THREE.MeshStandardNodeMaterial({ color: 0x4a4c58, roughness: 0.8 }), pil, (i, p, e, s) => { p.set(T.x[i], -0.1, T.z[i]); e.set(0, 0, 0); s.set(1.6, T.y[i] - 1.2, 1.6); });
   const deck = []; for (let s = 0; s < T.L; s += 3) { const i = Math.floor(s / T.ds) % T.n; if (T.y[i] > 1.2) deck.push(i); }
   instanced(add, new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardNodeMaterial({ color: 0x3a3c48, roughness: 0.85 }), deck, (i, p, e, s) => { p.set(T.x[i], T.y[i] - 0.75, T.z[i]); e.set(0, Math.atan2(T.tx[i], T.tz[i]), 0); s.set((T.w[i] + SHOULDER + 1.4) * 2, 1.4, 3.3); }, { shadow: false });
-  props.update = () => {};
+  props.update = () => {}; // FABLE: animation — traffic lights, billboard loops, drones over the elevated sweeper
 }
 // InstancedMesh.instanceColor is multiplied into colorNode by the node material itself (setupDiffuseColor)
 function instancedColor() { return vec3(1, 1, 1); }
@@ -490,6 +490,7 @@ function buildAlpineProps(add, scatter, hAt, R, low, T, ctr, props, bOff, roadsi
   const pmat = new THREE.MeshStandardNodeMaterial({ roughness: 0.5 }); pmat.colorNode = mix(vec3(1.0, 0.32, 0.05), vec3(0.05), step(0.5, fract(positionGeometry.y.div(0.6).add(0.5))));
   pmat.emissiveNode = vec3(0.35, 0.08, 0.0).mul(step(0.5, fract(positionGeometry.y.div(0.6).add(0.5))).oneMinus());
   const pg = new THREE.CylinderGeometry(0.05, 0.05, 2.0, 5); pg.translate(0, 1.0, 0);
+  // FABLE: animation — chairlift cables over the crest, a snow plough parked at the hairpin, smoking chalet chimneys
   instanced(add, pg, pmat, poles, ([i, sd], p, e, s) => { const o = (bOff(T.w[i]) + 0.7) * sd; p.set(T.x[i] + T.nx[i] * o, T.y[i] + 0.2, T.z[i] + T.nz[i] * o); e.set(0, 0, 0); s.set(1, 1, 1); }, { shadow: false });
   props.update = () => {};
 }

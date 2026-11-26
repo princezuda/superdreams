@@ -18,8 +18,8 @@ const progress = (k, m) => { bootFill.style.width = Math.round(k * 100) + '%'; i
 
 // ---------------------------------------------------------------- config, prefs, save
 const DEFAULTS = { difficulty: 'normal', laps: 3, rivals: 5, catchup: 'subtle', colors: { car: '#ff4d2e', accent: '#ffffff', boost: '#38c8ff' }, snow: true, fov: 66, startTrack: 'coast' };
-const DIFF = { easy: { skill: 0.885, lat: 0.82 }, normal: { skill: 0.955, lat: 0.9 }, hard: { skill: 1.0, lat: 0.95 } };
-const CATCH = { off: 0, subtle: 0.05, strong: 0.1 };
+const DIFF = { easy: { skill: 0.86, lat: 0.8 }, normal: { skill: 0.93, lat: 0.87 }, hard: { skill: 0.99, lat: 0.94 } };
+const CATCH = { off: 0, subtle: 0.04, strong: 0.09 };
 const PAINTS = ['#ff4d2e', '#ffd21f', '#19c37d', '#1f8bff', '#8a4dff', '#ff3ea5', '#f2f4f8', '#20232c'];
 const isTouch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window || Q.has('touch');
 const prefs = Object.assign({ camera: 'chase', autoAccel: isTouch, tilt: false, units: 'kmh', hints: true, assist: false, mode: 'gp', track: null, cup: 'sunset', mirror: false, paint: null }, store.get('apexdrift-prefs', {}));
@@ -27,13 +27,13 @@ const savePrefs = () => store.set('apexdrift-prefs', prefs);
 const save = Object.assign({ best: {}, race: {}, medals: {}, cups: {}, gp: null, tutorial: false, races: 0 }, store.get('apexdrift-save', {}));
 const persist = () => store.set('apexdrift-save', save);
 const ghostKey = (k) => 'apexdrift-ghost-' + k;
-const medalTimes = (T) => ({ apex: T.L / 47.6, gold: T.L / 45.6, silver: T.L / 42.5, bronze: T.L / 38.5 });
+const medalTimes = (T) => ({ apex: T.L / 47, gold: T.L / 45, silver: T.L / 42, bronze: T.L / 38 });
 const MEDAL_NAMES = { apex: 'Apex', gold: 'Gold', silver: 'Silver', bronze: 'Bronze' };
 
 let cfg;
 function sanitize(c) {
   if (!DIFF[c.difficulty]) c.difficulty = 'normal'; if (!(c.catchup in CATCH)) c.catchup = 'subtle'; if (!TRACKS[c.startTrack]) c.startTrack = 'coast';
-  c.laps = Math.max(1, Math.min(5, Math.round(+c.laps || 3))); c.rivals = Math.max(0, Math.min(5, Math.round(+c.rivals ?? 5))); c.fov = Math.max(55, Math.min(85, +c.fov || 66));
+  c.laps = Math.max(1, Math.min(5, Math.round(+c.laps || 3))); c.rivals = Number.isFinite(+c.rivals) ? Math.max(0, Math.min(5, Math.round(+c.rivals))) : 5; c.fov = Math.max(55, Math.min(85, +c.fov || 66));
   for (const k of ['car', 'accent', 'boost']) if (!/^#[0-9a-f]{6}$/i.test(c.colors?.[k] || '')) c.colors[k] = DEFAULTS.colors[k];
   return c;
 }
@@ -66,6 +66,7 @@ async function boot() {
   settingsButton();
   $('#hPause').onclick = () => togglePause(true);
   probe(renderer, { counts: {}, game: hooks() });
+  if (Q.has('debug')) window.__sd = { G, scene, camera, THREE };
   progress(0.45, 'Building ' + TRACKS[prefs.track || cfg.startTrack].name);
   await setupTrack(prefs.track || cfg.startTrack, false, { menu: true });
   buildMenu();
@@ -135,6 +136,7 @@ async function startRace({ mode = 'single', trackId = 'coast', reverse = false, 
   hud.setup(G.T, G.cars, G.laps, mode); hud.show(true);
   input.showTouch(isTouch || input.lastDevice === 'touch');
   G.phase = 'intro'; G.introT = 0;
+  // FABLE: music — start the per-track driving loop here (coast synthwave / city DnB / alpine orchestral-electronic) on the shared kit audio() bus.
   const def = TRACKS[trackId];
   const title = G.cup ? `${CUPS[G.cup].name} · Race ${G.raceIdx + 1}/3` : mode === 'tt' ? 'Time Trial' : 'Single Race';
   hud.banner(`<small>${esc(title)}</small><b>${esc(def.name)}${reverse ? ' <em>Mirror</em>' : ''}</b><span>${esc(def.place)} · ${G.laps} laps</span>`, 'intro', 2800);
@@ -149,6 +151,7 @@ function beginCountdown() {
   if (G.mode === 'tt') { const m = medalTimes(G.T); const best = G.bestLap; const next = ['bronze', 'silver', 'gold', 'apex'].find((k) => !(best <= m[k])); hud.sub(next ? `Next medal: <b>${MEDAL_NAMES[next]}</b> ${fmtTime(m[next])}${isFinite(best) ? ` · Your best ${fmtTime(best)}` : ''}` : `All medals earned · Best ${fmtTime(best)}`, 3800); }
 }
 function go() {
+  // FABLE: animation — gantry light-board sweep and grid crew stepping back before the lights go out.
   G.phase = 'race'; G.startTime = G.time; G.countGo = true; G.world.gantry.setLights(5, true); hud.count('GO!', true); sx.beep(true);
   const p = G.player; const dt = G.pressT < 0 ? -1 : G.time - G.pressT;
   if (G.pressT >= 0 && dt <= 0.55) { p.boostT = 1.0; hud.sub('<b>ROCKET START!</b>', 1400); sx.sling(2); shake(0.08); }
@@ -200,7 +203,8 @@ function simulate(dt) {
   // fixed sub-steps keep physics identical across frame rates (and in sim())
   G.acc = (G.acc || 0) + dt; let n = 0;
   while (G.acc >= FIXED && n < 12) {
-    for (const c of cars) { c.braking = (c.inp?.brake || 0) > 0.1 && c.vF > 1; stepCar(c, c.inp || {}, T, FIXED, { time: G.time }); }
+    const tSub = G.time - G.acc + FIXED; // sub-step clock: line crossings resolve to 1/120 s, not to the frame
+    for (const c of cars) { c.braking = (c.inp?.brake || 0) > 0.1 && c.vF > 1; stepCar(c, c.inp || {}, T, FIXED, { time: tSub }); }
     collideCars(cars, G.time); G.acc -= FIXED; n++;
   }
   if (n === 12) G.acc = 0;
@@ -243,7 +247,7 @@ function handleEvents(c) {
 
 function onLap(c, e) {
   const finishedRace = c.lap.lap > G.laps;
-  if (finishedRace && !c.finished) { c.finished = true; c.finishTime = G.time; }
+  if (finishedRace && !c.finished) { c.finished = true; c.finishTime = c.lap.lapStart; } // exact crossing time
   if (!c.isPlayer) return;
   const lt = e.time; const key = trackKey(G.trackId, G.reverse);
   const prevBest = G.bestLap; const isBest = lt < prevBest;
@@ -260,7 +264,7 @@ function onLap(c, e) {
   if (finishedRace) { onPlayerFinish(); return; }
   hud.banner(`<small>LAP ${c.lap.lap - 1}</small><b>${fmtTime(lt)}</b>${dtxt}${isBest && isFinite(prevBest) ? '<span>NEW BEST LAP</span>' : ''}`, 'lap', 2200);
   (isBest && isFinite(prevBest) ? sx.best : sx.lap)();
-  if (c.lap.lap === G.laps) setTimeout(() => { hud.banner('<b>FINAL LAP</b>', 'final', 1600); sx.finalLap(); }, 1200);
+  if (c.lap.lap === G.laps) setTimeout(() => { hud.banner('<b>FINAL LAP</b>', 'final', 1600); sx.finalLap(); }, 1200); // FABLE: music — bring in the final-lap intensity layer
 }
 
 function onPlayerFinish() {
@@ -335,13 +339,17 @@ function nextCupRace() {
 
 // ---------------------------------------------------------------- podium
 function setupPodium(ids) {
+  // FABLE: animation — drivers climb out onto the podium, trophy lift, champagne spray; music — victory sting.
   const T = G.T, s = 34, pose = poseAt(T, s, 0); const g = new THREE.Group(); g.position.set(pose.x, pose.y, pose.z); g.rotation.y = pose.yaw + Math.PI;
   const mat = new THREE.MeshStandardNodeMaterial({ color: 0xe9ecf4, roughness: 0.35, metalness: 0.2 });
   const top = new THREE.MeshStandardNodeMaterial({ color: 0xff3d6e, roughness: 0.4, emissive: new THREE.Color(0.25, 0.02, 0.08) });
-  const H = [1.6, 1.1, 0.75], X = [0, -3.4, 3.4];
+  const H = [1.6, 1.1, 0.75], X = [0, 3.4, -3.4]; // 2nd on the viewer's left, 3rd on the right
   ids.slice(0, 3).forEach((id, i) => {
     const b = new THREE.Mesh(new THREE.BoxGeometry(3.2, H[i], 5.6), mat); b.position.set(X[i], H[i] / 2, 0); b.castShadow = b.receiveShadow = true; g.add(b);
     const t = new THREE.Mesh(new THREE.BoxGeometry(3.25, 0.08, 5.65), top); t.position.set(X[i], H[i] + 0.04, 0); g.add(t);
+    const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); x.fillStyle = '#ff3d6e'; x.font = 'italic 900 110px Inter, system-ui, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(String(i + 1), 64, 70);
+    const nt = new THREE.CanvasTexture(c); nt.colorSpace = THREE.SRGBColorSpace; const num = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1), new THREE.MeshBasicNodeMaterial({ map: nt, transparent: true }));
+    num.position.set(X[i], H[i] * 0.5, -2.83); num.rotation.y = Math.PI; g.add(num);
   });
   scene.add(g); G.podium = g; g.updateMatrixWorld();
   // put the top-3 cars on the blocks facing the camera; park everyone else out of view
@@ -374,11 +382,12 @@ function updateCamera(dt) {
   const gAt = (x, z) => G.world.groundAt(x, z);
   let fov = cfg.fov;
   const menuView = G.phase === 'menu' || G.phase === 'loading' || G.phase === 'boot';
-  if (menuView !== G.menuOffset) { G.menuOffset = menuView; if (!menuView) camera.clearViewOffset(); }
-  if (menuView) { const w = innerWidth, h = innerHeight; if (w > 640) camera.setViewOffset(w, h, -w * 0.2, 0, w, h); else camera.setViewOffset(w, h, 0, h * 0.24, w, h); }
+  const offView = menuView || G.phase === 'podium'; if (offView !== G.menuOffset2) { G.menuOffset2 = offView; if (!offView) camera.clearViewOffset(); }
+  if (offView) { const w = innerWidth, h = innerHeight, sgn = menuView ? -1 : 1; if (w > 640) camera.setViewOffset(w, h, sgn * w * 0.2, 0, w, h); else camera.setViewOffset(w, h, 0, h * 0.24, w, h); } // keep the subject clear of the side card / bottom sheet
   if (menuView) {
-    const t = G.time * 0.06, c = poseAt(T, T.L - 30, 0); const r = 26;
-    camS.pos.set(c.x + Math.sin(t) * r, c.y + 7 + Math.sin(t * 0.7) * 2, c.z + Math.cos(t) * r); camS.look.set(c.x, c.y + 1, c.z);
+    // stay inside the track corridor (never inside trees/buildings): ahead of the grid, sweeping across the road
+    const t = G.time * 0.12, c = poseAt(T, T.L - 22, 0), a = poseAt(T, 30, Math.sin(t) * (T.w[0] + 1.5));
+    camS.pos.set(a.x, a.y + 8.5 + Math.sin(t * 0.7) * 1.5, a.z); camS.look.set(c.x, c.y + 1.5, c.z);
   } else if (G.phase === 'intro') {
     const k = Math.min(1, G.introT / 3.0), e = k * k * (3 - 2 * k); const a = poseAt(T, (p.loc.s + 60 - 70 * e + T.L) % T.L, 0);
     const side = 1 - e; camS.pos.set(a.x + Math.cos(a.yaw) * 20 * side - Math.sin(p.yaw) * 7 * e, a.y + 14 * side + 2.6 * e + 1.5, a.z - Math.sin(a.yaw) * 20 * side - Math.cos(p.yaw) * 7 * e);
@@ -386,6 +395,9 @@ function updateCamera(dt) {
   } else if (G.phase === 'podium') {
     const c = G.podiumCtr, t = G.phaseT; const yaw = G.podiumYaw + Math.PI + Math.sin(t * 0.25) * 0.45;
     camS.pos.set(c.x + Math.sin(yaw) * 15, c.y + 2.6 + Math.sin(t * 0.3) * 0.6, c.z + Math.cos(yaw) * 15); camS.look.set(c.x, c.y - 0.6, c.z); fov = 50;
+  } else if (G.photo) { // photo mode (hooks.photo): camera in the car's frame
+    const o = G.photo, fx = Math.sin(p.yaw), fz = Math.cos(p.yaw), rx = -fz, rz = fx;
+    camS.pos.set(p.x + rx * o.side + fx * o.fwd, p.y + o.up, p.z + rz * o.side + fz * o.fwd); camS.look.set(p.x + fx * (o.lookFwd || 0) + rx * (o.lookSide || 0), p.y + (o.lookUp ?? 0.7), p.z + fz * (o.lookFwd || 0) + rz * (o.lookSide || 0)); fov = o.fov || 50;
   } else {
     const sp = Math.hypot(p.vx, p.vz); const velYaw = sp > 4 ? Math.atan2(p.vx, p.vz) : p.yaw;
     let tgt = p.vF > 1 ? lerpA(p.yaw, velYaw, 0.6) : p.yaw; if (G.lookBack) tgt += Math.PI;
@@ -398,6 +410,7 @@ function updateCamera(dt) {
       const far = mode === 'far'; const dist = (far ? 10 : 6.7) + sp * 0.03, h = (far ? 3.7 : 2.3) + sp * 0.005;
       V.set(p.x - Math.sin(camS.yaw) * dist, p.y + h, p.z - Math.cos(camS.yaw) * dist);
       V.y = Math.max(V.y, gAt(V.x, V.z) + 1.2, p.y + 1.1);
+      for (const o of G.cars) { if (o === p) continue; const d = Math.hypot(o.x - V.x, o.z - V.z); if (d < 3.6) V.y = Math.max(V.y, o.y + 1.9 + (3.6 - d) * 0.5); } // ride over a tailgating rival instead of through it
       const k = 1 - Math.exp(-dt * 16); camS.pos.lerp(V, G.camSnap ? 1 : k); G.camSnap = false;
       camS.look.set(p.x + Math.sin(camS.yaw) * 4, p.y + 1.15, p.z + Math.cos(camS.yaw) * 4);
     }
@@ -424,13 +437,15 @@ function step(dt) {
     if (G.phaseT >= 3.6) go();
   }
   if (G.T && G.phase !== 'boot') {
-    if (G.phase === 'menu' || G.phase === 'podium' || G.phase === 'loading') { if (G.phase !== 'podium') input.poll(dt); }
-    else simulate(dt);
+    if (G.phase === 'menu' || G.phase === 'podium' || G.phase === 'loading') {
+      const o = input.poll(dt); // gamepad A/Start or Enter confirms the primary button (menu start, results continue)
+      if (o.confirm && G.phaseT > 1.0) { const b = G.phase === 'menu' ? (!menu.el.classList.contains('hide') && $('#sd-start')) : $('#results.show .sd-btn.primary'); if (b) { G.phaseT = 0; b.click(); } }
+    } else if (!G.freeze) simulate(dt);
   }
   if (!G.T) return;
   fleet.sync(G.cars, dt, { reducedMotion: settings.reducedMotion });
   carFx(dt);
-  fx.update(dt); G.world.update(dt, G.time);
+  fx.update(dt, camera); G.world.update(dt, G.time);
   updateCamera(dt); applyShake(camera, dt);
   atm.follow(G.phase === 'podium' ? G.podiumCtr : G.player || camera.position);
   const racing = G.phase === 'race' || G.phase === 'countdown' || G.phase === 'finished';
@@ -452,9 +467,10 @@ function carFx(dt) {
     const sliding = c.drift || Math.abs(c.vR) > 4.5; const sp = Math.abs(c.vF);
     for (const sd of [-1, 1]) {
       const wx = c.x - fx_ * 1.38 + rx * 0.85 * sd, wz = c.z - fz_ * 1.38 + rz * 0.85 * sd;
+      const px = wx - fx_ * 1.3 + rx * 0.4 * sd, pz = wz - fz_ * 1.3 + rz * 0.4 * sd; // puffs spawn behind/outside the wheel so the sprites don't slice through the body
       fx.skid(c.id + sd, wx, c.y, wz, (sliding || (c.braking && sp > 18)) && !c.offroad && sp > 6, c.drift ? 0.55 : 0.35);
       const rate = (c.isPlayer ? 16 : 7) * dt;
-      if ((sliding && sp > 8) || (c.offroad && sp > 10)) if (Math.random() < rate) fx.puff(wx, c.y + 0.35, wz, c.vx * 0.3, c.vz * 0.3, c.offroad ? 1.3 : 1, c.offroad ? 0.4 : 0.32);
+      if ((sliding && sp > 8) || (c.offroad && sp > 10)) if (Math.random() < rate) fx.puff(px, c.y + 0.45, pz, c.vx * 0.25, c.vz * 0.25, c.offroad ? 1.1 : 0.85, c.offroad ? 0.3 : 0.24);
       if (c.drift && c.tier > 0 && Math.random() < (c.isPlayer ? 22 : 8) * dt) { const k = TIER_COL[c.tier]; fx.spark(wx, c.y + 0.15, wz, -fx_ * 3 + (Math.random() - 0.5) * 4, 1 + Math.random() * 2.5, -fz_ * 3 + (Math.random() - 0.5) * 4, k[0], k[1], k[2], 0.35); }
     }
   }
@@ -558,7 +574,7 @@ const mirrorUnlocked = () => !!save.cups.sunset && save.cups.sunset <= 3;
 // ---------------------------------------------------------------- probe hooks (headless verification)
 function hooks() {
   return {
-    state: () => ({ phase: G.phase, mode: G.mode, track: G.trackId, reverse: G.reverse, time: +G.time.toFixed(2), lap: G.player?.lap.lap, laps: G.laps, pos: G.order.indexOf(G.player) + 1, kmh: Math.round(Math.abs(G.player?.vF || 0) * 3.6), boost: +(G.player?.boost || 0).toFixed(2), drift: G.player?.drift, dist: Math.round(G.player?.dist || 0), finished: G.player?.finished, best: G.bestLap, results: G.results, standings: G.standings, ghost: G.ghost ? G.ghost.frames.length / 4 : 0, drawCalls: renderer.info.render.drawCalls }),
+    state: () => ({ phase: G.phase, mode: G.mode, track: G.trackId, reverse: G.reverse, time: +G.time.toFixed(2), lap: G.player?.lap.lap, laps: G.laps, pos: G.order.indexOf(G.player) + 1, kmh: Math.round(Math.abs(G.player?.vF || 0) * 3.6), boost: +(G.player?.boost || 0).toFixed(2), drift: G.player?.drift, dist: Math.round(G.player?.dist || 0), finished: G.player?.finished, best: G.bestLap, results: G.results, standings: G.standings, ghost: G.ghost ? G.ghost.frames.length / 4 : 0, ghostPos: G.ghostPos ? [Math.round(G.ghostPos.x), Math.round(G.ghostPos.z)] : null, ghostVisible: !!fleet?.ghost?.visible, drawCalls: renderer.info.render.drawCalls }),
     start: (o = {}) => { if (o.mode === 'gp') { menu.hide(); startCup(o.cup || 'sunset'); } else { G.cup = null; startRace({ mode: o.mode || 'single', trackId: o.track || 'coast', reverse: !!o.reverse }); } return true; },
     skipIntro: () => { if (G.phase === 'intro') beginCountdown(); if (G.phase === 'countdown') { G.phaseT = 3.6; } return G.phase; },
     autopilot: (on = true) => { G.autopilot = on; G.autopilotLock = on; return on; },
@@ -574,6 +590,8 @@ function hooks() {
     pause: (on) => togglePause(on), menu: () => toMenu(), results: () => G.results,
     setPrefs: (o) => Object.assign(prefs, o), save: () => save, cfg: () => cfg,
     podium: () => { if (G.phase === 'race' || G.phase === 'finished') showResults(); return G.phase; },
+    /** Photo mode: {side, up, fwd, lookFwd, lookSide, lookUp, fov, hud:false, freeze:true}; photo(null) restores. */
+    photo: (o) => { G.photo = o; G.freeze = !!(o && o.freeze !== false); hud.show(!o || o.hud); input.showTouch(false); G.camSnap = true; return !!o; },
   };
 }
 

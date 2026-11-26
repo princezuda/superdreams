@@ -28,7 +28,7 @@ export class Input {
     o.brake = k.has('KeyS') || k.has('ArrowDown') ? 1 : 0;
     o.drift = k.has('Space') || k.has('KeyJ');
     o.boost = k.has('ShiftLeft') || k.has('ShiftRight') || k.has('KeyN') || k.has('KeyK');
-    o.reset = this.edge('KeyR'); o.pause = this.edge('Escape', 'KeyP'); o.camera = this.edge('KeyC'); o.look = k.has('KeyB');
+    o.reset = this.edge('KeyR'); o.pause = this.edge('Escape', 'KeyP'); o.confirm = this.edge('Enter', 'NumpadEnter'); o.camera = this.edge('KeyC'); o.look = k.has('KeyB');
     // gamepad
     const pads = navigator.getGamepads?.() || [];
     for (const p of pads) {
@@ -40,7 +40,7 @@ export class Input {
       if (Math.abs(sAx) > Math.abs(o.steer)) o.steer = sAx * Math.abs(sAx) * 0.35 + sAx * 0.65; // slight response curve
       o.throttle = Math.max(o.throttle, b(7)); o.brake = Math.max(o.brake, b(6));
       o.drift = o.drift || pr(0) || pr(1) || pr(5); o.boost = o.boost || pr(2) || pr(4);
-      o.reset = o.reset || ed(3); o.pause = o.pause || ed(9); o.camera = o.camera || ed(8); o.look = o.look || pr(10);
+      o.reset = o.reset || ed(3); o.pause = o.pause || ed(9); o.confirm = o.confirm || ed(0) || ed(9); o.camera = o.camera || ed(8); o.look = o.look || pr(10);
       if (p.buttons[12]?.pressed) o.throttle = 1; if (p.buttons[13]?.pressed) o.brake = 1;
       this.padPrev = p.buttons.map((x) => x.pressed); break;
     }

@@ -1,6 +1,7 @@
 // Apex Drift — runtime SFX on the kit's shared AudioContext: player engine (two detuned oscillators through a
 // throttle-opened low-pass, simulated gears), tyre screech (band-passed noise), boost roar, wind, one-shots.
-// Music is deferred to the Fable pass.
+// FABLE: music — per-track loops + final-lap layer + podium sting go on the same bus (do not open a second AudioContext).
+// FABLE: audio — crowd bed near the start/finish, spatialised rival engines.
 import { audio, voice, settings, sfx } from '/shared/sd-kit.js';
 
 export class RaceAudio {

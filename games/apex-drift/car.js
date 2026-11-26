@@ -35,8 +35,8 @@ function geos() {
   // lights: two headlight strips + full-width LED tail bar (attribute tl: 0 = head, 1 = tail)
   const parts = [];
   for (const sx of [-0.62, 0.62]) { const h = new THREE.BoxGeometry(0.46, 0.08, 0.16).toNonIndexed(); h.rotateY(sx > 0 ? 0.32 : -0.32); h.translate(sx, 0.6, 2.18); parts.push([h, 0]); }
-  const tail = new THREE.BoxGeometry(1.4, 0.06, 0.06).toNonIndexed(); tail.translate(0, 0.74, -2.27); parts.push([tail, 1]);
-  for (const sx of [-0.7, 0.7]) { const c = new THREE.BoxGeometry(0.16, 0.2, 0.07).toNonIndexed(); c.translate(sx, 0.68, -2.25); parts.push([c, 1]); }
+  const tail = new THREE.BoxGeometry(1.36, 0.07, 0.06).toNonIndexed(); tail.translate(0, 0.72, -2.29); parts.push([tail, 1]);
+  for (const sx of [-0.66, 0.66]) { const c = new THREE.BoxGeometry(0.2, 0.24, 0.07).toNonIndexed(); c.translate(sx, 0.64, -2.27); parts.push([c, 1]); }
   const lg = mergeGeometries(parts.map(([g, t]) => { g.deleteAttribute('uv'); g.setAttribute('tl', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(t), 1)); return g; }));
   GEO = { body: bodyG, cabin, lights: lg };
   return GEO;
@@ -48,8 +48,11 @@ export function makePaint(color, accent) {
   const p = positionGeometry, top = smoothstep(0.3, 0.6, normalGeometry.y);
   const stripe = step(abs(abs(p.x).sub(0.2)), 0.075).mul(top).mul(step(p.y, 1.1));
   const trim = smoothstep(0.36, 0.33, p.y);
-  m.colorNode = mix(mix(uPaint, uAccent, stripe), vec3(0.03, 0.03, 0.035), trim);
-  m.roughnessNode = mix(float(0.3), float(0.6), trim);
+  // gloss-black rear panel around the LED bar, and a black lower trim / diffuser
+  const rear = smoothstep(-0.55, -0.75, normalGeometry.z).mul(step(0.44, p.y)).mul(step(p.y, 0.84));
+  const dark = max(trim, rear);
+  m.colorNode = mix(mix(uPaint, uAccent, stripe), vec3(0.025, 0.025, 0.03), dark);
+  m.roughnessNode = mix(float(0.3), mix(float(0.6), float(0.15), rear), dark);
   return { m, uPaint, uAccent };
 }
 
@@ -120,9 +123,10 @@ export class Fleet {
       V.roll += (Math.max(-0.075, Math.min(0.075, -latA * 0.0032)) - V.roll) * k1;
       V.pitch += (Math.max(-0.04, Math.min(0.04, -acc * 0.0016)) - V.pitch) * k1;
       const hop = c.hop > 0 ? Math.sin(c.hop * Math.PI) * 0.16 : 0;
+      // FABLE: animation — real suspension (per-wheel compression over kerbs), wheel blur at speed, damage scuffs on big hits.
       V.g.position.set(c.x, c.y + hop, c.z); V.g.rotation.set(-Math.atan(gradeAlong), c.yaw, 0, 'YXZ');
       V.tilt.rotation.set(reducedMotion ? 0 : V.pitch, 0, reducedMotion ? 0 : V.roll);
-      V.uBrake.value = c.braking ? 1.6 : 0.4;
+      V.uBrake.value = c.braking ? 1.9 : 0.75;
       V.spin += c.vF * dt / WHEEL_R; V.steerVis += ((c.drift ? -c.drift * 0.25 : c.steer * 0.42) - V.steerVis) * Math.min(1, dt * 10);
       V.g.updateMatrixWorld();
       for (const [sx, sz, front] of [[TRACKW, AXLE, 1], [-TRACKW, AXLE, 1], [TRACKW, -AXLE, 0], [-TRACKW, -AXLE, 0]]) {
