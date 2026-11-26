@@ -58,7 +58,8 @@ function build() {
       inp = document.createElement('select'); inp.id = id;
       for (const c of f.choices || []) { const cv = typeof c === 'object' ? (c.v ?? c.value) : c; const o = new Option(typeof c === 'object' ? (c.label ?? cv) : c, cv); o.selected = String(cv) === String(v); inp.add(o); }
       inp.onchange = () => { setP(config, f.key, inp.value); push(); };
-    } else if (f.type === 'color') { inp = Object.assign(document.createElement('input'), { type: 'color', id, value: v || '#888888' }); inp.oninput = () => { setP(config, f.key, inp.value); push(); }; }
+    } else if (f.type === 'color') { inp = Object.assign(document.createElement('input'), { type: 'color', id, value: v || '#888888' }); inp.oninput = () => { setP(config, f.key, inp.value); push(); };
+      if (getP(DEFAULTS, f.key) === '') { const w = document.createElement('span'); const r = Object.assign(document.createElement('button'), { type: 'button', className: 'chip', textContent: 'Theme' }); r.onclick = () => { setP(config, f.key, ''); inp.value = '#888888'; push(); }; w.append(inp, r); inp = w; } }
     else if (f.type === 'range') { inp = Object.assign(document.createElement('input'), { type: 'range', id, min: f.min ?? 0, max: f.max ?? 10, step: f.step ?? 1, value: v ?? f.default ?? 0 }); inp.oninput = () => { setP(config, f.key, +inp.value); push(); }; }
     else if (f.type === 'bool') { inp = Object.assign(document.createElement('input'), { type: 'checkbox', id, checked: !!v }); inp.onchange = () => { setP(config, f.key, inp.checked); push(); }; }
     else { inp = Object.assign(document.createElement('input'), { type: 'text', id, value: v ?? '', maxLength: 80 }); inp.oninput = () => { setP(config, f.key, inp.value); push(); }; }

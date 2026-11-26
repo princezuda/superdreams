@@ -50,7 +50,7 @@ function sanitize_config(array $game, array $cfg): array {
     if (!$ok) continue;
     $type = $r['type'] ?? 'choice';
     if ($type === 'choice') { $vals = array_map(fn($c) => is_array($c) ? ($c['v'] ?? $c['value'] ?? null) : $c, $r['choices'] ?? []); if (!in_array($v, $vals, true)) continue; }
-    elseif ($type === 'color') { if (!is_string($v) || !preg_match('/^#[0-9a-fA-F]{6}$/', $v)) continue; }
+    elseif ($type === 'color') { if (!is_string($v) || ($v !== '' && !preg_match('/^#[0-9a-fA-F]{6}$/', $v))) continue; /* '' = theme default */ }
     elseif ($type === 'range') { if (!is_numeric($v)) continue; $v = max($r['min'] ?? -1e9, min($r['max'] ?? 1e9, $v + 0)); }
     elseif ($type === 'bool') { $v = (bool) $v; }
     elseif ($type === 'text') { if (!is_string($v)) continue; $v = mb_substr($v, 0, 80); }
