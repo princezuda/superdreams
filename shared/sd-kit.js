@@ -185,6 +185,9 @@ addEventListener('pointerdown', unlock, { once: false, passive: true });
 addEventListener('keydown', unlock, { once: false });
 function noiseBuf() { const b = actx.createBuffer(1, actx.sampleRate * 0.5, actx.sampleRate); const d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; return b; }
 let nb = null;
+/** Shared audio graph: games add music/ambience here instead of opening a second AudioContext. */
+export function audio() { unlock(); return { ctx: actx, master }; }
+export { voice };
 function voice({ type = 'sine', f0 = 440, f1 = f0, dur = 0.15, vol = 0.3, noise = false, filter = null, attack = 0.005 }) {
   if (!actx || settings.volume <= 0) return;
   master.gain.value = settings.volume;

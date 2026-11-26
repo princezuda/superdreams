@@ -47,7 +47,7 @@ Three jobs: **apply the quality bar** by default, **speak the language** (`gloss
 
 ## 3. Delivery format
 - **Single page per game**, ES modules, import map, no build step; may split into modules in the game's folder. Procedural geometry + canvas-painted textures by default; CC0/CC-BY assets allowed when they look better (credit page required; verify the *subject*, not the filename; never No-Derivatives).
-- **A shared kit beats re-deriving the stack per game.** Superdreams uses `/shared/sd-kit.js`: `createRenderer`, `createPipeline` (RenderPipeline + bloom), `probe`, `startLoop` (Timer), `stageLights`, `spaceBackground`, `dust`, `canvasTexture`, `tween/ease`, `shake/flash`, `sfx`, `loadDream` (remix config), `startMenu` (`#menu`), `settingsButton`, `store`.
+- **A shared kit beats re-deriving the stack per game.** Superdreams uses `/shared/sd-kit.js`: `createRenderer`, `createPipeline` (RenderPipeline + bloom), `probe`, `startLoop` (Timer), `stageLights`, `spaceBackground`, `dust`, `canvasTexture`, `tween/ease`, `shake/flash`, `sfx`, `audio()` (shared ctx + master gain; never open a second AudioContext), `voice`, `loadDream` (remix config), `startMenu` (`#menu`), `settingsButton`, `store`.
 - **Remix-ready ("redreams")**: every tunable lives in one `defaults` object; a `meta.json` remix schema (`choice | color | range | bool | text`, dotted keys) declares what players may change; the game merges `?dream=<base64url json>` / saved redreams / live `postMessage` over the defaults and re-applies live where feasible. The server sanitizes configs against the schema.
 - **Animation & music**: if your tier can't do them well, build everything else, leave `// FABLE:` markers, and batch them into one later pass.
 
@@ -73,6 +73,7 @@ Three jobs: **apply the quality bar** by default, **speak the language** (`gloss
 - Merge static parts per material across a hierarchy (a landmark ≈ 6 draw calls). Picking on terrain: ray-march the heightfield instead of raycasting the mesh.
 - Split-screen: two `pass()` nodes composited by `screenUV.x` so one bloom covers both halves. Orthographic/iso cameras: draw the sky gradient in screen space, not as a dome.
 - Distance haze with a blue shift: `scene.fogNode`.
+- Space (overrides the older space skill): planet surface, clouds, city lights and atmosphere in **one TSL shader** (no CPU-baked textures, no separate cloud shell — it z-fights at range); atmosphere glow peaks at the limb, not the outer edge; ships need a rim light + emissive trim (near-zero ambient makes them unreadable); cockpit as a separate pass blended over the world fixes depth precision; speed dust as stretched lines wrapped around the camera; merge kitbash struts per material.
 - FPS viewmodel: scale the gun ~0.3 and keep it inside the player's collision radius (no wall clipping); align sights to the camera ray for ADS; one shared muzzle-flash light keeps the light count constant.
 - Crowds of humanoids: instanced body parts posed by 2-bone IK; ray hits via a spatial grid, not scene-wide raycasts. Add a `sim(seconds)` hook so headless tests can fast-forward play.
 - Procedural space backdrops: a TSL `scene.backgroundNode` from `positionWorldDirection` (hashed star cells + fractal-noise nebula) costs zero draw calls and never tiles.
