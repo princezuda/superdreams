@@ -11,7 +11,9 @@ if (!empty($_GET['redream'])) {
   if ($redream) db()->prepare('UPDATE redreams SET plays = plays + 1 WHERE id = ?')->execute([$redream['id']]);
 }
 $config = array_replace_recursive(remix_defaults($g), $redream ? (json_decode($redream['config'], true) ?: []) : []);
-$src = $g['url'] . ($redream ? '?redream=' . rawurlencode($redream['id']) : '');
+// ?dream=<base64url config> (e.g. from the Dream Catcher) passes straight through; games sanitize it via their own defaults.
+$dreamParam = preg_match('/^[A-Za-z0-9_-]{1,4000}$/', (string) ($_GET['dream'] ?? '')) ? $_GET['dream'] : null;
+$src = $g['url'] . ($redream ? '?redream=' . rawurlencode($redream['id']) : ($dreamParam ? '?dream=' . $dreamParam : ''));
 ob_start(); $u = page_head(($redream['title'] ?? null) ?: $g['title'], '/', $g['tagline'] ?? ''); $head = ob_get_clean();
 echo str_replace('<body>', '<body class="play">', $head);
 ?>

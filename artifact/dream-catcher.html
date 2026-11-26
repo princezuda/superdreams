@@ -1,0 +1,139 @@
+<title>Super Dreams Dream Catcher</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: one night-sky column. A chat with the Dream Catcher on top, the wallet and wish list beside it on wide screens. Deliberately single (dark) theme to match the Super Dreams site. */
+:root{--bg:#070814;--panel:#121531;--panel2:#191d42;--line:rgba(160,180,255,.18);--line2:rgba(190,205,255,.34);--fg:#eef1ff;--mute:#a7add3;--gold:#ffd27a;--pink:#ff7ad9;--sky:#7ac8ff;--ok:#5fe0a0;--warn:#ffb35c;--bad:#ff6b7a;--display:"Space Grotesk",system-ui,sans-serif;--body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark}
+body{background:radial-gradient(900px 500px at 10% -10%,rgba(139,107,255,.26),transparent 60%),radial-gradient(700px 420px at 100% 0%,rgba(255,122,217,.14),transparent 60%),var(--bg);color:var(--fg);font:15px/1.55 var(--body);min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr)}}
+h1,h2{font-family:var(--display);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(28px,5vw,40px)}h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--pink) 50%,var(--sky));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{color:var(--mute);margin:8px 0 18px;max-width:62ch}
+.chat{display:flex;flex-direction:column;gap:12px;min-width:0}
+.msg{max-width:min(640px,94%);padding:12px 16px;border-radius:16px;background:var(--panel);border:1px solid var(--line);min-width:0;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:#25205a;border-color:rgba(150,140,255,.4)}
+.who{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.badge{display:inline-block;padding:2px 8px;border-radius:8px;font:600 12px var(--body);border:1px solid var(--line2);margin-bottom:6px}
+.badge.ok{color:var(--ok);border-color:rgba(95,224,160,.45)}.badge.warn{color:var(--warn);border-color:rgba(255,179,92,.45)}.badge.bad{color:var(--bad);border-color:rgba(255,107,122,.45)}
+.plan{margin:8px 0 0;padding-left:18px;color:#d5d9f5}.plan li{margin:2px 0}
+pre{background:#0b0d22;border:1px solid var(--line);border-radius:10px;padding:10px;overflow-x:auto;font-size:12px;margin:8px 0 0}
+form{display:flex;gap:8px;margin-top:16px;padding:8px;border-radius:16px;background:var(--panel);border:1px solid var(--line2)}
+form:focus-within{border-color:rgba(255,210,122,.6)}
+textarea{flex:1;min-width:0;background:transparent;border:0;color:var(--fg);font:inherit;font-size:16px;padding:8px 10px;resize:vertical;min-height:48px;outline:none}
+.btn{min-height:44px;padding:10px 16px;border-radius:12px;border:1px solid var(--line2);background:var(--panel2);color:var(--fg);font:600 14px var(--body);cursor:pointer}
+.btn:hover{border-color:rgba(220,225,255,.55)}.btn:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn.primary{background:linear-gradient(135deg,#6a5cff,#c04dff);border-color:transparent}.btn[disabled]{opacity:.5;cursor:not-allowed}
+.side{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card h2{font-size:16px;margin-bottom:8px}
+.wallet{display:flex;align-items:center;gap:10px;font:700 28px var(--display);font-variant-numeric:tabular-nums}
+.coin{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3c4,var(--gold) 45%,#b07a16)}
+.note{font-size:12.5px;color:var(--mute)}
+.wish{padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}.wish:first-of-type{border-top:0}
+.ex{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.ex button{font:500 12.5px var(--body);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer}.ex button:hover{color:var(--fg);border-color:var(--line2)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <main>
+    <h1>Tell the <em>Dream Catcher</em> your game.</h1>
+    <p class="lede">Describe a game, or how you'd change one of ours. Restyles are free. New features cost 25 credits and brand-new games cost 60. If your dream can't be built, you're offered the closest version, and you keep your credits if you'd rather not.</p>
+    <div class="chat" id="chat" aria-live="polite">
+      <div class="msg"><div class="who">Dream Catcher</div>I'm Super Dreams' Dream Catcher. I transform your dreams into reality. What should we make?</div>
+    </div>
+    <form id="ask"><textarea id="text" maxlength="2000" placeholder="Checkers where captured pieces leave graves that fade after three turns" aria-label="Your dream"></textarea><button class="btn primary" id="send">Send</button></form>
+    <div class="ex" id="examples">
+      <button type="button">Chess in space with starship pieces</button>
+      <button type="button">A 90s-style space trader where I dogfight pirates and build a city on a planet</button>
+      <button type="button">An MMO with thousands of players</button>
+      <button type="button">Who are you?</button>
+    </div>
+    <p class="note" id="status">Every game is PG-13. Credits are a free preview currency for now.</p>
+  </main>
+  <aside class="side">
+    <div class="card"><h2>Your credits</h2><div class="wallet"><span class="coin"></span><span id="credits">100</span></div><p class="note">Preview credits, kept in this browser. Declining a compromise returns them.</p></div>
+    <div class="card"><h2>Notify me when possible</h2><div id="wishes"><p class="note">Dreams you asked to hear about will show here.</p></div></div>
+  </aside>
+</div>
+
+<script>
+// ---- launch catalog the Dream Catcher can remix (mirrors games/*/meta.json on the site)
+const CATALOG = [
+  { id: 'chess', title: 'Chess: Worlds', genre: 'Board / Strategy', remix: { theme: ['classic', 'space', 'galaxy', 'scifi', 'fantasy', 'magic'], variant: ['standard', 'chess960'], mode: ['ai', 'local'], aiLevel: ['easy', 'medium', 'hard', 'master'], 'colors.light|dark|whitePieces|blackPieces|accent': 'hex' } },
+  { id: 'checkers', title: 'Checkers: Event Horizon', genre: 'Board / Strategy', remix: { mode: ['normal', 'blackholes', 'graves', 'meteors', 'portals'], theme: ['classic', 'space', 'fantasy', 'neon'], opponent: ['ai', 'local'], aiLevel: ['easy', 'medium', 'hard', 'master'], flyingKings: 'bool', 'colors.light|dark|red|black|accent': 'hex' } },
+];
+const RULES = `You are the Super Dreams "Dream Catcher". If asked who you are, say: "I'm Super Dreams' Dream Catcher — I transform your dreams into reality."
+Super Dreams serves only finished AA/AAA-quality browser games (three.js 3D, or 2D canvas where sprites are better), PG-13 only. NEVER sexual content or erotica; no gore/torture/real atrocities; no hate; no real-money gambling; no other studios' characters, names or worlds (offer an original game in the same genre instead).
+Browser limits that make a request IMPOSSIBLE (offer a compromise): massive real-time multiplayer (MMO, 100+ live players), VR-headset-only, voice/video chat, console releases, movie-length cinematics, real-money payouts.
+Pricing: remix of an existing game using only its remix options = 0 credits; a new feature/mode/level pack on an existing game = 25; a brand-new game = 60.
+Decide if a new game needs levels, and name the genre flow (core loop) it will follow. Target session length: casual ~5-15 min, board ~10-30, action/RPG/adventure 30-60+. Aim for fun, not addictive loops.
+Launch catalog (remix options): ${JSON.stringify(CATALOG)}
+Reply with ONLY one JSON object:
+{"verdict":"identity|remix|build|compromise|rejected|clarify","reply":"1-3 friendly sentences to the player","template":"catalog id or null","config":{remix option values} or null,"compromise":"what you can build instead, or null","cost":0|25|60,"levels":true|false|null,"genreFlow":"short core loop or null","plan":["3-6 short build steps"] or []}
+"remix" only when every change maps to the catalog options above (config uses those keys; colors as "#rrggbb"). "clarify" when the request is too vague to build (cost 0).`;
+
+const $ = (id) => document.getElementById(id);
+const store = { get(k, d) { try { return JSON.parse(localStorage.getItem('sd-dc-' + k)) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem('sd-dc-' + k, JSON.stringify(v)); } catch {} } };
+let credits = store.get('credits', 100), wishes = store.get('wishes', []);
+const renderSide = () => {
+  $('credits').textContent = credits;
+  const box = $('wishes'); box.textContent = '';
+  if (!wishes.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Dreams you asked to hear about will show here.'; box.appendChild(p); return; }
+  wishes.slice(-6).reverse().forEach((w) => { const d = document.createElement('div'); d.className = 'wish'; d.textContent = w; box.appendChild(d); });
+};
+renderSide();
+
+function say(me, build) {
+  const d = document.createElement('div'); d.className = 'msg' + (me ? ' me' : '');
+  const who = document.createElement('div'); who.className = 'who'; who.textContent = me ? 'You' : 'Dream Catcher'; d.appendChild(who);
+  build(d); $('chat').appendChild(d); d.scrollIntoView({ behavior: 'smooth', block: 'end' }); return d;
+}
+const text = (el, t, cls) => { const s = document.createElement(cls ? 'span' : 'div'); if (cls) s.className = cls; s.textContent = t; el.appendChild(s); return s; };
+const btn = (label, primary, onclick) => { const b = document.createElement('button'); b.className = 'btn' + (primary ? ' primary' : ''); b.type = 'button'; b.textContent = label; b.onclick = onclick; return b; };
+const ERR = { not_granted: 'Claude access was declined for this page, so the Dream Catcher can\'t answer here.', rate_limited: 'Too many dreams at once. Wait a moment, then send again.', refused: 'I can\'t help with that one. Try a different dream.', invalid_json: 'My answer came out garbled. Send it again.', session_expired: 'Your session expired. Sign in again, then resend.' };
+
+let sample = null;
+claude.use('sample').then((s) => { sample = s; if (!s) { $('status').textContent = 'The Dream Catcher needs Claude, which isn\'t available in this view.'; $('send').disabled = true; } });
+
+async function ask(input) {
+  if (!sample) return;
+  say(true, (d) => text(d, input));
+  const wait = say(false, (d) => text(d, 'Thinking…', 'note'));
+  $('send').disabled = true;
+  let v;
+  try { v = await sample.json(RULES + '\n\nPlayer request:\n' + input.slice(0, 2000)); }
+  catch (e) { wait.remove(); say(false, (d) => text(d, ERR[e.code] || 'Something went wrong reaching Claude. Send it again in a moment.')); $('send').disabled = false; return; }
+  wait.remove(); $('send').disabled = false;
+  if (!v || typeof v !== 'object') { say(false, (d) => text(d, ERR.invalid_json)); return; }
+  const cost = [0, 25, 60].includes(+v.cost) ? +v.cost : 0;
+  say(false, (d) => {
+    const labels = { remix: ['Ready now · free', 'ok'], build: [`Building · ${cost} credits`, 'ok'], compromise: [`Compromise · ${cost} credits held`, 'warn'], rejected: ['Not allowed', 'bad'], clarify: ['Tell me more', 'warn'] }[v.verdict];
+    if (labels) { text(d, labels[0], 'badge ' + labels[1]); }
+    text(d, String(v.reply || ''));
+    if (v.genreFlow) text(d, 'Core loop: ' + v.genreFlow + (v.levels === true ? ' · with levels' : v.levels === false ? ' · no levels needed' : ''), 'note');
+    if (Array.isArray(v.plan) && v.plan.length) { const ul = document.createElement('ol'); ul.className = 'plan'; v.plan.slice(0, 6).forEach((p) => { const li = document.createElement('li'); li.textContent = String(p); ul.appendChild(li); }); d.appendChild(ul); }
+    if (v.verdict === 'remix' && v.config && typeof v.config === 'object') { const pre = document.createElement('pre'); pre.textContent = JSON.stringify({ game: v.template, config: v.config }, null, 2); d.appendChild(pre); }
+    const row = document.createElement('div'); row.className = 'row';
+    if (v.verdict === 'build' && cost) {
+      if (credits < cost) text(d, `You need ${cost} credits and have ${credits}.`, 'note');
+      else { credits -= cost; store.set('credits', credits); renderSide(); }
+    }
+    if (v.verdict === 'compromise') {
+      let held = 0;
+      if (credits >= cost) { credits -= cost; held = cost; store.set('credits', credits); renderSide(); }
+      row.append(
+        btn('Build the compromise', true, () => { row.querySelectorAll('button').forEach((b) => b.disabled = true); say(false, (m) => text(m, 'Great. The compromise is in the build queue.')); }),
+        btn('No thanks, keep my credits', false, () => { row.querySelectorAll('button').forEach((b) => b.disabled = true); credits += held; store.set('credits', credits); renderSide(); say(false, (m) => text(m, `Done. Your ${held} credits are back.`)); }),
+        btn('Notify me if it becomes possible', false, (e) => { e.target.disabled = true; wishes.push(input.slice(0, 140)); store.set('wishes', wishes); renderSide(); }),
+      );
+    }
+    if (row.childElementCount) d.appendChild(row);
+  });
+}
+$('ask').addEventListener('submit', (e) => { e.preventDefault(); const t = $('text').value.trim(); if (!t) return; $('text').value = ''; ask(t); });
+$('text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('ask').requestSubmit(); } });
+$('examples').addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') ask(e.target.textContent); });
+</script>
