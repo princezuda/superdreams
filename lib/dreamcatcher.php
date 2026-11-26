@@ -33,6 +33,10 @@ const DC_GENRES = [ // game id => request keywords (ids must match games/<id>/)
   'prism-breaker' => ['breakout', 'brick', 'paddle', 'arkanoid', 'bricks'],
   'skystack' => ['stack', 'tower', 'one tap', 'one-tap', 'stacker'],
   'solitaire' => ['solitaire', 'klondike', 'freecell', 'spider', 'patience', 'cards', 'card game'],
+  'apex-drift' => ['race', 'racing', 'racer', 'kart', 'car', 'drift', 'grand prix', 'time trial', 'lap'],
+  'pebble-peaks' => ['platformer', 'jump', 'collectathon', 'mascot', 'side scroller', 'side-scroller', '3d platform'],
+  'lantern-hold' => ['tower defense', 'tower defence', 'towers', 'waves of enemies', 'defend the'],
+  'emberwake' => ['rpg', 'jrpg', 'role playing', 'role-playing', 'party', 'turn based', 'turn-based', 'dungeon'],
   'drift-snake' => ['snake', 'neon', 'tron', 'light cycle', 'slither'],
 ];
 
