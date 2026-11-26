@@ -90,16 +90,31 @@ function play(seed, type, days = 50, log = false) {
   for (let d = 0; d < days; d++) {
     for (let h = 0; h < 24; h++) S.simHour(st);
     const sp = p.stats, portCost = S.costOf(st, 'spaceport', p);
-    for (let guard = 0; guard < 4; guard++) {
-      if (sp.powerOk < 1 && st.money > 6000 && !p.buildings.some((b) => b.kind === 'power' && b.built < 1)) { const b = spot('power'); if (b) { S.placeBuilding(st, p, 'power', b.x, b.z); S.computeCity(st, p); continue; } }
-      if (sp.waterOk < 1 && st.money > 4000 && !p.buildings.some((b) => b.kind === 'water' && b.built < 1)) { const b = spot('water'); if (b) { S.placeBuilding(st, p, 'water', b.x, b.z); S.computeCity(st, p); continue; } }
-      if (sp.turnedAway > sp.visitors * 0.25 && st.money >= portCost + 1000 && !p.buildings.some((b) => b.kind === 'spaceport' && b.built < 1)) { const b = spot('spaceport'); if (b && S.placeBuilding(st, p, 'spaceport', b.x, b.z).ok) { S.computeCity(st, p); continue; } }
+    const building = (k) => p.buildings.some((b) => b.kind === k && b.built < 1);
+    const place1 = (k) => { const b = spot(k); if (b && S.placeBuilding(st, p, k, b.x, b.z).ok) { S.computeCity(st, p); return true; } return false; };
+    for (let guard = 0; guard < 6; guard++) {
+      // 1 utilities
+      if (sp.powerOk < 1 && st.money > 6000 && !building('power') && place1('power')) continue;
+      if (sp.waterOk < 1 && st.money > 4000 && !building('water') && place1('water')) continue;
+      // 2 landing slots: if ships are being turned away, save for a port before anything else
+      const portNeed = sp.turnedAway > sp.visitors * 0.2 && !building('spaceport');
+      if (portNeed) { if (st.money >= portCost + 500 && place1('spaceport')) continue; break; }
+      // 3 transit for every landmark that lacks it (cheap, +reviews +capacity)
+      const noT = p.landmarks.find((l) => l.built >= 1 && !l.transit);
+      if (noT && st.money > 3500) { let best = null; for (let z = noT.z - 3; z <= noT.z + noT.s + 2; z++) for (let x = noT.x - 3; x <= noT.x + noT.s + 2; x++) if (S.canPlace(p, 'transit', x, z).ok && S.roadAdjacent(p, x, z, 1)) { best = { x, z }; break; } if (best && S.placeBuilding(st, p, 'transit', best.x, best.z).ok) { S.computeCity(st, p); continue; } }
+      // 4 beds: hotels on spare road frontage when fewer than 60% of visitors find a bed
+      if (sp.visitors > 30 && sp.beds / 2 < sp.visitors * 0.6 && st.money > 5000 && place1('hotel')) continue;
+      // 5 jobs/homes balance and happiness
+      if (sp.pop > 0 && sp.jobs < sp.pop * 0.7 && st.money > 2500 && place1('shop')) continue;
+      if (sp.happiness < 55 && st.money > 1200 && place1('park')) continue;
+      // 6 the next wonder (save for it)
       if (lmTry()) continue;
       const nextLm = st.unlocked.filter((id) => !p.landmarks.some((l) => l.kind === id)).map((id) => S.costOf(st, id, p)).sort((a, b) => a - b)[0];
-      if (st.money > (nextLm ? Math.min(nextLm * 0.6, nextLm - st.money > 0 ? 9e9 : 0) + 7000 : 7000) || (st.money > 7000 && (sp.jobs < sp.pop * 0.6 || d % 4 === 0))) { if (needFree(6).length <= 4) break; const b = needFree(2)[1] || needFree(1)[0]; if (b) { fillBlock(st, p, b, sp.overnight < sp.visitors * 0.5 ? M.stay : sp.jobs > sp.pop ? M.homes : M.mixed); S.computeCity(st, p); continue; } }
+      if (nextLm && st.money < nextLm + 2000 && st.money > 0.35 * nextLm) break; // saving up
+      // 7 grow the city when flush
+      if (st.money > 9000 && needFree(6).length > 4) { const b = needFree(2)[1] || needFree(1)[0]; if (b) { fillBlock(st, p, b, sp.jobs > sp.pop ? M.homes : M.mixed); S.computeCity(st, p); continue; } }
       break;
     }
-    if (st.day % 6 === 0 && p.landmarks.length && st.money > 9000) S.holdFestival(st, p, p.landmarks[0]);
     const lb = S.leaderboard(st);
     if (st.totalVisitors >= 1000 && k1 == null) k1 = st.day;
     if (st.milestones.mostVisited && won == null) won = st.day;
