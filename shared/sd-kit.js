@@ -17,6 +17,7 @@ export const settings = Object.assign({
   shake: true, flash: true, colorblind: false, volume: 0.7, quality: 'high',
   reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
 }, readLS(SKEY) || {});
+{ const q = new URLSearchParams(location.search).get('q'); if (q === 'low' || q === 'high') settings.quality = q; } // ?q=low for tests/slow devices (not saved)
 export const saveSettings = () => writeLS(SKEY, settings);
 export const store = { get: (k, d = null) => readLS('sd-' + k) ?? d, set: (k, v) => writeLS('sd-' + k, v) };
 
