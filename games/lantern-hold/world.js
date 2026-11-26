@@ -212,7 +212,7 @@ export function buildWorld(scene, L, map, cfg) {
     const runes = smoothstep(0.35, 0.6, sin(atan(uv().y.sub(0.5), uv().x.sub(0.5)).mul(12).add(time.mul(0.6)))).mul(smoothstep(0.55, 0.62, d)).mul(smoothstep(0.7, 0.64, d));
     const pulse = sin(time.mul(3)).mul(0.25).add(0.75);
     const a = band.add(runes.mul(0.6)).mul(st).mul(pulse);
-    ringMat.colorNode = vec3(flowCol).mul(a).mul(2.6); ringMat.opacityNode = clamp(a, 0, 1);
+    ringMat.colorNode = vec3(flowCol).mul(a).mul(0.95); ringMat.opacityNode = clamp(a, 0, 1);
   }
   const ringGeo = keep(new THREE.PlaneGeometry(1.7, 1.7)); ringGeo.rotateX(-Math.PI / 2);
   const ringMesh = new THREE.InstancedMesh(ringGeo, ringMat, pads.length);
@@ -291,6 +291,7 @@ export function buildWorld(scene, L, map, cfg) {
   }
 
   // ---- ambient particles (fireflies / snow / embers): one instanced billboard set
+  // FABLE: music/ambience — per-biome soundscape (crickets + owls / ice creak + wind / lava bubbling) layered with the music bed.
   const AMB = { fireflies: 34, snow: 170, embers: 90 }[B.ambient];
   const ambMat = keep(new THREE.MeshBasicNodeMaterial({ transparent: true, depthWrite: false, blending: B.ambient === 'snow' ? THREE.NormalBlending : THREE.AdditiveBlending }));
   {

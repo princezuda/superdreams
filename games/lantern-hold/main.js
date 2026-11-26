@@ -36,6 +36,7 @@ function sanitize(c) {
 let cfg = sanitize(await loadDream(DEFAULTS, (live) => applyLive(sanitize(live))));
 const PKEY = 'lantern-hold-progress-v1', RKEY = 'lantern-hold-run-v1';
 const progress = Object.assign({ stars: {}, endless: {}, seen: [], tutDone: false, diff: cfg.difficulty }, store.get(PKEY, {}) || {});
+if (cfg.difficulty !== DEFAULTS.difficulty) progress.diff = cfg.difficulty; // a remix that sets difficulty wins over the stored choice
 const saveProgress = () => store.set(PKEY, progress);
 
 // ---------------------------------------------------------------- renderer + scene
@@ -103,15 +104,17 @@ function fitCamera() {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   camS.portrait = innerHeight > innerWidth * 1.05;
   camS.az = camS.portrait ? Math.PI / 2 : 0;
-  camS.polar = camS.portrait ? 0.62 : 0.74;
+  camS.polar = camS.portrait ? 0.5 : 0.74;
   const topM = 70 / innerHeight * 2, botM = (camS.portrait ? 84 : 70) / innerHeight * 2;
-  const pts = [[-EXTENT.x, 0, -EXTENT.z], [EXTENT.x, 0, -EXTENT.z], [-EXTENT.x, -1.2, EXTENT.z], [EXTENT.x, -1.2, EXTENT.z], [-EXTENT.x, 1.5, -EXTENT.z], [EXTENT.x, 1.5, -EXTENT.z]];
+  // portrait frames the playable band (roads + build spots); the outer forest and cliffs may crop at the sides
+  const ZW = camS.portrait ? 9.4 : EXTENT.z;
+  const pts = [[-EXTENT.x, 0, -ZW], [EXTENT.x, 0, -ZW], [-EXTENT.x, -1.2, ZW], [EXTENT.x, -1.2, ZW], [-EXTENT.x, 1.5, -ZW], [EXTENT.x, 1.5, -ZW], [-EXTENT.x, 0, ZW], [EXTENT.x, 0, ZW]];
   const tx = camS.tx, tz = camS.tz; camS.tx = 0; camS.tz = camS.portrait ? 0 : 0.4;
   let lo = 10, hi = 160;
   for (let it = 0; it < 26; it++) {
     const d = (lo + hi) / 2; placeCamera(d);
     let ok = true;
-    for (const p of pts) { _v.set(...p).project(camera); if (Math.abs(_v.x) > (camS.portrait ? 1.06 : 0.97) || _v.y > 1 - topM || _v.y < -1 + botM) { ok = false; break; } }
+    for (const p of pts) { _v.set(...p).project(camera); if (Math.abs(_v.x) > (camS.portrait ? 1.0 : 0.97) || _v.y > 1 - topM || _v.y < -1 + botM) { ok = false; break; } }
     if (ok) hi = d; else lo = d;
   }
   camS.fit = hi; camS.tx = tx; camS.tz = tz; clampPan();
@@ -235,7 +238,7 @@ function openPad(i) {
     const t = S.towerById(G, tid); sel.tower = tid;
     const opts = S.upgradeOptions(t);
     if (t.tier < 2) addBtn('up', -90, UI_ICON.up, opts[0].cost, ROMAN[t.tier + 1]);
-    else if (!t.branch) { addBtn('A', -132, branchIcon(t.type, 'A'), opts[0].cost, opts[0].name.split(' ')[0]); addBtn('B', -48, branchIcon(t.type, 'B'), opts[1].cost, opts[1].name.split(' ')[0]); }
+    else if (!t.branch) { addBtn('A', -132, branchIcon(t.type, 'A'), opts[0].cost, TOWERS[t.type].branches.A.short); addBtn('B', -48, branchIcon(t.type, 'B'), opts[1].cost, TOWERS[t.type].branches.B.short); }
     addBtn('sell', 90, UI_ICON.sell, '+' + S.sellValue(t), 'Sell', true);
     if (TOWERS[t.type].kind === 'shooter') addBtn('mode', 180, UI_ICON.target, null, t.mode[0].toUpperCase() + t.mode.slice(1));
     if (TOWERS[t.type].kind === 'barracks') addBtn('rally', 0, UI_ICON.flag, null, 'Rally');
@@ -264,7 +267,7 @@ function previewPick(key) {
   }
 }
 function clickPick(key) {
-  const G = app.G; if (!G || sel.pad < 0) return;
+  const G = app.G; if (!G || sel.pad < 0 || !rbtns.some((r) => r.key === key)) return;
   if (key === 'mode') { const t = S.towerById(G, sel.tower); const m = TARGET_MODES[(TARGET_MODES.indexOf(t.mode) + 1) % 3]; S.setMode(G, t.id, m); sfx.click(); const b = rbtns.find((r) => r.key === 'mode'); if (b) b.el.querySelector('.lbl').textContent = m[0].toUpperCase() + m.slice(1); showTowerInfo(t, null, 'mode'); return; }
   if (key === 'rally') { sel.rally = sel.tower; const t = S.towerById(G, sel.tower); radial.innerHTML = ''; rbtns = []; info.classList.remove('show'); view.showRange(t.x, t.z, S.towerStats(t).range); toast('Tap the road inside the ring to set the rally point'); sfx.click(); return; }
   if (sel.pick !== key) { // first tap selects + previews
@@ -299,7 +302,7 @@ function statRows(type, st) {
 function subline(type) { const D = TOWERS[type]; return `${D.dmgType === 'magic' ? 'Magic' : 'Physical'} · ${D.air ? 'hits flying' : 'ground only'}${D.kind === 'aura' ? ' · reveals stealth' : ''}${D.kind === 'barracks' ? ' · blocks the road' : ''}`; }
 function showBuildInfo(type) {
   const D = TOWERS[type], st = D.tiers[0], G = app.G;
-  info.innerHTML = `<h3>${D.name}</h3><div class="sub">${subline(type)}</div>${statRows(type, st).map(([a, b]) => `<div class="row"><span>${a}</span><b>${b}</b></div>`).join('')}<p>${D.blurb}</p><p style="color:${G.gold >= st.cost ? '#bfffd2' : '#ff9aa8'}">${G.gold >= st.cost ? 'Tap again to build · ◉ ' + st.cost : 'Need ◉ ' + st.cost}</p>`;
+  info.innerHTML = `<h3>${D.name}</h3><div class="sub">${subline(type)}</div><div class="rows">${statRows(type, st).map(([a, b]) => `<div class="row"><span>${a}</span><b>${b}</b></div>`).join('')}</div><p>${D.blurb}</p><p style="color:${G.gold >= st.cost ? '#bfffd2' : '#ff9aa8'}">${G.gold >= st.cost ? 'Tap again to build · ◉ ' + st.cost : 'Need ◉ ' + st.cost}</p>`;
   info.classList.add('show'); positionMenus();
 }
 function showTowerInfo(t, next, key = null) {
@@ -312,14 +315,15 @@ function showTowerInfo(t, next, key = null) {
   else if (key === 'mode') foot = `<p>Targets the <b>${t.mode}</b> foe in range${t.mode === 'first' ? ' (closest to the Hold)' : t.mode === 'strong' ? ' (most health)' : ' (nearest the tower)'}. Tap to change.</p>`;
   else if (next) foot = `<p>${next.blurb || ''}</p><p style="color:${app.G.gold >= next.cost ? '#bfffd2' : '#ff9aa8'}">${app.G.gold >= next.cost ? 'Tap again to upgrade · ◉ ' + next.cost : 'Need ◉ ' + next.cost}</p>`;
   else foot = `<p style="color:var(--dim)">${t.branch ? D.branches[t.branch].blurb : D.blurb}${TOWERS[t.type].kind === 'shooter' ? ` · Targeting: ${t.mode}` : ''}</p>`;
-  info.innerHTML = `<h3>${next ? (key === 'up' ? `${D.name} ${ROMAN[t.tier + 1]}` : next.name) : nm}</h3><div class="sub">${subline(t.type)}</div>${rows.map(([a, b]) => `<div class="row"><span>${a}</span><b>${b}</b></div>`).join('')}${foot}`;
+  info.innerHTML = `<h3>${next ? (key === 'up' ? `${D.name} ${ROMAN[t.tier + 1]}` : next.name) : nm}</h3><div class="sub">${subline(t.type)}</div><div class="rows">${rows.map(([a, b]) => `<div class="row"><span>${a}</span><b>${b}</b></div>`).join('')}</div>${foot}`;
   info.classList.add('show'); positionMenus();
 }
 function positionMenus() {
   const G = app.G; if (!G || sel.pad < 0) return;
   const p = G.map.pads[sel.pad], s = toScreen(p.x, 0.6, p.z);
-  const R = innerWidth < 720 ? 66 : 76;
-  const cx = Math.max(R + 34, Math.min(innerWidth - R - 34, s.x)), cy = Math.max(R + 70, Math.min(innerHeight - R - 90, s.y));
+  const phone = innerWidth < 720, R = phone ? 74 : 80;
+  const infoH = phone && info.classList.contains('show') ? info.offsetHeight + 64 : 0;
+  const cx = Math.max(R + 34, Math.min(innerWidth - R - 34, s.x)), cy = Math.max(R + 76 + infoH, Math.min(innerHeight - R - 96, s.y));
   for (const b of rbtns) {
     const a = +b.ang * Math.PI / 180;
     b.el.style.left = (cx + Math.cos(a) * R) + 'px'; b.el.style.top = (cy + Math.sin(a) * R) + 'px';
@@ -335,7 +339,7 @@ function positionMenus() {
 $('icHeart').innerHTML = UI_ICON.heart; $('icCoin').innerHTML = UI_ICON.coin; $('icWave').innerHTML = UI_ICON.wave;
 $('heroIc').innerHTML = UI_ICON.hero; $('abIc').innerHTML = UI_ICON.dawn; $('icStarT').innerHTML = UI_ICON.star;
 settingsButton(`<button class="sd-btn sd-icon cornerbtn" id="speedBtn" aria-label="Game speed (F)"></button><button class="sd-btn sd-icon cornerbtn" id="pauseBtn" aria-label="Pause (Esc)">${UI_ICON.pause}</button>`);
-const corner = document.querySelector('.sd-corner'); corner.style.display = 'none';
+const corner = document.querySelector('.sd-corner');
 $('speedBtn').onclick = () => cycleSpeed();
 $('pauseBtn').onclick = () => togglePause();
 $('heroBtn').onclick = () => { toggleHero(); };
@@ -435,6 +439,7 @@ function updateRifts() {
 }
 
 // ---------------------------------------------------------------- banners, intro cards, onboarding
+// FABLE: wave banners deserve a horn motif + a short camera push toward the active rift.
 function banner(eyebrow, title) {
   const b = $('banner'); $('banE').textContent = eyebrow; $('banT').textContent = title;
   b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
@@ -468,6 +473,7 @@ let coach = null;
 function startCoach() { coach = (app.idx === 0 && !progress.tutDone && !app.endless) ? { i: 0, t: 0 } : null; renderCoach(); }
 function renderCoach() {
   const c = $('coach');
+  if (innerWidth < 720 && sel.pad >= 0) { c.classList.remove('show'); return; }
   if (!coach || app.mode !== 'play') { c.classList.remove('show'); $('pointer').style.display = 'none'; return; }
   const st = COACH[coach.i];
   if (st.when && !st.when(app.G)) { c.classList.remove('show'); $('pointer').style.display = 'none'; return; }
@@ -488,7 +494,7 @@ function updateCoach(dt) {
   if (!coach || app.mode !== 'play' || app.paused) { ptr.style.display = 'none'; return; }
   const st = COACH[coach.i];
   if (st.when && !st.when(app.G)) { $('coach').classList.remove('show'); ptr.style.display = 'none'; return; }
-  if (!$('coach').classList.contains('show')) renderCoach();
+  renderCoach();
   if (st.id === 'build' && sel.pad < 0) { coach.i = 0; renderCoach(); }
   if (st.auto) { coach.t += dt; if (coach.t > st.auto) coachDone(st.id); }
   const a = st.at(); if (!a) { ptr.style.display = 'none'; return; }
@@ -516,8 +522,10 @@ function waveTitle(w) {
 }
 
 // ---------------------------------------------------------------- end of level
+// FABLE: music — victory sting / defeat lament here; a per-biome twilight bed should start in loadLevel() and duck under banners;
+// FABLE: a tension layer should follow G.enemies.length and the boss theme should start on the 'boss' event (handleEvents).
 function endLevel(won) {
-  const G = app.G; if (app.endShown || !G) return; app.endShown = true;
+  const G = app.G; if (app.endShown || !G) return; app.endShown = true; $('intro').classList.remove('show'); closeMenus();
   const L = LEVELS[app.idx];
   store.set(RKEY, null);
   const mins = Math.max(1, Math.round(G.t / 60));
@@ -591,6 +599,7 @@ function buildValley() {
     const n = document.createElement('div'); const ok = unlocked(i), st = progress.stars[L.id] || 0;
     n.className = 'node' + (ok ? '' : ' locked') + (i === mapSel ? ' sel' : '');
     n.style.left = NODE[i][0] + '%'; n.style.top = NODE[i][1] + '%';
+    if (NODE[i][0] < 16) n.classList.add('edgeL'); if (NODE[i][0] > 84) n.classList.add('edgeR');
     n.innerHTML = `${ok ? i + 1 : '🔒'}<div class="nm">${L.name}</div><div class="stars">${[0, 1, 2].map((k) => `<i class="${k < st ? 'on' : ''}">${UI_ICON.star}</i>`).join('')}</div>`;
     n.onclick = () => { if (!ok) { sfx.error(); toast('Earn a star on the previous map first'); return; } mapSel = i; sfx.select(); buildValley(); levelCard(); };
     v.appendChild(n);
@@ -611,14 +620,15 @@ $('diffSeg').addEventListener('click', (e) => { const b = e.target.closest('butt
 $('lcPlay').onclick = () => { sfx.select(); store.set(RKEY, null); hideMap(); loadLevel(mapSel); };
 $('lcEndless').onclick = () => { sfx.select(); store.set(RKEY, null); hideMap(); loadLevel(mapSel, { endless: true }); };
 $('mapBack').onclick = () => { sfx.click(); hideMap(); showTitle(); };
+$('mapSet').onclick = () => $('sd-gear').click();
 function showMap() {
   closeMenus(); $('endM').classList.remove('open'); $('pauseM').classList.remove('open');
   if (!app.demo) loadLevel(Math.min(mapSel, LEVELS.length - 1), { demo: true });
   app.mode = 'map'; mapSel = Math.min(LEVELS.length - 1, Math.max(0, LEVELS.findIndex((L, i) => unlocked(i) && !(progress.stars[L.id] > 0)))); if (mapSel < 0) mapSel = 0;
-  buildValley(); levelCard(); $('mapScreen').classList.add('show'); $('hud').classList.add('hidden'); corner.style.display = 'none'; renderCoach();
+  buildValley(); levelCard(); $('mapScreen').classList.add('show'); $('hud').classList.add('hidden'); renderCoach();
 }
-function hideMap() { $('mapScreen').classList.remove('show'); corner.style.display = ''; }
-function showTitle() { app.mode = 'title'; menu.show(); refreshContinue(); corner.style.display = 'none'; }
+function hideMap() { $('mapScreen').classList.remove('show'); }
+function showTitle() { app.mode = 'title'; menu.show(); refreshContinue(); }
 const menu = startMenu({
   title: 'Lantern Hold', subtitle: 'The lanterns are all that keep the twilight valley from the shadows. Build, upgrade and command — and keep them burning.',
   options: [], startLabel: 'Play', onStart: () => showMap(),
@@ -628,7 +638,8 @@ const menu = startMenu({
   const row = card.querySelector('#sd-start').parentElement;
   const cont = document.createElement('button'); cont.className = 'sd-btn'; cont.id = 'sd-continue'; cont.textContent = 'Continue';
   row.prepend(cont);
-  cont.onclick = () => { const r = store.get(RKEY); if (!r) return; sfx.select(); menu.hide(); corner.style.display = ''; try { loadLevel(LEVELS.findIndex((L) => L.id === r.snap.level), { snap: r.snap, endless: r.endless }); } catch (err) { console.warn(err); store.set(RKEY, null); showMap(); } };
+  const setb = document.createElement('button'); setb.className = 'sd-btn'; setb.textContent = 'Settings'; setb.onclick = () => $('sd-gear').click(); row.appendChild(setb);
+  cont.onclick = () => { const r = store.get(RKEY); if (!r) return; sfx.select(); menu.hide(); try { loadLevel(LEVELS.findIndex((L) => L.id === r.snap.level), { snap: r.snap, endless: r.endless }); } catch (err) { console.warn(err); store.set(RKEY, null); showMap(); } };
   const foot = document.createElement('div'); foot.className = 'credits'; foot.textContent = '8 maps · 3 biomes · 5 towers with branching upgrades · endless mode. Mouse, touch or keyboard.';
   card.appendChild(foot);
 }
@@ -651,8 +662,10 @@ view.setColorblind(settings.colorblind);
 const P = probe(renderer, { dataReady: false, counts: {} });
 P.game = {
   state: () => { const G = app.G; return G && { mode: app.mode, level: G.L.id, idx: app.idx, endless: app.endless, state: G.state, wave: G.wave, total: G.total, gold: G.gold, lives: G.lives, enemies: G.enemies.length, towers: G.towers.map((t) => ({ id: t.id, pad: t.pad, type: t.type, tier: t.tier, branch: t.branch })), hero: { x: G.hero.x, z: G.hero.z, lvl: G.hero.lvl, dead: G.hero.dead }, countdown: G.countdown, speed: app.speed, t: G.t, stars: G.stars, paused: app.paused }; },
-  start: (idx = 0, o = {}) => { menu.hide(); hideMap(); corner.style.display = ''; if (o.tutorial === false) { progress.tutDone = true; } loadLevel(idx, o); return true; },
+  start: (idx = 0, o = {}) => { menu.hide(); hideMap(); if (o.tutorial === false) { progress.tutDone = true; } loadLevel(idx, o); return true; },
   sim: (sec) => { const G = app.G; const n = Math.round(sec / S.DT); for (let i = 0; i < n && G.state !== 'won' && G.state !== 'lost'; i++) { app.bot?.tick(S.DT); S.step(G); if (G.events.length > 400) { handleEvents(G.events.filter((e) => e.t === 'won' || e.t === 'lost' || e.t === 'leak')); G.events.length = 0; } } handleEvents(G.events.filter((e) => e.t !== 'wave')); G.events.length = 0; view.attach(G); return G.state; },
+  // like sim() but pushes every event through the FX + UI handlers (no rendering) — exercises those code paths headless
+  run: (sec) => { const G = app.G; const n = Math.round(sec / S.DT); for (let i = 0; i < n && G.state !== 'won' && G.state !== 'lost'; i++) { app.bot?.tick(S.DT); S.step(G); if (i % 6 === 5) { view.consume(G.events); handleEvents(G.events); G.events.length = 0; view.syncTowers(0.2, G.t); view.sync(1, 0.2, G.t, sel); } } view.consume(G.events); handleEvents(G.events); G.events.length = 0; return G.state; },
   build: (pad, type) => S.build(app.G, pad, type).ok,
   upgrade: (id, b) => S.upgrade(app.G, id, b).ok,
   sell: (id) => S.sell(app.G, id).ok,
@@ -671,15 +684,27 @@ P.game = {
   end: (won = true, stars = 3) => { const G = app.G; G.state = won ? 'won' : 'lost'; G.stars = stars; if (won) G.lives = Math.ceil(G.maxLives * [0, 0.3, 0.6, 1][stars]); else app.leaks = { brute: 6, moth: 4 }; endLevel(won); return true; },
   progress: (p) => { if (p) { Object.assign(progress, p); saveProgress(); } return progress; },
   banner: (a, b) => banner(a, b),
+  clean: (on = true) => { for (const id of ['hud', 'labels', 'intro', 'coach', 'pointer', 'banner']) $(id).style.visibility = on ? 'hidden' : ''; corner.style.visibility = on ? 'hidden' : ''; document.querySelectorAll('.sd-toast').forEach((t) => t.remove()); return on; },
+  focus: (type, zoom = 0.5) => { const e = app.G.enemies.find((x) => x.type === type); if (!e) return false; camS.zoom = zoom; camS.tx = e.x; camS.tz = e.z + 1; clampPan(); return [e.x, e.z]; },
+  jumpWave: (n) => { const G = app.G; G.wave = n; G.state = 'play'; G.countdown = 0.01; return n; },
+  upgradeAll: (branches = {}) => { const G = app.G; for (const t of G.towers) { S.upgrade(G, t.id); S.upgrade(G, t.id); S.upgrade(G, t.id, branches[t.type] || 'A'); } return G.towers.length; },
 };
 
 // ---------------------------------------------------------------- loop
 bootBar(0.85);
 loadLevel(0, { demo: true });
 refreshContinue();
-if (Q.has('autostart')) { menu.hide(); corner.style.display = ''; progress.tutDone = progress.tutDone || Q.has('notut'); loadLevel(+(Q.get('level') || 0)); }
+if (Q.has('autostart')) { menu.hide(); progress.tutDone = progress.tutDone || Q.has('notut'); loadLevel(+(Q.get('level') || 0)); }
+// WebGPU safety net: on device loss, or a backend that never draws, fall back to WebGL2 once (never loops).
+function toWebGL(why) {
+  try { if (sessionStorage.getItem('lh-gl-fallback')) return; sessionStorage.setItem('lh-gl-fallback', why); } catch { return; }
+  const u = new URL(location.href); u.searchParams.set('webgl', '1'); location.replace(u.href);
+}
+if (P.backend === 'webgpu') renderer.backend?.device?.lost?.then((i) => { if (i?.reason !== 'destroyed') toWebGL('lost'); });
 startLoop(renderer, (dt, t) => {
+  if (P.backend === 'webgpu' && P.frames === 90 && P.drawCalls === 0) toWebGL('nodraw');
   updateTweens(dt);
+  document.body.classList.toggle('playing', app.mode === 'play' && !app.demo);
   const G = app.G;
   if (G) {
     const run = app.demo ? (app.mode === 'title' || app.mode === 'map') : (app.mode === 'play' && !app.paused);
@@ -691,6 +716,7 @@ startLoop(renderer, (dt, t) => {
     view.consume(G.events); handleEvents(G.events); G.events.length = 0;
     view.syncTowers(dt, t); view.sync(Math.min(1, app.acc / S.DT), dt, t, sel);
     app.world.update(t, dt, camera);
+    { const fl = app.world.flow, want = !app.demo && S.canCall(G) ? 0.55 + 0.25 * Math.sin(t * 3) : 0; fl.value += (want - fl.value) * Math.min(1, dt * 3); } // path preview before each wave
     if (!app.demo) {
       updateHUD(); updateRifts(); positionMenus(); updateCoach(dt); checkIntro(dt);
       for (let i = 0; i < G.map.pads.length; i++) { const v = G.padTower[i] ? 0 : (G.gold >= 70 ? 1 : 0.35) * (sel.pad === i ? 1.6 : 1); if (app.world.pads.state.array[i] !== v) app.world.setPad(i, v); }
@@ -705,6 +731,7 @@ startLoop(renderer, (dt, t) => {
   camS.sway = app.demo && !settings.reducedMotion ? Math.sin(t * 0.07) * 0.22 : 0;
   const breathe = settings.reducedMotion ? 0 : Math.sin(t * 0.23) * 0.006;
   camS.polar += breathe; placeCamera(camS.fit * camS.zoom); camS.polar -= breathe;
+  if (scene.fog) { const d = camS.fit * camS.zoom; scene.fog.near = d * 0.9; scene.fog.far = d * 2.4; } // haze scales with the framing (portrait sits further back)
   applyShake(camera, dt);
   P.counts = { enemies: G?.enemies.length || 0, towers: G?.towers.length || 0, projectiles: G?.projectiles.length || 0, particles: view.glowP.n + view.smokeP.n, wave: G?.wave || 0 };
 }, post.render);

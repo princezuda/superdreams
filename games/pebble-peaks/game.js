@@ -60,6 +60,7 @@ function applyConfig() {
   document.documentElement.style.setProperty('--accent', cfg.colors.shard);
   if (G.shardMesh) G.shardMat.color.set(cfg.colors.shard); if (G.shardMat) G.shardMat.emissive.set(cfg.colors.shard);
   key.castShadow = cfg.shadows !== false && settings.quality !== 'low';
+  cam.dist = cfg.camDist || 9.5;
   $('#hTime').style.display = cfg.timer === false ? 'none' : '';
 }
 const DIFF = { easy: { hp: 5, fallCost: 0, enemy: 0.75 }, normal: { hp: 3, fallCost: 1, enemy: 1 }, hard: { hp: 2, fallCost: 1, enemy: 1.3 } };
@@ -68,7 +69,7 @@ const DIFF = { easy: { hp: 5, fallCost: 0, enemy: 0.75 }, normal: { hp: 3, fallC
 const G = { screen: 'menu', id: null, L: null, W: null, V: null, p: null, t: 0, acc: 0, time: 0, hp: 3, diff: save.diff || cfg.difficulty, got: new Set(), lootGot: 0, relics: [0, 0, 0], cp: -1, broken: new Set(),
   shards: [], relicsE: [], cps: [], enemies: [], crumbles: [], shrooms: [], jets: [], portals: [], goal: null, boss: null, bossV: null, bossSolid: null, rings: [], emberV: [],
   combo: 0, comboT: 0, hitstop: 0, dying: 0, flip: 0, stepT: 0, hintT: 0, hintsShown: new Set(), clearT: 0, banner: null, portalCd: 0, lastSafe: null, entities: [] };
-const cam = { yaw: 0, pitch: 0.36, dist: 9.5, cur: 9.5, fx: 0, fy: 0, fz: 0, groundY: 0, manualT: 9, intro: 0, free: null, lookY: 1.1 };
+const cam = { yaw: 0, pitch: 0.48, dist: 9.5, cur: 9.5, fx: 0, fy: 0, fz: 0, groundY: 0, manualT: 9, intro: 0, free: null, lookY: 1.1 };
 applyConfig();
 
 // ---------------------------------------------------------------- level load / unload
@@ -95,7 +96,7 @@ function loadLevel(id, { resume = null } = {}) {
   const lootN = L.solids.reduce((n, s) => n + (s.loot?.shards || 0), 0);
   G.shardMat = new THREE.MeshStandardNodeMaterial({ color: cfg.colors.shard, emissive: new THREE.Color(cfg.colors.shard), emissiveIntensity: 0.9, roughness: 0.2, metalness: 0.1, flatShading: true });
   if (id === 'caves') { G.shardMat.color.set('#7ff6ff'); G.shardMat.emissive.set('#3fe8ff'); }
-  G.shardMesh = addE(new THREE.InstancedMesh(shardGeometry(), G.shardMat, Math.max(1, L.shards.length + lootN))); G.shardMesh.frustumCulled = false; G.shardMesh.castShadow = true;
+  G.shardMesh = addE(new THREE.InstancedMesh(shardGeometry(), G.shardMat, Math.max(1, L.shards.length + lootN))); G.shardMesh.frustumCulled = false; G.shardMesh.castShadow = false;
   G.shards = L.shards.map(([x, y, z], i) => ({ x, y, z, i, got: false, loose: false, ph: i * 0.7 }));
   for (let k = 0; k < lootN; k++) G.shards.push({ x: 0, y: -999, z: 0, i: -1, got: true, loose: true, ph: k });
   // relics
@@ -110,7 +111,7 @@ function loadLevel(id, { resume = null } = {}) {
   // crumbles / shrooms / breakables
   G.crumbles = G.W.solids.filter((s) => s.crumble).map((s) => ({ s, mesh: G.V.solidMeshes.get(s.idx), st: 'idle', t: 0, vy: 0 }));
   G.shrooms = G.W.solids.filter((s) => s.bounce).map((s) => ({ s, mesh: G.V.solidMeshes.get(s.idx) }));
-  G.jets = L.hazards.filter((h) => h.t === 'jet').map((h) => { const j = makeJet(); j.g.position.set(h.x, h.y, h.z); addE(j.g); return { h, ...j, on: false, was: false }; });
+  G.jets = L.hazards.filter((h) => h.t === 'jet').map((h) => { const j = makeJet(); if (settings.colorblind) j.warn.material.color.setRGB(0.6, 1.4, 3); j.g.position.set(h.x, h.y, h.z); addE(j.g); return { h, ...j, on: false, was: false }; });
   // hub portals
   G.portals = (L.portals || []).map((pd, i) => { const lv = save.levels[pd.id]; const locked = !unlocked(pd.id); const col = ['#7fe36a', '#7a6aff', '#ff9ec7', '#ff7a2a'][i];
     const pt = makePortal(col, locked); pt.g.position.set(pd.x, pd.y + 0.3, pd.z); pt.g.rotation.y = pd.yaw; addE(pt.g);
@@ -118,15 +119,26 @@ function loadLevel(id, { resume = null } = {}) {
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.3), new THREE.MeshBasicNodeMaterial({ map: signTexture([NAMES[pd.id], locked ? '🔒 locked' : `Fossils ${lv.relics.reduce((a, b) => a + b, 0)}/3`, locked ? `finish ${NAMES[ORDER[i - 1]] || ''}` : `Best ${best}`], col), transparent: true, depthWrite: false }));
     sign.position.set(0, 4.55, 0); pt.g.add(sign); PH.addSolid(G.W, { kind: 'cyl', x: pd.x + Math.sin(pd.yaw + Math.PI / 2) * 1.25, z: pd.z + Math.cos(pd.yaw + Math.PI / 2) * 1.25, r: 0.32, top: 3.4, h: 3.4, camBlock: false, decor: true }); PH.addSolid(G.W, { kind: 'cyl', x: pd.x - Math.sin(pd.yaw + Math.PI / 2) * 1.25, z: pd.z - Math.cos(pd.yaw + Math.PI / 2) * 1.25, r: 0.32, top: 3.4, h: 3.4, camBlock: false, decor: true });
     return { ...pd, ...pt, locked, sign }; });
+  // hub centrepiece: the Heartstone fountain — one gem per cleared world
+  if (id === 'hub') {
+    const fc = new THREE.Group(); fc.position.set(0, 0.5, 2.5); addE(fc);
+    const water = new THREE.Mesh(new THREE.CircleGeometry(1.95, 32), new THREE.MeshStandardNodeMaterial({ color: '#4fb8e8', roughness: 0.1, emissive: new THREE.Color('#1a6a9a'), emissiveIntensity: 0.4 })); water.rotation.x = -Math.PI / 2; water.position.y = 0.03; fc.add(water);
+    const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 1.4, 10), new THREE.MeshStandardNodeMaterial({ color: '#d8d2c6', roughness: 0.8 })); ped.position.y = 0.6; ped.castShadow = true; fc.add(ped);
+    PH.addSolid(G.W, { kind: 'cyl', x: 0, z: 2.5, r: 0.5, top: 1.9, h: 1.9, camBlock: false, decor: true });
+    G.hubGems = ORDER.map((wid, i) => { const done = save.levels[wid].done; const col = ['#7fe36a', '#9a7aff', '#ff9ec7', '#ff8a3a'][i];
+      const m = new THREE.Mesh(new THREE.OctahedronGeometry(0.32, 0), new THREE.MeshStandardNodeMaterial({ color: done ? col : '#dfe4f0', emissive: new THREE.Color(done ? col : '#8a90a8'), emissiveIntensity: done ? 1.4 : 0.25, roughness: 0.15, flatShading: true, transparent: !done, opacity: done ? 1 : 0.55 }));
+      m.scale.y = 1.4; fc.add(m); return { m, i }; });
+  } else G.hubGems = null;
   // boss
   G.boss = null; G.bossV = null; G.bossSolid = null; G.rings = []; G.emberV = [];
   if (L.boss) {
     G.boss = BS.createBoss({ cx: L.boss.x, cy: L.boss.y, cz: L.boss.z, R: L.boss.r, difficulty: G.diff });
     G.bossV = makeBoss(); G.bossV.g.position.set(L.boss.x, L.boss.y, L.boss.z); addE(G.bossV.g);
     G.bossSolid = PH.addSolid(G.W, { kind: 'cyl', x: L.boss.x, z: L.boss.z, r: BS.BOSS.r, top: L.boss.y + BS.BOSS.h, h: BS.BOSS.h, camBlock: false, boss: true });
-    const rm = new THREE.MeshBasicNodeMaterial({ color: new THREE.Color(3, 1.1, 0.2), transparent: true, opacity: 0.9, depthWrite: false });
+    const cb = settings.colorblind; // colour-blind safe: hazards switch from orange to high-contrast blue/white
+    const rm = new THREE.MeshBasicNodeMaterial({ color: cb ? new THREE.Color(0.5, 1.1, 2.2) : new THREE.Color(1.8, 0.55, 0.08), transparent: true, opacity: 0.9, depthWrite: false });
     for (let i = 0; i < 5; i++) { const r = addE(new THREE.Mesh(new THREE.TorusGeometry(1, 0.16, 6, 48), rm)); r.rotation.x = Math.PI / 2; r.visible = false; G.rings.push(r); }
-    const em = new THREE.MeshBasicNodeMaterial({ color: new THREE.Color(3.2, 1.2, 0.2) }), wm = new THREE.MeshBasicNodeMaterial({ color: new THREE.Color(2.2, 0.3, 0.1), transparent: true, opacity: 0.5, depthWrite: false });
+    const em = new THREE.MeshBasicNodeMaterial({ color: new THREE.Color(2.0, 0.6, 0.08) }), wm = new THREE.MeshBasicNodeMaterial({ color: cb ? new THREE.Color(0.6, 1.4, 3) : new THREE.Color(2.2, 0.3, 0.1), transparent: true, opacity: 0.5, depthWrite: false });
     for (let i = 0; i < 6; i++) { const b = addE(new THREE.Mesh(new THREE.IcosahedronGeometry(0.42, 1), em)); const w = addE(new THREE.Mesh(new THREE.RingGeometry(0.85, 1.2, 28), wm)); w.rotation.x = -Math.PI / 2; b.visible = w.visible = false; G.emberV.push({ b, w }); }
   }
   // state
@@ -203,9 +215,12 @@ function die(kind) {
   if (G.dying) return; G.dying = 1.0; const p = G.p;
   if (kind === 'fall') { const sea = THEMES[G.L.theme].sea; if (sea === 'lava') { S.sizzle(); fx.puff(p.x, G.L.seaY + 0.2, p.z, { n: 14, color: '#ff8a3a', size: 0.4, up: 3 }); } else if (sea === 'water') { S.splash(); fx.puff(p.x, G.L.seaY + 0.1, p.z, { n: 16, color: '#bfe8ff', size: 0.35, up: 4 }); fx.ring(p.x, G.L.seaY + 0.05, p.z, { r1: 3, color: '#ffffff' }); } else S.splash(); if (DIFF[G.diff].fallCost) G.hp = Math.max(0, G.hp - DIFF[G.diff].fallCost); }
   else { S.lose?.(); sfx.lose(); toast('Oof! Back to the checkpoint.'); }
-  p.state = 'frozen'; R.root.visible = kind !== 'fall';
-  setTimeout(() => { $('#fade').classList.add('on'); }, 450);
-  setTimeout(() => { if (G.hp <= 0) G.hp = DIFF[G.diff].hp; respawnAt(); renderHUD(); G.dying = 0; $('#fade').classList.remove('on'); }, 900);
+  p.state = 'frozen'; R.root.visible = kind !== 'fall'; G.dyingT = 0;
+}
+function stepDying() { // runs inside the fixed step so sim() and the bot see the same timeline as players
+  G.dyingT += DT;
+  if (G.dyingT > 0.45 && !G.fadeOn) { G.fadeOn = true; $('#fade').classList.add('on'); }
+  if (G.dyingT > 0.9) { if (G.hp <= 0) G.hp = DIFF[G.diff].hp; respawnAt(); renderHUD(); G.dying = 0; G.fadeOn = false; $('#fade').classList.remove('on'); }
 }
 
 // ---------------------------------------------------------------- simulation step (fixed 120 Hz)
@@ -213,6 +228,7 @@ const DT = 1 / 120;
 const tmpO = [0, 0, 0];
 function simStep(edges) {
   const p = G.p, W = G.W; G.t += DT;
+  if (G.dying) { PH.updateMovers(W, G.t); stepDying(); return; }
   PH.updateMovers(W, G.t);
   // crumbles
   for (const cr of G.crumbles) {
@@ -231,7 +247,7 @@ function simStep(edges) {
   // enemies
   stepEnemies();
   // hazards
-  for (const j of G.jets) { const h = j.h; const u = ((G.t / h.T + h.ph) % 1 + 1) % 1; j.on = u < h.on; j.warn = !j.on && u > 1 - 0.22;
+  for (const j of G.jets) { const h = j.h; const u = ((G.t / h.T + h.ph) % 1 + 1) % 1; j.on = u < h.on; j.warnOn = !j.on && u > 1 - 0.22;
     if (j.on && !j.was && Math.hypot(p.x - h.x, p.z - h.z) < 14) S.jet(); j.was = j.on;
     if (j.on && Math.hypot(p.x - h.x, p.z - h.z) < h.r + T.R * 0.6 && p.y < h.y + h.h && p.y + T.H > h.y) { hurtPlayer(h.x + 0.01, h.z + 0.01, 'fire'); p.vy = Math.max(p.vy, 11); } }
   // pickups
@@ -344,17 +360,22 @@ function stepBoss() {
     case 'emberLand': S.ember(); fx.puff(e.x, B.cy + 0.2, e.z, { n: 6, color: '#ff9a4a', size: 0.3, up: 2 }); fx.sparkle(e.x, B.cy + 0.3, e.z, { n: 8, color: '#ffb040', speed: 4 }); break;
     case 'dazed': fx.sparkle(B.x, B.y + 3, B.z, { n: 16, color: '#9ad8ff', speed: 2.5 }); if (!save.seen.daze) { showHint('bossDaze'); save.seen.daze = 1; persist(); } break;
     case 'enrage': S.roar(); shake(0.2); break;
-    case 'defeated': S.roar(); shake(0.5); flash('#ffffff', 400, 0.7); setTimeout(() => { sfx.win(); fx.sparkle(B.cx, B.cy + 2, B.cz, { n: 60, color: '#ffd27a', speed: 8, life: 1.3 }); if (G.goal) { G.goal.hidden = false; G.goal.g.visible = true; G.goal.g.position.set(B.x + (Math.abs(B.x - B.cx) < 3 ? 0 : 0), B.cy, B.z); G.goal.x = B.x; G.goal.z = B.z; G.goal.g.scale.setScalar(0.01); tween(0.9, (k) => G.goal.g.scale.setScalar(k), { ease: ease.outBack }); } $('#bossBar').classList.remove('show'); toast('Old Clinker cools down… the Great Heartstone!', 3200); }, 1300); break;
+    case 'defeated': S.roar(); shake(0.5); flash('#ffffff', 400, 0.7); G.bossRevealT = 1.3; break;
+  }
+  if (G.bossRevealT > 0 && (G.bossRevealT -= DT) <= 0) {
+    { sfx.win(); fx.sparkle(B.cx, B.cy + 2, B.cz, { n: 60, color: '#ffd27a', speed: 8, life: 1.3 }); if (G.goal) { G.goal.hidden = false; G.goal.g.visible = true; G.goal.g.position.set(B.x, B.cy, B.z); G.goal.x = B.x; G.goal.z = B.z; G.goal.g.scale.setScalar(0.01); tween(0.9, (k) => G.goal.g.scale.setScalar(k), { ease: ease.outBack }); } $('#bossBar').classList.remove('show'); toast('Old Clinker cools down… the Great Heartstone!', 3200); }
   }
 }
 
 // ---------------------------------------------------------------- flow
+// FABLE: level intro fly-through (goal → spawn) with the world's music intro.
 function enterLevel(id, resume = null) {
   if (G.transition) return; G.transition = true; S.portal(); $('#fade').classList.add('on');
   setTimeout(() => { loadLevel(id, { resume }); G.screen = 'play'; G.transition = false; $('#fade').classList.remove('on'); $('#hud').classList.add('show'); $('#touch').classList.add('live');
     if (id !== 'hub') { banner(`World ${ORDER.indexOf(id) + 1}`, NAMES[id]); host('start', { level: id }); } else banner('Welcome to', 'Pebble Plateau'); }, 380);
 }
 function toHub() { save.run = save.run && save.run.level === G.id ? save.run : save.run; enterLevel('hub'); }
+// FABLE: a short victory cutscene (Cobble dance + Heartstone absorb) and a per-world fanfare/music sting go here.
 function levelClear() {
   if (G.screen !== 'play') return; G.screen = 'clear'; G.clearT = 0; const p = G.p; p.state = 'frozen'; p.vx = p.vz = 0;
   S.goal(); flash('#ffe6f2', 300, 0.6); R.joy = 3; squashTo(R, 1.5); fx.sparkle(G.goal.x, G.goal.y + 2, G.goal.z, { n: 50, color: '#ff8fc8', speed: 7, life: 1.2 });
@@ -506,8 +527,9 @@ function updateVisuals(dt, t) {
   for (const r of G.relicsE) { r.m.rotation.y = t * 1.6; r.m.position.y = r.y + Math.sin(t * 2) * 0.15; }
   for (const c of G.cps) { c.flag.rotation.y = Math.sin(t * 3 + c.i) * 0.2; if (c.on) c.gem.rotation.y = t * 2; }
   if (G.goal && G.goal.g.visible) { G.goal.gem.rotation.y = t * 1.2; G.goal.gem.position.y = 2.2 + Math.sin(t * 2) * 0.15; G.goal.beam.material.opacity = 0.14 + Math.sin(t * 3) * 0.04; }
+  if (G.hubGems) for (const hg of G.hubGems) { const a = t * 0.7 + hg.i * Math.PI / 2; hg.m.position.set(Math.cos(a) * 1.0, 2.35 + Math.sin(t * 2 + hg.i) * 0.12, Math.sin(a) * 1.0); hg.m.rotation.y = t * 2; }
   for (const pt of G.portals) pt.sign.lookAt(camera.position.x, pt.sign.getWorldPosition(Vp).y, camera.position.z);
-  // enemies
+  // enemies — FABLE: authored walk/charge/hop cycles and squash-pop defeat animations replace these procedural wiggles
   for (const e of G.enemies) {
     const g = e.v.g;
     if (!e.alive) { if (e.dead > 0) { e.dead += dt; if (e.kick) { g.position.x += e.kick[0] * dt; g.position.z += e.kick[2] * dt; e.kick[1] -= 30 * dt; g.position.y += e.kick[1] * dt; g.rotation.x += dt * 12; } else g.scale.set(1 + e.dead * 2, Math.max(0.05, 1 - e.dead * 6), 1 + e.dead * 2); if (e.dead > 0.45) g.visible = false; } continue; }
@@ -519,9 +541,9 @@ function updateVisuals(dt, t) {
     if (e.type === 'mite' && e.state === 'wind') e.v.body.position.y = 0.05 + Math.random() * 0.04;
   }
   // jets
-  for (const j of G.jets) { const target = j.on ? j.h.h : 0.01; j.flame.scale.y += (target - j.flame.scale.y) * Math.min(1, dt * 18); j.flame.position.y = 0.4 + j.flame.scale.y / 2; j.flame.visible = j.flame.scale.y > 0.05; j.warn.material.opacity = j.warn_ = j.on ? 0.8 : j.warn ? 0.4 + Math.sin(t * 30) * 0.3 : 0.15;
+  for (const j of G.jets) { const target = j.on ? j.h.h : 0.01; j.flame.scale.y += (target - j.flame.scale.y) * Math.min(1, dt * 18); j.flame.position.y = 0.4 + j.flame.scale.y / 2; j.flame.visible = j.flame.scale.y > 0.05; j.warn.material.opacity = j.on ? 0.8 : j.warnOn ? 0.4 + Math.sin(t * 30) * 0.3 : 0.15;
     if (j.on && Math.random() < 0.3) fx.sparkle(j.h.x, j.h.y + j.h.h * 0.8, j.h.z, { n: 1, color: '#ffa040', speed: 1.5, life: 0.5, grav: -3 }); }
-  // boss
+  // boss — FABLE: Old Clinker needs a roar/leap anticipation/landing recoil/dazed wobble/defeat crumble clip set
   if (G.boss) {
     const B = G.boss, bv = G.bossV; bv.g.position.set(B.x, B.y, B.z); bv.g.rotation.y = lerpA(bv.g.rotation.y, B.face, Math.min(1, dt * 4));
     const sq = B.height / BS.BOSS.h; bv.body.scale.set(1 + (1 - sq) * 0.5, sq, 1 + (1 - sq) * 0.5);
@@ -573,9 +595,11 @@ const menu = startMenu({ title: 'Pebble Peaks', subtitle: 'Help Cobble the littl
 { const h1 = menu.el.querySelector('h1'); h1.insertAdjacentHTML('beforebegin', '<div class="menu-art">A Super Dreams platformer</div>'); const r = relicTotal(); if (r) menu.el.querySelector('p').insertAdjacentHTML('beforeend', `<br><b>${r}/12</b> Star Fossils found · ${ORDER.filter((id) => save.levels[id].done).length}/4 worlds cleared`);
   menu.el.querySelector('#sd-start').insertAdjacentHTML('afterend', '<button class="sd-btn" id="mKeys">Controls</button>'); menu.el.querySelector('#mKeys').onclick = (e) => { e.stopPropagation(); showControls(); }; }
 $('#pauseBtn').onclick = (e) => { e.stopPropagation(); pause(); };
+document.addEventListener('visibilitychange', () => { if (document.hidden && G.screen === 'play') pause(); });
+addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') $('#stickHint')?.remove(); }, { once: false, passive: true });
 
 // menu backdrop: the hub, slowly orbiting
-loadLevel('hub'); cam.dist = cfg.camDist; cam.pitch = 0.3; G.screen = 'menu';
+loadLevel('hub'); cam.dist = cfg.camDist; G.screen = 'menu';
 bar(0.9);
 startLoop(renderer, frame, post.render);
 $('#loading').classList.add('hide'); setTimeout(() => $('#loading')?.remove(), 600);
@@ -598,6 +622,36 @@ P.game = {
   cam: (yaw, pitch, dist) => { cam.yaw = yaw; if (pitch !== undefined) cam.pitch = pitch; if (dist !== undefined) cam.dist = dist; cam.manualT = -999; cam.intro = 0; },
   free: (pos, look) => { cam.free = pos ? { pos, look } : null; },
   hurt: () => hurtPlayer(G.p.x + 1, G.p.z),
+  // Bot: drive the REAL game loop (enemies, crumbles, pickups, hazards live) from one point to another with scripted stick/jump.
+  botHop: (from, to, how = 'jump', maxT = 9) => {
+    if (from) P.game.teleport(from[0], from[1] + 0.05, from[2]); const p = G.p; let jumped = false, dbl = false, rolled = false, air = false, committed = false, hp0 = G.hp;
+    const toStick = (mx, mz) => { const c = Math.cos(cam.yaw), sn = Math.sin(cam.yaw); return { sx: mx * c - mz * sn, sy: -mx * sn - mz * c }; };
+    if (from) for (let i = 0; i < 20; i++) { input.scripted = { sx: 0, sy: 0 }; input.poll(); simStep(edges); }
+    for (let i = 0; i < maxT / DT; i++) {
+      if (G.screen !== 'play') return { ok: G.screen === 'clear', why: G.screen };
+      const dx = to[0] - p.x, dz = to[2] - p.z, d = Math.hypot(dx, dz); const st = d > 0.15 ? toStick(dx / d, dz / d) : { sx: 0, sy: 0 };
+      let jp = false, ap = false;
+      if (p.grounded && !jumped && !rolled && !committed) { // patience: wait for sinking stones to surface and fire jets to drop, like a player would
+        const tf = PH.floorBelow(G.W, to[0], to[2], 0.3, to[1] + 3); const ownS = p.ground?.path && p.ground.path.a && p.ground.path.a[1] !== p.ground.path.b[1]; const sinking = tf && tf.s.path && tf.s.path.a && tf.s.path.a[1] !== tf.s.path.b[1] && !(tf.y > to[1] - (ownS ? 0.6 : 1.0) && (tf.s.dy >= 0 || ownS));
+        const fire = G.jets.some((j) => (j.on || j.warnOn) && Math.hypot(j.h.x - to[0], j.h.z - to[2]) < 2.2);
+        const ownSinking = p.ground?.path && p.ground.path.a && p.ground.path.a[1] !== p.ground.path.b[1];
+        if ((sinking || fire) && !ownSinking && i * DT < maxT - 0.5) { input.scripted = { sx: 0, sy: 0 }; input.poll(); simStep(edges); continue; }
+        committed = true;
+      }
+      if (p.grounded && how !== 'walk' && !jumped) { const ax = p.x + dx / (d || 1) * 0.5, az = p.z + dz / (d || 1) * 0.5; const f = PH.floorBelow(G.W, ax, az, T.FOOT, p.y + T.STEP);
+        const edge = !f || f.y < p.y - 0.4, high = to[1] > p.y + T.STEP && p.hitWall, near = d < (how === 'double' ? 3.2 : 2.6) && to[1] > p.y + 0.3;
+        if (edge || high || near) { if (how === 'long' && !rolled) { ap = true; rolled = true; } else { jp = true; jumped = true; } } }
+      else if (rolled && !jumped) { jp = true; jumped = true; }
+      if (!p.grounded) air = true;
+      if (!p.grounded && jumped && !dbl && p.vy < 1.5 && (d > 1.2 || to[1] > p.y)) { jp = true; dbl = true; }
+      input.scripted = { ...st, jump: true }; input.poll(); if (jp) edges.jump = true; if (ap) edges.action = true;
+      simStep(edges); updateCamera(DT);
+      if (G.dying) { const at = [p.x, p.y, p.z].map((v) => +v.toFixed(1)); input.scripted = null; while (G.dying) simStep(edges); return { ok: false, why: 'died', at }; }
+      if (p.grounded && (air || how === 'walk') && (p.ground?.path ? true : Math.abs(p.y - to[1]) < 0.35) && d < 1.6) { input.scripted = null; return { ok: true, hurt: hp0 - G.hp }; }
+    }
+    input.scripted = null; return { ok: false, why: 'timeout', at: [p.x, p.y, p.z].map((v) => +v.toFixed(1)) };
+  },
+  route: () => G.L.route, world: () => G.W, player: () => G.p,
   findNaN: () => { const out = []; scene.traverse((o) => { const a = o.geometry?.attributes?.position; if (!a) return; for (let i = 0; i < a.array.length; i++) if (!Number.isFinite(a.array[i])) { out.push((o.type || '') + ':' + (o.geometry.type || '') + ':' + a.count + ':' + (o.parent?.type || '')); break; } }); return out; },
   pause, resume, enterLevel, toHub, showResults: () => showResults(false, true),
   hideUI: (on = true) => { document.body.classList.toggle('shot', on); $('#hud').style.visibility = on ? 'hidden' : ''; $('#hint').style.visibility = on ? 'hidden' : ''; document.querySelector('.sd-corner').style.visibility = on ? 'hidden' : ''; $('#banner').style.visibility = on ? 'hidden' : ''; },

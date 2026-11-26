@@ -1,0 +1,19 @@
+[
+  {"eval": "__cam.game.progress({tutDone:false, seen:[]}); __cam.game.start(0)"},
+  {"wait": 2},
+  {"log": "document.getElementById('coachT').textContent"},
+  {"eval": "__cam.game.openPad(0); __cam.game.pick('archer'); __cam.game.pick('archer')"},
+  {"eval": "__cam.game.openPad(1); __cam.game.pick('mortar'); __cam.game.pick('mortar')"},
+  {"log": "[__cam.game.state().towers.length, document.getElementById('coachT').textContent]"},
+  {"click": "#callBtn"},
+  {"wait": 2},
+  {"eval": "__cam.game.autoplay(true); __cam.game.run(900)"},
+  {"wait": 45},
+  {"log": "[__cam.game.state().state, __cam.game.state().lives, document.getElementById('endT').textContent, document.querySelectorAll('#endStars i.on').length]"},
+  {"eval": "document.querySelector('#endActs .btn.primary').click()"},
+  {"wait": 2},
+  {"log": "__cam.game.state().level"},
+  {"eval": "__cam.game.start(5, {tutorial:false, endless:true}); __cam.game.autoplay(true); __cam.game.run(1500)"},
+  {"wait": 4},
+  {"log": "[__cam.game.state().state, __cam.game.state().wave, document.getElementById('endT').textContent]"}
+]

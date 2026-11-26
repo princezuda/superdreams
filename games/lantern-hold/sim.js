@@ -112,7 +112,7 @@ export function damage(G, e, dmg, type, pierce = 0, src = null) {
   if (!e.alive) return 0;
   let m = mitigate(dmg, type, e.d, pierce);
   if (e.mark > 0) m *= 1 + e.mark;
-  e.hp -= m; e.flashT = 0.12;
+  e.hp -= m; if (src !== 'burn' && src !== 'beam') e.flashT = 0.12; // continuous damage does not strobe
   if (e.hp <= 0) kill(G, e, src);
   return m;
 }
@@ -422,7 +422,7 @@ function towerStep(G, t, dt) {
   if (D.kind === 'aura') {
     if (t.cd <= 0 && t.active) {
       t.cd = st.rate; t.fireT = 0.3;
-      for (const e of G.enemies) if (e.alive && dist2(t.x, t.z, e.x, e.z) < st.range * st.range) damage(G, e, st.dmg, 'magic', 0, t.id);
+      for (const e of G.enemies) if (e.alive && dist2(t.x, t.z, e.x, e.z) < st.range * st.range) damage(G, e, st.dmg, 'magic', 0, 'beam');
       ev(G, { t: 'pulse', id: t.id });
     }
     if (st.flare) {
@@ -442,7 +442,7 @@ function towerStep(G, t, dt) {
     if (e) {
       t.beamTgt = e.id; t.lock += dt; t.aimYaw = Math.atan2(e.x - t.x, e.z - t.z);
       const dps = st.dmg + (st.dpsMax - st.dmg) * Math.min(1, t.lock / st.ramp);
-      damage(G, e, dps * dt, 'magic', 0, t.id);
+      damage(G, e, dps * dt, 'magic', 0, 'beam'); if (!e.alive) t.kills++;
     } else { t.beamTgt = 0; t.lock = 0; }
     return;
   }

@@ -14,8 +14,8 @@ export const TOWERS = {
       { cost: 150, dmg: 20, rate: 0.55, range: 4.9 },
     ],
     branches: {
-      A: { name: 'Starshot Rangers', cost: 260, dmg: 22, rate: 0.5, range: 5.1, multi: 3, blurb: 'Looses three arrows at three different shades.' },
-      B: { name: 'Hawkeye Spire', cost: 280, dmg: 62, rate: 1.0, range: 6.6, pierce: 0.5, crit: 0.22, critMul: 3, blurb: 'Huge range, armour-piercing, critical shots.' },
+      A: { short: 'Starshot', name: 'Starshot Rangers', cost: 260, dmg: 22, rate: 0.5, range: 5.1, multi: 3, blurb: 'Looses three arrows at three different shades.' },
+      B: { short: 'Hawkeye', name: 'Hawkeye Spire', cost: 280, dmg: 62, rate: 1.0, range: 6.6, pierce: 0.5, crit: 0.22, critMul: 3, blurb: 'Huge range, armour-piercing, critical shots.' },
     },
   },
   mortar: {
@@ -27,8 +27,8 @@ export const TOWERS = {
       { cost: 220, dmg: 54, rate: 2.3, range: 4.9, splash: 1.6 },
     ],
     branches: {
-      A: { name: 'Cinder Bombard', cost: 330, dmg: 90, rate: 2.4, range: 5.2, splash: 1.95, burn: 18, burnT: 3, blurb: 'Massive blasts that leave burning ground.' },
-      B: { name: 'Cluster Kiln', cost: 340, dmg: 62, rate: 2.0, range: 5.0, splash: 1.5, cluster: 4, clusterDmg: 28, blurb: 'Each shell bursts into four bomblets.' },
+      A: { short: 'Bombard', name: 'Cinder Bombard', cost: 330, dmg: 90, rate: 2.4, range: 5.2, splash: 1.95, burn: 18, burnT: 3, blurb: 'Massive blasts that leave burning ground.' },
+      B: { short: 'Cluster', name: 'Cluster Kiln', cost: 340, dmg: 62, rate: 2.0, range: 5.0, splash: 1.5, cluster: 4, clusterDmg: 28, blurb: 'Each shell bursts into four bomblets.' },
     },
   },
   prism: {
@@ -40,8 +40,8 @@ export const TOWERS = {
       { cost: 240, dmg: 68, rate: 1.3, range: 4.5 },
     ],
     branches: {
-      A: { name: 'Prism Lattice', cost: 360, dmg: 78, rate: 1.25, range: 4.7, chain: 4, chainFall: 0.8, blurb: 'Light arcs between up to five shades.' },
-      B: { name: 'Sun Lens', cost: 380, dmg: 45, rate: 0, range: 4.8, beam: true, dpsMax: 190, ramp: 3, blurb: 'A focusing beam that grows hotter the longer it holds.' },
+      A: { short: 'Lattice', name: 'Prism Lattice', cost: 360, dmg: 78, rate: 1.25, range: 4.7, chain: 4, chainFall: 0.8, blurb: 'Light arcs between up to five shades.' },
+      B: { short: 'Sun Lens', name: 'Sun Lens', cost: 380, dmg: 45, rate: 0, range: 4.8, beam: true, dpsMax: 190, ramp: 3, blurb: 'A focusing beam that grows hotter the longer it holds.' },
     },
   },
   beacon: {
@@ -53,8 +53,8 @@ export const TOWERS = {
       { cost: 180, dmg: 16, rate: 1.0, range: 4.0, slow: 0.4 },
     ],
     branches: {
-      A: { name: 'Sunflare Beacon', cost: 300, dmg: 18, rate: 1.0, range: 4.2, slow: 0.42, flare: 6, flareDmg: 90, stun: 1.2, blurb: 'Every 6 s a flare stuns and scorches everything nearby.' },
-      B: { name: 'Hearth Beacon', cost: 280, dmg: 16, rate: 1.0, range: 5.4, slow: 0.45, mark: 0.3, blurb: 'Wide light; shades inside take +30% damage from everything.' },
+      A: { short: 'Sunflare', name: 'Sunflare Beacon', cost: 300, dmg: 18, rate: 1.0, range: 4.2, slow: 0.42, flare: 6, flareDmg: 90, stun: 1.2, blurb: 'Every 6 s a flare stuns and scorches everything nearby.' },
+      B: { short: 'Hearth', name: 'Hearth Beacon', cost: 280, dmg: 16, rate: 1.0, range: 5.4, slow: 0.45, mark: 0.3, blurb: 'Wide light; shades inside take +30% damage from everything.' },
     },
   },
   barracks: {
@@ -66,8 +66,8 @@ export const TOWERS = {
       { cost: 180, range: 3.0, hp: 210, dmg: 16, rate: 0.95, armor: 0.3, respawn: 9 },
     ],
     branches: {
-      A: { name: 'Bulwark Wardens', cost: 300, range: 3.1, hp: 440, dmg: 20, rate: 0.9, armor: 0.6, respawn: 9, blurb: 'Shield-wall veterans who barely bleed.' },
-      B: { name: 'Lancer Wardens', cost: 320, range: 3.1, hp: 250, dmg: 44, rate: 0.85, armor: 0.3, respawn: 8, blurb: 'Long spears that skewer brutes.' },
+      A: { short: 'Bulwark', name: 'Bulwark Wardens', cost: 300, range: 3.1, hp: 440, dmg: 20, rate: 0.9, armor: 0.6, respawn: 9, blurb: 'Shield-wall veterans who barely bleed.' },
+      B: { short: 'Lancers', name: 'Lancer Wardens', cost: 320, range: 3.1, hp: 250, dmg: 44, rate: 0.85, armor: 0.3, respawn: 8, blurb: 'Long spears that skewer brutes.' },
     },
   },
 };
@@ -93,7 +93,7 @@ export const ENEMIES = {
     lore: 'Invisible outside lantern light. Towers cannot target it.', tip: 'STEALTH: a Beacon or the hero\'s lantern reveals it.' },
   warlock: { name: 'Hollow Cantor', hp: 230, speed: 0.8, armor: 0, mres: 0.75, gold: 22, lives: 1, melee: 8, threat: 4, size: 0.48, gap: 2.4, heal: { every: 4, amt: 40, r: 2.6 },
     lore: 'Sings shadows back together. Shrugs off magic.', tip: 'MAGIC-RESIST + HEALER: focus it with Archers, Kilns or Wardens.' },
-  boss: { name: 'Eclipse Colossus', hp: 4400, speed: 0.42, armor: 0.35, mres: 0.35, gold: 500, lives: 15, melee: 80, threat: 60, size: 1.5, gap: 1, boss: true, summon: { every: 9, type: 'gloomling', n: 3 },
+  boss: { name: 'Eclipse Colossus', hp: 3600, speed: 0.42, armor: 0.35, mres: 0.35, gold: 500, lives: 15, melee: 80, threat: 60, size: 1.5, gap: 1, boss: true, summon: { every: 9, type: 'gloomling', n: 3 },
     lore: 'The night itself, walking. Summons gloomlings as it goes.', tip: 'BOSS: cannot be blocked; stuns are halved. Everything you have.' },
 };
 export const ENEMY_IDS = Object.keys(ENEMIES);
@@ -187,7 +187,7 @@ export const LEVELS = [
       [[-4.4, 10.6], [-4.2, 7.2], [-0.4, 5.2], [2.6, 3.2], ...L8tail],
     ],
     lavas: [{ x: -9.6, z: 5, r: 2.8 }, { x: 9.4, z: -6, r: 2.4 }, { x: 10, z: 6.4, r: 2 }],
-    roster: { gloomling: 0, hound: 0, brute: 0, moth: 0, stalker: 0, warlock: 0, blob: 0 }, budget: [19, 1.09], hpMul: 0.52, hero: 0.82,
+    roster: { gloomling: 0, hound: 0, brute: 0, moth: 0, stalker: 0, warlock: 0, blob: 0 }, budget: [19, 1.09], hpMul: 0.64, hero: 0.82,
   },
 ];
 

@@ -43,7 +43,7 @@ svg{display:block;width:100%;height:100%}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,210,122,0)}50%{box-shadow:0 0 0 5px rgba(255,210,122,.75)}}
 #heroBox{position:absolute;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));display:flex;gap:8px;align-items:center;padding:7px 9px 7px 7px}
 #heroBtn{width:52px;height:52px;border-radius:50%;padding:0;border:2px solid rgba(255,210,122,.4);background:none;cursor:pointer;position:relative;overflow:hidden}
-#heroBtn.sel{border-color:#ffd27a;box-shadow:0 0 0 3px rgba(255,210,122,.45)}
+#heroBtn.sel{border-color:var(--acc);box-shadow:0 0 0 3px rgba(255,210,122,.45)}
 #heroBtn.dead{filter:grayscale(1) brightness(.5)}
 #heroBtn .lv{position:absolute;right:-2px;bottom:-2px;background:#e8b552;color:#3a2000;font:800 10px/1 system-ui;padding:3px 4px;border-radius:7px}
 .hinfo{display:flex;flex-direction:column;gap:4px;min-width:96px}
@@ -54,6 +54,7 @@ svg{display:block;width:100%;height:100%}
 #abilityBtn.ready{box-shadow:0 0 0 2px rgba(255,210,122,.7),0 0 18px rgba(255,210,122,.4)}
 #abilityBtn .k{position:absolute;top:2px;right:4px;font:700 9px/1 system-ui;opacity:.55}
 .cornerbtn{width:44px;height:44px;border-radius:12px;padding:9px;box-sizing:border-box}
+body:not(.playing) #speedBtn,body:not(.playing) #pauseBtn{display:none}
 #speedBtn{width:auto;min-width:52px;padding:8px 10px;display:flex;gap:2px;align-items:center;font:800 13px/1 system-ui}
 #speedBtn i{width:22px;height:18px;display:block}
 /* ---------- world-anchored labels */
@@ -69,7 +70,7 @@ svg{display:block;width:100%;height:100%}
 #radial{position:fixed;inset:0;z-index:25;pointer-events:none}
 .rb{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;border:2px solid rgba(255,230,180,.45);background:radial-gradient(circle at 50% 35%,#3b3266,#1a1532);pointer-events:auto;cursor:pointer;padding:7px;box-sizing:border-box;transition:transform .12s,border-color .15s,box-shadow .15s;animation:rbIn .22s cubic-bezier(.2,1.4,.4,1) both}
 .rb:hover{transform:scale(1.08)}
-.rb.sel{border-color:#ffd27a;box-shadow:0 0 0 3px rgba(255,210,122,.55),0 0 20px rgba(255,210,122,.5);transform:scale(1.12)}
+.rb.sel{border-color:var(--acc);box-shadow:0 0 0 3px rgba(255,210,122,.55),0 0 20px rgba(255,210,122,.5);transform:scale(1.12)}
 .rb.no{filter:grayscale(.7) brightness(.65)}
 .rb .cost{position:absolute;left:50%;bottom:-13px;transform:translateX(-50%);font:800 11px/1 system-ui;padding:2px 5px;border-radius:7px;background:#1a1532;border:1px solid rgba(255,230,180,.35);color:#ffe27a;white-space:nowrap}
 .rb.no .cost{color:#ff8a9a}
@@ -85,11 +86,11 @@ svg{display:block;width:100%;height:100%}
 #info .up{color:var(--good)}
 #info p{margin:6px 0 0;color:#ddd6f8;font-size:12.5px}
 /* ---------- coach, banner, intro card */
-#coach{position:fixed;z-index:27;left:50%;top:max(66px,calc(env(safe-area-inset-top) + 60px));transform:translateX(-50%);max-width:min(480px,calc(100vw - 24px));padding:10px 14px;display:none;gap:10px;align-items:center;font:14px/1.4 system-ui}
+#coach{position:fixed;z-index:27;left:50%;top:max(66px,calc(env(safe-area-inset-top) + 60px));transform:translateX(-50%);width:max-content;max-width:min(480px,calc(100vw - 24px));box-sizing:border-box;padding:10px 14px;display:none;gap:10px;align-items:center;font:14px/1.4 system-ui}
 #coach.show{display:flex}
 #coach .n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:linear-gradient(135deg,#ffd27a,#ff7ad9);color:#201030;font-size:13px}
 #coach button{margin-left:auto;flex:none;background:none;border:0;color:var(--dim);text-decoration:underline;cursor:pointer;font-size:12px}
-#pointer{position:fixed;z-index:24;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:3px solid #ffd27a;pointer-events:none;display:none;animation:ptr 1.1s ease-in-out infinite;box-shadow:0 0 20px rgba(255,210,122,.6)}
+#pointer{position:fixed;z-index:24;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:3px solid var(--acc);pointer-events:none;display:none;animation:ptr 1.1s ease-in-out infinite;box-shadow:0 0 20px rgba(255,210,122,.6)}
 @keyframes ptr{0%,100%{transform:scale(.85);opacity:.9}50%{transform:scale(1.1);opacity:.5}}
 #banner{position:fixed;z-index:22;left:0;right:0;top:26%;text-align:center;pointer-events:none;opacity:0}
 #banner.show{animation:ban 2.4s ease-out}
@@ -119,6 +120,7 @@ svg{display:block;width:100%;height:100%}
 .node.sel{box-shadow:0 0 0 4px #fff,0 0 30px rgba(255,220,140,.9)}
 .node .stars{position:absolute;top:56px;left:50%;transform:translateX(-50%);display:flex;gap:1px}
 .node .stars i{width:14px;height:14px;color:rgba(255,255,255,.25)}.node .stars i.on{color:#ffd27a}
+.node.edgeL .nm{left:0!important;transform:none!important}.node.edgeR .nm{left:auto!important;right:0;transform:none!important}
 .node .nm{position:absolute;bottom:58px;left:50%;transform:translateX(-50%);white-space:nowrap;font:700 11px/1 system-ui;color:#fff;text-shadow:0 1px 4px #000;background:rgba(10,8,24,.55);padding:3px 6px;border-radius:6px}
 .biomeLab{position:absolute;top:10px;font:700 10px/1 system-ui;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.6)}
 #levelCard{padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:10px 16px;align-items:center}
@@ -148,6 +150,7 @@ svg{display:block;width:100%;height:100%}
 #menu .credits{font-size:11px;opacity:.5;margin-top:12px}
 #menu .tagline{font-size:13px;color:#ffe2c8;margin:-8px 0 14px}
 /* ---------- phones */
+@media (max-width:520px){.biomeLab{display:none}}
 @media (max-width:720px){
   .st{font-size:15px;padding:3px 7px 3px 4px}.st i{width:18px;height:18px}.st small{display:none}
   #stats{gap:1px;padding:3px}
@@ -157,9 +160,12 @@ svg{display:block;width:100%;height:100%}
   .bigbtn{font-size:13px;padding:10px 8px;min-height:44px}
   #heroBox{padding:5px}.hinfo{min-width:64px}.hinfo small{display:none}.hinfo b{font-size:11px}
   #heroBtn{width:46px;height:46px}#abilityBtn{width:46px;height:46px}
-  #info{width:auto;left:10px!important;right:10px;top:auto!important;bottom:84px}
+  #info{width:auto;left:10px!important;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 56px)!important;bottom:auto;padding:8px 10px;font-size:12px}
+  #info .sub{margin-bottom:3px}#info p{margin-top:3px;font-size:12px}
+  #info .rows{display:grid;grid-template-columns:1fr 1fr;column-gap:12px}
+  .rb .lbl{display:none}.rb{width:52px;height:52px;margin:-26px 0 0 -26px}
   #intro{left:10px;right:10px;width:auto;top:auto;bottom:84px}
-  #coach{font-size:13px;top:calc(max(10px,env(safe-area-inset-top)) + 54px)}
+  #coach{font-size:13px;top:calc(max(10px,env(safe-area-inset-top)) + 54px);left:10px;right:10px;transform:none;width:auto;max-width:none}
   #levelCard{grid-template-columns:1fr}
   #valley{aspect-ratio:auto;height:min(64vh,560px)}
   .node{width:44px;height:44px;margin:-22px 0 0 -22px;font-size:15px}.node .stars{top:46px}.node .nm{bottom:48px;font-size:10px}
@@ -193,7 +199,7 @@ svg{display:block;width:100%;height:100%}
   </div>
 </div>
 <div id="mapScreen"><div class="wrap">
-  <header><button class="btn" id="mapBack">‹ Title</button><h1>The Twilight Valley</h1><div class="sp"></div><div class="totals"><i id="icStarT"></i><span id="starTotal">0/24</span></div></header>
+  <header><button class="btn" id="mapBack">‹ Title</button><h1>The Twilight Valley</h1><div class="sp"></div><div class="totals"><i id="icStarT"></i><span id="starTotal">0/24</span></div><button class="btn" id="mapSet" aria-label="Settings">⚙</button></header>
   <div id="valley"></div>
   <div id="levelCard" class="panel">
     <div><div class="bio" id="lcBio"></div><h2 id="lcName"></h2><p id="lcDesc"></p><div class="meta" id="lcMeta"></div></div>

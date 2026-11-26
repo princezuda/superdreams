@@ -1,0 +1,10 @@
+Lantern Hold — credits
+
+All art is procedural and original: low-poly models kitbashed from three.js primitives (models.js),
+terrain/road/ice/lava/rift shaders written in TSL (world.js), UI icons drawn as inline SVG in code (icons.js),
+and sound effects synthesised at runtime with the Super Dreams kit (Web Audio).
+
+Third-party assets used: none.
+Assets considered and rejected: none downloaded (network-restricted build; procedural art was the plan from the start).
+
+Engine: three.js r187 (MIT), vendored at /vendor/three/.

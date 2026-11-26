@@ -180,7 +180,7 @@ export function towerModel(type, tier, branch) {
 }
 
 // ---------------------------------------------------------------- enemies (shadow creatures: violet bodies, glowing eyes)
-const SH = { body: '#4a3878', dark: '#2c2148', light: '#6e58a8' };
+const SH = { body: '#3d2c66', dark: '#241a3e', light: '#5e4a96' };
 export function enemyModel(type) {
   const k = new Kit(31 + type.length);
   const eye = (x, y, z, r = 0.05, col = '#ffe27a') => k.sph(r, col, [x, y, z], { detail: 0, b: 'glow' });
@@ -252,18 +252,20 @@ export function enemyModel(type) {
       eye(-0.06, 1.0, 0.15, 0.03, '#7dffb0'); eye(0.06, 1.0, 0.15, 0.03, '#7dffb0');
       break;
     case 'boss':
-      k.sph(0.95, SH.body, [0, 1.5, 0], { detail: 1, scale: [1.15, 1.1, 0.95] });
-      k.sph(0.48, SH.dark, [0, 2.45, 0.25], { detail: 1 });
-      for (let i = 0; i < 7; i++) { const a = -0.9 + i * 0.3; k.cone(0.09, 0.55 + (i === 3 ? 0.3 : 0), 4, '#1e1634', [Math.sin(a) * 0.4, 2.9 + Math.cos(a) * 0.08, 0.15 + Math.cos(a) * 0.1], { rot: [0, 0, -a * 0.7] }); }
+      k.sph(0.95, '#2e2250', [0, 1.5, 0], { detail: 1, scale: [1.15, 1.1, 0.95] });
+      k.sph(0.5, '#1c1430', [0, 2.5, 0.25], { detail: 1 });
+      for (let i = 0; i < 7; i++) { const a = -0.95 + i * 0.32, tall = i === 3 ? 1.0 : 0.7 - Math.abs(i - 3) * 0.06; k.cone(0.1, tall, 4, '#15101f', [Math.sin(a) * 0.42, 2.95 + tall * 0.3, 0.12 + Math.cos(a) * 0.12], { rot: [0, 0, -a * 0.8] }); k.oct(0.06, '#ff8a4a', [Math.sin(a) * (0.42 + tall * 0.35), 2.95 + tall * 0.8, 0.12 + Math.cos(a) * 0.12], { b: 'glow' }); }
       for (const sx of [-1, 1]) {
-        k.sph(0.36, SH.light, [sx * 1.0, 2.1, 0.05], { detail: 0 });
-        k.cyl(0.22, 0.3, 1.3, 7, SH.dark, [sx * 1.15, 1.25, 0.2], { rot: [0.2, 0, sx * 0.12] });
-        k.sph(0.34, '#2a2048', [sx * 1.22, 0.5, 0.32], { detail: 0 });
-        k.cyl(0.26, 0.34, 0.9, 7, SH.dark, [sx * 0.45, 0.45, 0], {});
+        k.sph(0.4, '#4a3a7a', [sx * 1.0, 2.1, 0.05], { detail: 0 });
+        k.cyl(0.24, 0.32, 1.3, 7, '#241a3e', [sx * 1.15, 1.25, 0.2], { rot: [0.2, 0, sx * 0.12] });
+        k.sph(0.36, '#1c1430', [sx * 1.22, 0.5, 0.32], { detail: 0 });
+        k.cyl(0.28, 0.36, 0.9, 7, '#241a3e', [sx * 0.45, 0.45, 0], {});
+        k.box(0.07, 0.5, 0.05, '#ff6a2a', [sx * 0.42, 1.55, 0.92], { rot: [0, 0, sx * 0.5], b: 'glow' }); // molten cracks
+        k.box(0.05, 0.36, 0.05, '#ff6a2a', [sx * 1.02, 2.2, 0.38], { rot: [0.3, 0, sx * 0.9], b: 'glow' });
       }
-      k.oct(0.3, '#ff6a3a', [0, 1.6, 0.86], { b: 'glow', scale: [1, 1.4, 0.5] });
-      eye(-0.18, 2.5, 0.68, 0.08, '#ff7a3a'); eye(0.18, 2.5, 0.68, 0.08, '#ff7a3a'); eye(0, 2.66, 0.66, 0.06, '#ff7a3a');
-      k.tor(1.25, 0.04, '#ff8a4a', [0, 1.4, 0], { rot: [Math.PI / 2, 0, 0], b: 'glow', ts: 24 });
+      k.oct(0.34, '#ff6a3a', [0, 1.6, 0.9], { b: 'glow', scale: [1, 1.5, 0.5] });
+      eye(-0.2, 2.52, 0.7, 0.11, '#ff8a3a'); eye(0.2, 2.52, 0.7, 0.11, '#ff8a3a'); eye(0, 2.7, 0.68, 0.08, '#ff8a3a');
+      k.tor(1.3, 0.05, '#ff8a4a', [0, 1.3, 0], { rot: [Math.PI / 2, 0, 0], b: 'glow', ts: 24 });
       break;
   }
   return { ...k.build({ ao: 0.25 }), wing };

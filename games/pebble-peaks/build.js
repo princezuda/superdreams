@@ -10,25 +10,25 @@ const topAt = (s, x, z) => physTopAt(s.hx !== undefined ? s : { ...s, hx: s.w / 
 // ------------------------------------------------------------------ themes (palette per level; colorblind variants shift hazard hues)
 const C = (h) => new THREE.Color(h);
 export const THEMES = {
-  hub: { sky: ['#5ab0ff', '#d8f0ff', '#fff4d0'], sunDir: [0.45, 0.75, 0.5], cloudsAmt: 1, stars: 0, fog: ['#d4ecff', 50, 190], hemi: ['#d8ecff', '#6a8a4a', 1.05], key: ['#fff1d6', 2.7], rim: ['#b0d0ff', 0.8], amb: 0.16, sea: 'water', exposure: 1.0,
+  hub: { sky: ['#5ab0ff', '#d8f0ff', '#fff4d0'], sunDir: [0.45, 0.75, 0.5], cloudsAmt: 1, stars: 0, fog: ['#d4ecff', 80, 330], hemi: ['#d8ecff', '#6a8a4a', 1.05], key: ['#fff1d6', 2.7], rim: ['#b0d0ff', 0.8], amb: 0.16, sea: 'water', exposure: 1.0,
     seaCol: ['#2c86c8', '#63cdea'], shard: '#ffcf4a',
     mats: { ground: ['#7fd04a', '#b07a4c'], stone: ['#d6d2c8', '#a39d92'], plank: ['#d6a061', '#98653c'], crack: ['#b4a596', '#9a8b7d'], shroom: ['#ff5d5d', '#f6ead8'] },
     tree: ['#5c3d24', '#5fbf3f', '#7fd655'], flowers: ['#ff6f91', '#ffd84a', '#ffffff', '#8fb8ff', '#ff9e4a'], tuft: '#5fb83a', rock: '#a6a39a' },
-  meadow: { sky: ['#4ea6ff', '#d2edff', '#fff2c8'], sunDir: [0.5, 0.72, 0.48], cloudsAmt: 1, stars: 0, fog: ['#cfe8ff', 45, 175], hemi: ['#d2eaff', '#5f7d3a', 1.0], key: ['#fff1d6', 2.7], rim: ['#a8c8ff', 0.9], amb: 0.15, sea: 'water', exposure: 1.0,
+  meadow: { sky: ['#4ea6ff', '#d2edff', '#fff2c8'], sunDir: [0.5, 0.72, 0.48], cloudsAmt: 1, stars: 0, fog: ['#cfe8ff', 80, 340], hemi: ['#d2eaff', '#5f7d3a', 1.0], key: ['#fff1d6', 2.7], rim: ['#a8c8ff', 0.9], amb: 0.15, sea: 'water', exposure: 1.0,
     seaCol: ['#2a7fc0', '#5cc6e8'], shard: '#ffcf4a',
     mats: { ground: ['#79cd45', '#b07a4c'], stone: ['#cfcac0', '#9b958c'], plank: ['#d39a5a', '#94603a'], crumble: ['#f2d58c', '#d0a866'], crack: ['#b0a294', '#968779'], shroom: ['#ff5d5d', '#f6ead8'] },
     tree: ['#5c3d24', '#4fb43a', '#79d34e'], flowers: ['#ff6f91', '#ffd84a', '#ffffff', '#8fb8ff', '#c38bff'], tuft: '#5aae36', rock: '#a29e94' },
-  caves: { sky: ['#0b0618', '#2a1646', '#9a6cff'], sunDir: [-0.35, 0.8, 0.45], cloudsAmt: 0, stars: 1, fog: ['#1d1033', 22, 95], hemi: ['#8c7cff', '#1a1030', 0.75], key: ['#c9b8ff', 1.5], rim: ['#46e3ff', 1.3], amb: 0.22, sea: 'abyss', exposure: 1.15,
+  caves: { sky: ['#0b0618', '#2a1646', '#9a6cff'], sunDir: [-0.35, 0.8, 0.45], cloudsAmt: 0, stars: 1, fog: ['#1d1033', 30, 130], hemi: ['#a89cff', '#2a1a48', 1.15], key: ['#d8ccff', 2.1], rim: ['#46e3ff', 1.5], amb: 0.32, sea: 'abyss', exposure: 1.2,
     seaCol: ['#12081f', '#7b3cff'], shard: '#5ff0ff',
-    mats: { ground: ['#4fd1b8', '#4a3e70'], stone: ['#8d86c4', '#4b4370'], wall: ['#3d3560', '#2b2546'], crystalwall: ['#c2a0ff', '#8a64ff'], plank: ['#8b78c0', '#5a4a86'], crumble: ['#8fe8ff', '#5ab0d8'], crack: ['#7a6fa6', '#5d5288'], shroom: ['#45e0c8', '#e8e0ff'] },
+    mats: { ground: ['#4fd1b8', '#4a3e70'], stone: ['#8d86c4', '#4b4370'], wall: ['#5a4f8a', '#3e3566'], crystalwall: ['#c2a0ff', '#8a64ff'], plank: ['#8b78c0', '#5a4a86'], crumble: ['#8fe8ff', '#5ab0d8'], crack: ['#7a6fa6', '#5d5288'], shroom: ['#45e0c8', '#e8e0ff'] },
     tree: ['#4a3a6a', '#6a54b8', '#8a70e0'], flowers: ['#5ff0ff', '#ff7ae0', '#b9a4ff'], tuft: '#3fb8a0', rock: '#5d557f', crystal: ['#58f0ff', '#ff6ae6'] },
-  sky: { sky: ['#6b8cff', '#ffd2e4', '#fff0c4'], sunDir: [0.55, 0.55, 0.6], cloudsAmt: 1.4, stars: 0, fog: ['#ffe0ec', 60, 220], hemi: ['#ffe6f2', '#8f7aa8', 1.05], key: ['#fff0d8', 2.5], rim: ['#c8b0ff', 1.0], amb: 0.18, sea: 'clouds', exposure: 1.0,
-    seaCol: ['#f4e6ff', '#ffffff'], shard: '#ffcf4a',
+  sky: { sky: ['#4a6ef0', '#ffc9de', '#fff0c4'], sunDir: [0.55, 0.55, 0.6], cloudsAmt: 1.4, stars: 0, fog: ['#f3c6dc', 110, 360], hemi: ['#ffe6f2', '#6a5a9a', 0.95], key: ['#fff0d8', 2.6], rim: ['#c8b0ff', 1.0], amb: 0.12, sea: 'clouds', exposure: 0.95,
+    seaCol: ['#a99ad8', '#f6ecff'], shard: '#ffcf4a',
     mats: { ground: ['#9be86b', '#e6b98e'], stone: ['#f4f0e8', '#d7cdbf'], plank: ['#f6cf86', '#c99654'], crumblecloud: ['#ffffff', '#ffe8f4'], crumble: ['#ffffff', '#ffe8f4'], crack: ['#d8cbbd', '#bfb0a2'], shroom: ['#ffa94d', '#fff3e0'], cloud: ['#ffffff', '#f4ecff'] },
     tree: ['#8a5a3c', '#ff9ec7', '#ffc2dc'], flowers: ['#ffffff', '#ffd84a', '#8fb8ff', '#ff8fb8'], tuft: '#7fd655', rock: '#d6cfc4' },
-  forge: { sky: ['#1a0606', '#7a2010', '#ffb060'], sunDir: [0.35, 0.6, 0.7], cloudsAmt: 0.5, stars: 0.3, fog: ['#3a1208', 30, 120], hemi: ['#ff9a6a', '#2a0a06', 0.7], key: ['#ffc8a0', 1.9], rim: ['#ff5a2a', 1.6], amb: 0.2, sea: 'lava', exposure: 1.05,
+  forge: { sky: ['#1a0606', '#7a2010', '#ffb060'], sunDir: [0.35, 0.6, 0.7], cloudsAmt: 0.5, stars: 0.3, fog: ['#3a1208', 50, 190], hemi: ['#ffb08a', '#3a140c', 0.95], key: ['#ffd8b8', 2.3], rim: ['#ff5a2a', 1.6], amb: 0.22, sea: 'lava', exposure: 1.05,
     seaCol: ['#ff3a00', '#ffd040'], shard: '#ffe27a',
-    mats: { ground: ['#5a4a50', '#352a30'], metal: ['#9aa0ab', '#5f646f'], arena: ['#6a5652', '#3e302e'], plank: ['#8a8f99', '#5a5f69'], basalt: ['#4a3c40', '#2c2226'], crumble: ['#7a5444', '#54382c'], crack: ['#7a6a64', '#5a4a44'], shroom: ['#c0c6d0', '#7a808a'], spring: ['#ffcc4a', '#8a8f99'] },
+    mats: { ground: ['#8c7478', '#4e3e42'], metal: ['#b4bac4', '#6f7480'], arena: ['#9a7c72', '#4e3a36'], plank: ['#a8aeb8', '#686e78'], basalt: ['#6a5a5e', '#3a2e32'], crumble: ['#a87a5c', '#6a4634'], crack: ['#7a6a64', '#5a4a44'], shroom: ['#c0c6d0', '#7a808a'], spring: ['#ffcc4a', '#8a8f99'] },
     tree: ['#3a2a24', '#5a4a40', '#6a5a50'], flowers: ['#ff7a3a', '#ffcf4a'], tuft: '#6a4a3a', rock: '#4f4246' },
 };
 
@@ -41,9 +41,10 @@ function terrainMaterial(theme) {
   const lip = topY.sub(0.2).sub(sin(p.x.mul(3.3).add(p.z.mul(1.7))).mul(sin(p.z.mul(2.9).sub(p.x))).mul(0.09)).sub(n.mul(0.1));
   const topMask = max(smoothstep(0.42, 0.78, normalLocal.y), step(lip, p.y));
   const depth = clamp(topY.sub(p.y).mul(0.055), 0, 0.5);
-  const strata = sin(p.y.mul(4.2).add(n.mul(1.6))).mul(0.07).add(mx_noise_float(p.mul(2.4)).mul(0.05));
+  const strata = sin(p.y.mul(4.2).add(n.mul(1.6))).mul(0.08).add(mx_noise_float(p.mul(2.4)).mul(0.06)).add(mx_noise_float(p.mul(0.35)).mul(0.12)) // sediment bands + big blotches
+    .sub(smoothstep(0.35, 0.5, abs(mx_noise_float(p.mul(vec3(1.6, 0.35, 1.6))))).mul(0.12)); // vertical cracks
   const side = cSide.mul(float(0.95).add(strata).sub(depth));
-  const g = mx_noise_float(p.xz.mul(0.32)).mul(0.08).add(mx_noise_float(p.xz.mul(1.9)).mul(0.05));
+  const g = mx_noise_float(p.xz.mul(0.32)).mul(0.11).add(mx_noise_float(p.xz.mul(1.9)).mul(0.07));
   const topC = cTop.mul(float(0.96).add(g));
   const lipDark = smoothstep(0.0, 0.08, p.y.sub(lip)).mul(0.12).oneMinus(); // soft shadowed band under the lip
   m.colorNode = mix(side.mul(mix(float(1), lipDark, float(1).sub(topMask))), topC, topMask);
@@ -62,11 +63,19 @@ function roundedCyl(r, h, bev = 0.22, seg = 36) {
   for (let i = 0; i <= 6; i++) { const a = i / 6 * Math.PI / 2; pts.push(new THREE.Vector2(r - bev + Math.cos(a) * bev, -bev + Math.sin(a) * bev)); }
   pts.push(new THREE.Vector2(0, 0)); const g = new THREE.LatheGeometry(pts, seg); return g;
 }
+function islandGeo(r, seed) { // floating island: grassy cap over a jagged rock cone
+  const depth = r * 1.5 + 1.5; const pts = [new THREE.Vector2(0, -depth), new THREE.Vector2(r * 0.22, -depth * 0.86), new THREE.Vector2(r * 0.5, -depth * 0.6), new THREE.Vector2(r * 0.78, -depth * 0.32), new THREE.Vector2(r * 0.96, -0.75), new THREE.Vector2(r, -0.3)];
+  for (let i = 1; i <= 4; i++) { const a = i / 4 * Math.PI / 2; pts.push(new THREE.Vector2(r - 0.25 + Math.cos(a) * 0.25, -0.25 + Math.sin(a) * 0.25)); } pts.push(new THREE.Vector2(0, 0));
+  const g = new THREE.LatheGeometry(pts, 28); const p = g.attributes.position; let k = seed || 1; const h = (n) => { const x = Math.sin(n * 12.9898 + k) * 43758.5453; return x - Math.floor(x); };
+  for (let i = 0; i < p.count; i++) { const y = p.getY(i); if (y > -0.7) continue; const x = p.getX(i), z = p.getZ(i); const a = Math.atan2(z, x); const ai = Math.round(Math.cos(a) * 9) * 19 + Math.round(Math.sin(a) * 9); const j = 1 + (h(ai + Math.round(y * 2) * 31) - 0.5) * 0.35; p.setX(i, x * j); p.setZ(i, z * j); p.setY(i, y + (h(ai * 7) - 0.5) * 0.4 * (y < -1.5 ? 1 : 0)); }
+  g.computeVertexNormals(); return g;
+}
 /** Geometry for one solid with its top at local y=0 (or world-placed when world=true). */
 export function solidGeometry(s, pal, world = true) {
   const [ct, cs] = (pal.mats[s.m] || pal.mats.ground).map(C);
   let g; const top = s.kind === 'ramp' ? Math.max(s.top0, s.top1) : s.top; s = { ...s, top };
-  if (s.kind === 'cyl') g = roundedCyl(s.r, s.h, s.m === 'arena' ? 0.35 : 0.24);
+  if (s.kind === 'cyl' && s.island) g = islandGeo(s.r, Math.round(s.x * 7 + s.z * 3));
+  else if (s.kind === 'cyl') g = roundedCyl(s.r, s.h, s.m === 'arena' ? 0.35 : 0.24);
   else if (s.kind === 'ramp') {
     g = new THREE.BoxGeometry(s.w, 1, s.d, 2, 1, 4); const p = g.attributes.position;
     for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); const tp = topAt(s, s.x + x, s.z + z); p.setY(i, p.getY(i) > 0 ? tp - s.top : (Math.min(s.top0, s.top1) - s.h) - s.top); }
@@ -106,16 +115,17 @@ export function seaMaterial(kind, cols) {
   const p = positionWorld.xz;
   if (kind === 'water') {
     const n = mx_fractal_noise_float(vec3(p.mul(0.12), time.mul(0.15)), 3, 2, 0.5);
-    const glint = smoothstep(0.42, 0.5, mx_noise_float(vec3(p.mul(0.9), time.mul(0.6))));
-    m.colorNode = mix(vec3(a.r, a.g, a.b), vec3(b.r, b.g, b.b), smoothstep(-0.3, 0.4, n));
-    m.emissiveNode = vec3(0.9, 1.0, 1.0).mul(glint.mul(0.6));
+    const glint = smoothstep(0.5, 0.56, mx_noise_float(vec3(p.mul(1.7), time.mul(0.7))));
+    m.colorNode = mix(vec3(a.r, a.g, a.b), vec3(b.r, b.g, b.b), smoothstep(-0.8, 0.8, n));
+    m.emissiveNode = vec3(0.9, 1.0, 1.0).mul(glint.mul(0.18));
     m.roughness = 0.12;
   } else if (kind === 'lava') {
     const flow = vec3(p.mul(0.18), time.mul(0.12));
-    const n = mx_fractal_noise_float(flow, 4, 2, 0.55); const crust = smoothstep(0.05, 0.25, mx_noise_float(vec3(p.mul(0.45), time.mul(0.05))));
-    const hot = mix(vec3(a.r, a.g, a.b), vec3(b.r, b.g, b.b), smoothstep(-0.2, 0.5, n));
-    m.colorNode = mix(hot.mul(0.6), vec3(0.12, 0.05, 0.04), crust.mul(0.75));
-    m.emissiveNode = hot.mul(float(1).sub(crust.mul(0.85))).mul(2.2);
+    const n = mx_fractal_noise_float(flow, 4, 2, 0.55); const cn = mx_fractal_noise_float(vec3(p.mul(0.32), time.mul(0.04)), 3, 2, 0.5);
+    const crust = smoothstep(-0.12, 0.06, cn); // cooled plates; glowing rivers between them
+    const hot = mix(vec3(0.9, 0.16, 0.02), vec3(1.0, 0.48, 0.06), smoothstep(-0.2, 0.5, n));
+    m.colorNode = mix(hot.mul(0.5), vec3(0.09, 0.05, 0.05), crust);
+    m.emissiveNode = hot.mul(float(1).sub(crust.mul(0.93))).mul(1.05);
     m.roughness = 0.6;
   } else if (kind === 'abyss') {
     const n = mx_fractal_noise_float(vec3(p.mul(0.06), time.mul(0.05)), 4, 2, 0.5);
@@ -123,8 +133,8 @@ export function seaMaterial(kind, cols) {
     m.roughness = 1;
   } else { // clouds
     const n = mx_fractal_noise_float(vec3(p.mul(0.05), time.mul(0.02)), 4, 2, 0.5);
-    m.colorNode = mix(vec3(a.r, a.g, a.b), vec3(b.r, b.g, b.b), smoothstep(-0.2, 0.4, n)); m.roughness = 1;
-    m.emissiveNode = vec3(a.r, a.g, a.b).mul(0.35);
+    m.colorNode = mix(vec3(a.r, a.g, a.b), vec3(b.r, b.g, b.b), smoothstep(-0.25, 0.45, n)); m.roughness = 1;
+    m.emissiveNode = vec3(a.r, a.g, a.b).mul(0.08);
   }
   return m;
 }
@@ -209,7 +219,12 @@ export function makeShroom(s, pal) {
   const stem = new THREE.Mesh(new THREE.CylinderGeometry(s.r * 0.36, s.r * 0.46, s.h + 0.4, 12), new THREE.MeshStandardNodeMaterial({ color: stemC, roughness: 0.8 })); stem.position.y = -(s.h + 0.4) / 2 - 0.1; stem.castShadow = true; g.add(stem);
   const capGeo = new THREE.SphereGeometry(s.r * 1.04, 28, 12, 0, Math.PI * 2, 0, Math.PI / 2); capGeo.scale(1, 0.62, 1);
   const capM = new THREE.MeshStandardNodeMaterial({ roughness: 0.55 });
-  capM.colorNode = mix(vec3(capC.r, capC.g, capC.b), vec3(1, 0.97, 0.92), smoothstep(0.55, 0.62, mx_noise_float(positionLocal.mul(5.5 / s.r)).add(0.5)));
+  { // round polka dots on a lat/long grid (jittered per cell)
+    const g2 = uv().mul(vec2(9, 3.2)); const cell = floor(g2); const hsh = fract(sin(dot(cell, vec2(12.9898, 78.233))).mul(43758.5453));
+    const loc = fract(g2).sub(vec2(0.5, 0.5)).add(vec2(hsh.sub(0.5).mul(0.3), hsh.mul(0.2).sub(0.1))); const d = length(loc.mul(vec2(1.0, 1.15)));
+    const dotM = smoothstep(0.3, 0.24, d).mul(step(0.25, hsh)).mul(smoothstep(0.92, 0.75, uv().y));
+    capM.colorNode = mix(vec3(capC.r, capC.g, capC.b), vec3(1, 0.97, 0.92), dotM);
+  }
   if (pal === THEMES.caves) capM.emissiveNode = vec3(capC.r, capC.g, capC.b).mul(0.8);
   const cap = new THREE.Mesh(capGeo, capM); cap.position.y = -s.r * 0.62 + 0.02; cap.castShadow = true; g.add(cap);
   const under = new THREE.Mesh(new THREE.CircleGeometry(s.r * 1.02, 24), new THREE.MeshStandardNodeMaterial({ color: stemC.clone().multiplyScalar(0.85), side: THREE.DoubleSide })); under.rotation.x = Math.PI / 2; under.position.y = cap.position.y; g.add(under);
@@ -276,7 +291,7 @@ export function makeEnemy(type, pal) {
     const lm = new THREE.MeshStandardNodeMaterial({ roughness: 0.5 });
     const crust = smoothstep(0.0, 0.25, mx_noise_float(positionLocal.mul(4.0).add(time.mul(0.3))));
     lm.colorNode = mix(vec3(1.0, 0.45, 0.05), vec3(0.16, 0.08, 0.07), crust);
-    lm.emissiveNode = mix(vec3(2.4, 0.7, 0.08), vec3(0, 0, 0), crust);
+    lm.emissiveNode = mix(vec3(1.4, 0.36, 0.04), vec3(0, 0, 0), crust);
     const b = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 14), lm); b.scale.y = 0.85; b.position.y = 0.47; b.castShadow = true; body.add(b);
     eyesOn(body, 0.6, 0.44, 0.17, 0.1);
     return { g, body, legs, r: 0.58, h: 0.95 };
@@ -289,7 +304,7 @@ export function makeBoss() {
   const uHeat = uniform(1);
   const cr = mx_noise_float(positionLocal.mul(1.6)); const crack = smoothstep(0.08, 0.0, abs(cr));
   rockM.colorNode = mix(vec3(0.2, 0.15, 0.15), vec3(0.32, 0.25, 0.23), smoothstep(-0.4, 0.4, mx_noise_float(positionLocal.mul(3.0))));
-  rockM.emissiveNode = mix(vec3(0.3, 0.5, 1.2), vec3(2.6, 0.7, 0.1), uHeat).mul(crack).mul(1.6);
+  rockM.emissiveNode = mix(vec3(0.25, 0.45, 1.1), vec3(1.5, 0.38, 0.04), uHeat).mul(crack).mul(1.3);
   const torso = new THREE.Mesh(jitter(new THREE.IcosahedronGeometry(2.0, 2), 0.18, 9), rockM); torso.scale.set(1.05, 0.85, 1); torso.position.y = 1.75; torso.castShadow = true; body.add(torso);
   const head = new THREE.Mesh(jitter(new THREE.IcosahedronGeometry(1.1, 1), 0.12, 4), rockM); head.position.set(0, 3.2, 0.2); head.castShadow = true; body.add(head);
   const eyeM = new THREE.MeshBasicNodeMaterial({ color: new THREE.Color(3.5, 2.6, 0.6) });
@@ -318,6 +333,13 @@ export function buildLevel(L, scene, opts = {}) {
   const statics = [], dyn = [];
   for (const [i, s] of L.solids.entries()) {
     if (s.m === 'shroom' || s.m === 'spring' || s.m === 'cloud') continue;
+    if (s.m === 'crystalwall') { // a giant faceted crystal column
+      const cm = new THREE.MeshStandardNodeMaterial({ roughness: 0.12, metalness: 0.1, flatShading: true });
+      cm.colorNode = mix(vec3(0.45, 0.3, 0.85), vec3(0.75, 0.6, 1.0), smoothstep(-0.3, 0.5, mx_noise_float(positionLocal.mul(vec3(0.6, 0.15, 0.6))))); cm.emissiveNode = cm.colorNode.mul(0.35);
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(s.r, s.r * 1.08, s.h, 6, 3), cm); col.position.set(s.x, s.top - s.h / 2, s.z); col.castShadow = col.receiveShadow = true; group.add(col);
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(s.r * 0.98, s.r, 0.3, 6), new THREE.MeshStandardNodeMaterial({ color: '#4fd1b8', roughness: 0.8 })); cap.position.set(s.x, s.top - 0.15, s.z); group.add(cap);
+      continue;
+    }
     if (s.path || s.crumble || s.breakable) dyn.push(i); else statics.push(solidGeometry(s, pal, true));
   }
   const terrain = new THREE.Mesh(mergeGeometries(statics), tmat); terrain.castShadow = true; terrain.receiveShadow = true; group.add(terrain);
@@ -338,7 +360,7 @@ export function buildLevel(L, scene, opts = {}) {
   if (cloudItems.length) { const cm = new THREE.MeshStandardNodeMaterial({ color: '#ffffff', roughness: 0.95, emissive: new THREE.Color(pal.mats.cloud ? pal.mats.cloud[1] : '#fff'), emissiveIntensity: 0.25 }); const im = instanced(new THREE.IcosahedronGeometry(1, 2), cm, cloudItems); im.castShadow = true; group.add(im); }
   // sea
   const sea = new THREE.Mesh(new THREE.PlaneGeometry(900, 900, 1, 1), seaMaterial(pal.sea, pal.seaCol)); sea.rotation.x = -Math.PI / 2; sea.position.y = L.seaY; sea.receiveShadow = pal.sea === 'water'; group.add(sea);
-  if (pal.sea === 'clouds') { const lowM = new THREE.MeshStandardNodeMaterial({ color: '#ffffff', roughness: 1, emissive: new THREE.Color('#ffe6f2'), emissiveIntensity: 0.45 }); const items = []; let s = 5; const r = () => ((s = (s * 16807) % 2147483647) / 2147483647); for (let i = 0; i < 70; i++) items.push({ x: (r() - 0.5) * 120, y: L.seaY + r() * 1.5, z: 20 - r() * 170, s: 3 + r() * 6 }); group.add(instanced(new THREE.IcosahedronGeometry(1, 2), lowM, items)); }
+  if (pal.sea === 'clouds') { const lowM = new THREE.MeshStandardNodeMaterial({ color: '#f4ecff', roughness: 1, emissive: new THREE.Color('#ffd6ea'), emissiveIntensity: 0.08 }); const items = []; let s = 5; const r = () => ((s = (s * 16807) % 2147483647) / 2147483647); for (let i = 0; i < 60; i++) items.push({ x: (r() - 0.5) * 140, y: L.seaY - 2 + r() * 1.2, z: 30 - r() * 190, s: 2.5 + r() * 4.5 }); group.add(instanced(new THREE.IcosahedronGeometry(1, 2), lowM, items)); }
   // decor
   const vc = new THREE.MeshStandardNodeMaterial({ vertexColors: true, roughness: 0.85, flatShading: true });
   const byType = (t) => L.decor.filter((d) => d.type === t);
@@ -350,8 +372,39 @@ export function buildLevel(L, scene, opts = {}) {
   const cryst = [...byType('crystal'), ...byType('bigcrystal')];
   if (cryst.length) { const cc = pal.crystal || ['#58f0ff', '#ff6ae6']; const cmA = new THREE.MeshStandardNodeMaterial({ color: cc[0], emissive: new THREE.Color(cc[0]), emissiveIntensity: 1.3, roughness: 0.15, flatShading: true }); const cmB = new THREE.MeshStandardNodeMaterial({ color: cc[1], emissive: new THREE.Color(cc[1]), emissiveIntensity: 1.3, roughness: 0.15, flatShading: true });
     add(instanced(crystalGeo(), cmA, cryst.filter((_, i) => i % 3 !== 2))); add(instanced(crystalGeo(), cmB, cryst.filter((_, i) => i % 3 === 2))); }
-  const ch = byType('chimney'); if (ch.length) { add(instanced(chimneyGeo(), vc, ch)); const glowM = new THREE.MeshBasicNodeMaterial({ color: new THREE.Color(3, 0.8, 0.15) }); add(instanced(new THREE.CylinderGeometry(0.85, 0.85, 0.2, 10), glowM, ch.map((d) => ({ ...d, y: d.y + 14.25 * d.s })))); }
+  const ch = byType('chimney').map((d) => ({ ...d, s: d.s * 1.3 })); if (ch.length) { add(instanced(chimneyGeo(), vc, ch)); const glowM = new THREE.MeshBasicNodeMaterial({ color: new THREE.Color(3, 0.8, 0.15) }); add(instanced(new THREE.CylinderGeometry(0.85, 0.85, 0.2, 10), glowM, ch.map((d) => ({ ...d, y: d.y + 14.25 * d.s })))); }
+  backdrop(L, pal, group, vc);
   return { group, terrain, solidMeshes, pal, sea, tmat };
+}
+// far scenery (no collision): mountains, cave spires, distant isles, a volcano — gives every world a horizon
+function backdrop(L, pal, group, vc) {
+  let k = 99; const r = () => ((k = (k * 16807) % 2147483647) / 2147483647);
+  const xs = L.solids.map((s) => s.x), zs = L.solids.map((s) => s.z); const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
+  const ring = (n, r0, r1) => Array.from({ length: n }, (_, i) => { const a = i / n * Math.PI * 2 + r() * 0.4, d = r0 + r() * (r1 - r0); return { x: cx + Math.cos(a) * d, z: cz + Math.sin(a) * d * 1.2, a }; });
+  if (L.theme === 'meadow' || L.theme === 'hub') {
+    const mg = mountainGeo('#5fa84a', '#8f8a80', '#ffffff'); const items = ring(L.theme === 'hub' ? 12 : 18, 210, 290).map((p) => ({ x: p.x, y: L.seaY - 2, z: p.z, s: 16 + r() * 22, rot: r() * 6 }));
+    items.push({ x: cx + 40, y: L.seaY - 2, z: cz - 300, s: 62, rot: 1 }); // the great Pebble Peak
+    group.add(instanced(mg, vc, items));
+  } else if (L.theme === 'caves') {
+    const sg = colored(jitter(new THREE.ConeGeometry(1, 4, 7, 3), 0.12, 5), C('#3a2f5e'));
+    const up = ring(26, 28, 70).map((p) => ({ x: p.x, y: -8, z: p.z, s: 4 + r() * 6, rot: r() * 6 }));
+    group.add(instanced(sg, vc, up));
+    const dg = sg.clone(); dg.rotateX(Math.PI); const down = ring(30, 14, 60).map((p) => ({ x: p.x, y: 30 + r() * 6, z: p.z, s: 3 + r() * 5, rot: r() * 6 }));
+    group.add(instanced(dg, vc, down));
+  } else if (L.theme === 'sky') {
+    const ig = mergeGeometries([colored(islandGeo(1, 3).toNonIndexed(), C('#e0b48a')), colored(new THREE.CylinderGeometry(1.02, 1.02, 0.12, 28).translate(0, -0.06, 0), C('#9be86b'))]);
+    const items = ring(18, 70, 160).map((p) => ({ x: p.x, y: -10 + r() * 40, z: p.z, s: 3 + r() * 7, rot: r() * 6 }));
+    group.add(instanced(ig, vc, items));
+  } else if (L.theme === 'forge') {
+    const vg = mountainGeo('#3a2a2c', '#2a1e20', '#ff6a1a'); group.add(instanced(vg, vc, [{ x: 20, y: -6, z: -260, s: 110, rot: 0.4 }, ...ring(8, 160, 230).map((p) => ({ x: p.x, y: -6, z: p.z, s: 35 + r() * 30, rot: r() * 6 }))]));
+    const glow = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 8), new THREE.MeshBasicNodeMaterial({ color: new THREE.Color(4, 1.2, 0.2) })); glow.position.set(20, -6 + 110 * 1.45, -260); glow.scale.set(24, 8, 24); group.add(glow);
+  }
+}
+function mountainGeo(base, rock, cap) {
+  const g = jitter(new THREE.ConeGeometry(1, 1.6, 9, 5), 0.06, 11); g.translate(0, 0.8, 0); const p = g.attributes.position;
+  const col = new Float32Array(p.count * 3); const cb = C(base), cr = C(rock), cc = C(cap);
+  for (let i = 0; i < p.count; i++) { const y = p.getY(i); const c = y > 1.25 ? cc : y > 0.6 ? cr : cb; col.set([c.r, c.g, c.b], i * 3); }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.deleteAttribute('uv'); return g.toNonIndexed();
 }
 function cloudPuffItems(s) {
   const items = []; let k = Math.round(Math.abs(s.x * 13 + s.z * 7)) + 1; const r = () => ((k = (k * 16807) % 2147483647) / 2147483647);

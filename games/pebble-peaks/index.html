@@ -29,7 +29,7 @@
   #hHp { position: absolute; left: calc(14px + var(--sal)); top: calc(66px + var(--sat)); display: flex; gap: 5px; }
   #hHp i { width: 20px; height: 17px; border-radius: 50% 50% 46% 46%; background: radial-gradient(circle at 35% 30%, #f2eefa, #a79dc4 60%, #6f6690); box-shadow: 0 2px 0 rgba(0, 0, 0, .25); transition: transform .2s, opacity .2s; }
   #hHp i.off { opacity: .25; transform: scale(.75); filter: grayscale(1); }
-  #hTime { position: absolute; left: 50%; top: calc(14px + var(--sat)); transform: translateX(-50%); }
+  #hTime { position: absolute; right: calc(12px + var(--sar)); top: calc(64px + var(--sat)); }
   #hint { position: fixed; left: 50%; bottom: calc(26px + var(--sab)); transform: translate(-50%, 20px); z-index: 21; max-width: min(560px, calc(100vw - 32px)); box-sizing: border-box; padding: 12px 18px; border-radius: 18px; background: rgba(255, 255, 255, .92); color: var(--ink); font: 800 16px/1.35 Inter, system-ui, sans-serif; text-align: center; box-shadow: 0 10px 30px rgba(20, 20, 60, .3); opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; }
   #hint.show { opacity: 1; transform: translate(-50%, 0); }
   #hint kbd { display: inline-block; padding: 1px 7px; margin: 0 2px; border-radius: 7px; background: #4a3a8a; color: #fff; font: 800 13px Inter, system-ui, sans-serif; box-shadow: 0 2px 0 #2a1f5a; }
@@ -49,7 +49,7 @@
   .tbtn { position: fixed; border-radius: 50%; border: 3px solid rgba(255, 255, 255, .75); background: rgba(255, 255, 255, .25); color: #fff; font: 900 15px Inter, system-ui, sans-serif; letter-spacing: .05em; text-shadow: 0 1px 3px rgba(0, 0, 0, .4); backdrop-filter: blur(4px); touch-action: none; }
   .tbtn.down { background: rgba(255, 255, 255, .6); transform: scale(.94); }
   #tJump { right: calc(20px + var(--sar)); bottom: calc(34px + var(--sab)); width: 92px; height: 92px; font-size: 17px; }
-  #tAct { right: calc(122px + var(--sar)); bottom: calc(28px + var(--sab)); width: 70px; height: 70px; }
+  #tAct { right: calc(122px + var(--sar)); bottom: calc(28px + var(--sab)); width: 72px; height: 72px; font-size: 11px; line-height: 1.25; }
   #stickHint { position: fixed; left: calc(30px + var(--sal)); bottom: calc(46px + var(--sab)); width: 96px; height: 96px; border-radius: 50%; border: 3px dashed rgba(255, 255, 255, .45); pointer-events: none; display: grid; place-items: center; color: rgba(255, 255, 255, .8); font: 800 11px Inter, system-ui, sans-serif; letter-spacing: .15em; }
   .card h2 { margin: 2px 0 8px; font-size: 30px; font-weight: 900; text-shadow: 0 3px 0 rgba(74, 58, 138, .8); }
   .card .eyebrow { font-size: 11px; letter-spacing: .25em; text-transform: uppercase; font-weight: 900; opacity: .9; }
@@ -64,7 +64,7 @@
   #fade.on { opacity: 1; }
   #loading { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; background: linear-gradient(180deg, #7ab8ff, #c8b0ff); color: #fff; font: 900 22px Inter, system-ui, sans-serif; transition: opacity .4s; }
   #loading.hide { opacity: 0; pointer-events: none; } #loading div { width: 220px; height: 12px; border-radius: 99px; background: rgba(255, 255, 255, .3); margin-top: 14px; overflow: hidden; } #loading i { display: block; height: 100%; width: 10%; background: #fff; transition: width .2s; }
-  @media (max-width: 520px) { .pill { font-size: 17px; padding: 5px 10px 5px 7px; } #hRelics i { width: 18px; height: 18px; } #hTime { top: calc(64px + var(--sat)); left: auto; right: calc(12px + var(--sar)); transform: none; } }
+  @media (max-width: 520px) { .pill { font-size: 17px; padding: 5px 10px 5px 7px; } #hRelics i { width: 18px; height: 18px; } }
 </style>
 </head>
 <body>

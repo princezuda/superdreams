@@ -86,7 +86,7 @@ function pool(parent, geo, mat, cap, { order = 0, shadow = false } = {}) {
 }
 
 const COL = {
-  arrow: new THREE.Color(1.6, 1.5, 1.2), bolt: new THREE.Color(4, 3.4, 1.6), shell: new THREE.Color(4, 1.6, 0.4), bomblet: new THREE.Color(3.4, 1.4, 0.4),
+  arrow: new THREE.Color(2.6, 2.3, 1.5), bolt: new THREE.Color(4, 3.4, 1.6), shell: new THREE.Color(4, 1.6, 0.4), bomblet: new THREE.Color(3.4, 1.4, 0.4),
   orb: new THREE.Color(2.2, 1.2, 4), wisp: new THREE.Color(4, 3, 1.4),
   spark: new THREE.Color(3, 1.6, 0.6), violet: new THREE.Color(1.4, 0.7, 2.6), mote: new THREE.Color(3.4, 2.8, 1.6), smoke: new THREE.Color(0.3, 0.27, 0.32),
   heal: new THREE.Color(0.8, 3, 1.4), gold: new THREE.Color(3.4, 2.6, 0.8), white: new THREE.Color(3, 3, 3), ice: new THREE.Color(1.6, 2.6, 3.4),
@@ -106,7 +106,7 @@ export class View {
     for (const type of ENEMY_IDS) {
       const md = enemyModel(type), cap = type === 'boss' ? 4 : 200;
       const emis = new THREE.InstancedBufferAttribute(new Float32Array(cap * 3), 3); emis.setUsage(THREE.DynamicDrawUsage);
-      const mat = new THREE.MeshStandardNodeMaterial({ vertexColors: true, flatShading: true, roughness: 0.55 });
+      const mat = new THREE.MeshStandardNodeMaterial({ vertexColors: true, flatShading: true, roughness: 0.78, envMapIntensity: 0.08 }); // PMREM env would milk the shadows pale
       mat.emissiveNode = instancedBufferAttribute(emis);
       let alpha = null;
       if (ENEMIES[type].stealth) {
@@ -119,8 +119,8 @@ export class View {
       this.root.add(body);
       let wings = null;
       if (md.wing) {
-        const wm = new THREE.MeshStandardNodeMaterial({ vertexColors: true, flatShading: true, roughness: 0.6, side: THREE.DoubleSide });
-        wm.emissiveNode = vec3(0.08, 0.04, 0.16);
+        const wm = new THREE.MeshStandardNodeMaterial({ vertexColors: true, flatShading: true, roughness: 0.7, envMapIntensity: 0.08, side: THREE.DoubleSide });
+        wm.emissiveNode = vec3(0.02, 0.01, 0.045);
         wings = [0, 1].map(() => { const w = new THREE.InstancedMesh(md.wing.solid, wm, cap); w.count = 0; w.frustumCulled = false; w.castShadow = true; w.instanceMatrix.setUsage(THREE.DynamicDrawUsage); this.root.add(w); return w; });
       }
       this.E[type] = { body, eyes, wings, emis, alpha, cap };
@@ -141,7 +141,7 @@ export class View {
     }
     this.hp = pool(this.root, new THREE.PlaneGeometry(1, 0.13), hpMat, 400, { order: 10 });
     // ---- projectiles + beams + ground glows
-    const streakGeo = new THREE.BoxGeometry(0.05, 0.05, 0.5);
+    const streakGeo = new THREE.BoxGeometry(0.075, 0.075, 0.6);
     this.streaks = pool(this.root, streakGeo, new THREE.MeshBasicNodeMaterial(), 220, { order: 2 });
     this.orbs = pool(this.root, new THREE.IcosahedronGeometry(0.11, 1), new THREE.MeshBasicNodeMaterial(), 160, { order: 2 });
     const beamGeo = new THREE.CylinderGeometry(1, 1, 1, 6, 1, true); beamGeo.translate(0, 0.5, 0);
@@ -248,6 +248,7 @@ export class View {
     const G = this.G;
     for (const e of events) {
       switch (e.t) {
+        // FABLE: animation — archers draw and loose, kiln door flares on fire, prism charge-up before the bolt, beacon shutters snap on Sunflare.
         case 'fire': {
           const tv = this.towers.get(e.id); if (!tv) break;
           if (e.type === 'archer') SFX.twang();
@@ -347,6 +348,8 @@ export class View {
     let nb = 0, nh = 0;
     const blobs = this.blobs, hp = this.hp, hpC = hp.instanceColor.array, hpF = this.hpFill.array;
     const camQ = cam.quaternion;
+    // FABLE: animation — replace this procedural bob/squash with real cycles: gloomling hop, hound gallop, brute stomp (+dust, small shake),
+    // FABLE: moth wing flap with body roll, blob jiggle, stalker cloak cloth, cantor sway with orb orbit, Colossus walk with arm swing.
     const writeEnemy = (type, x, y, z, yaw, sx, sy, emR, emG, emB, alphaV, flap, tilt) => {
       const E = this.E[type], i = counts[type]; if (i >= E.cap) return -1; counts[type]++;
       _q.setFromAxisAngle(_Y, yaw); if (tilt) { _q2.setFromAxisAngle(_Z, tilt); _q.multiply(_q2); }
@@ -368,16 +371,17 @@ export class View {
       else if (!e.heldBy) y += Math.abs(Math.sin(ph)) * 0.04;
       if (e.stunT > 0) tilt = Math.sin(t * 18 + e.id) * 0.18;
       if (e.heldBy) tilt += Math.sin(t * 9 + e.id) * 0.08;
-      sx *= appear; sy *= appear;
+      const vis = d.boss ? 1 : 1.3; sx *= appear * vis; sy *= appear * vis; // read at a glance from the default framing
       const fl = Math.max(0, e.flashT) / 0.12;
       const sl = e.slow > 0 ? 1 : 0, bn = e.burnT > 0 ? 0.6 + 0.4 * Math.sin(t * 20) : 0, mk = e.mark > 0 ? 1 : 0;
-      const emR = 0.07 + fl * 1.3 + sl * 0.32 + bn * 0.6 + mk * 0.25, emG = 0.035 + fl * 1.2 + sl * 0.22 + bn * 0.22 + mk * 0.05, emB = 0.13 + fl * 1.2 + sl * 0.06 + mk * 0.1;
+      // base emissive is a faint violet aura only — in linear space anything bigger outshines the dark albedo and turns shades pastel
+      const emR = 0.012 + fl * 0.75 + sl * 0.08 + bn * 0.5 + mk * 0.1, emG = 0.006 + fl * 0.7 + sl * 0.055 + bn * 0.18 + mk * 0.02, emB = 0.03 + fl * 0.7 + mk * 0.04;
       const av = d.stealth ? (e.revealed ? 1 : 0.18 + 0.06 * Math.sin(t * 6 + e.id)) : 1;
       writeEnemy(e.type, x, y, z, yaw, sx, sy, emR, emG, emB, av, Math.sin(e.age * 16) * 0.7, tilt);
-      if (nb < 420) { _m.compose(_v.set(x, 0.04, z), _q.identity(), _s.setScalar(d.size * 2.0 * (d.flying ? 0.8 : 1) * appear)); blobs.setMatrixAt(nb++, _m); }
+      if (nb < 420) { _m.compose(_v.set(x, 0.04, z), _q.identity(), _s.setScalar(d.size * (d.boss ? 2.0 : 2.5) * (d.flying ? 0.8 : 1) * appear)); blobs.setMatrixAt(nb++, _m); }
       if ((e.hp < e.maxhp || d.boss) && nh < 400 && (e.revealed || !d.stealth)) {
-        const w = d.boss ? 2.4 : 0.55 + d.size * 0.5;
-        const top = y + (d.boss ? 3.4 : d.size * 1.6 + (d.flying ? 0.35 : 0.45));
+        const w = d.boss ? 2.4 : 0.6 + d.size * 0.7;
+        const top = y + (d.boss ? 3.4 : d.size * 2.0 + (d.flying ? 0.4 : 0.55));
         _m.compose(_v.set(x, top, z), camQ, _s.set(w, d.boss ? 1.6 : 1, 1)); hp.setMatrixAt(nh, _m);
         const f = Math.max(0, e.hp / e.maxhp); hpF[nh] = f;
         if (this.cb) _c.setRGB(f > 0.5 ? 0.2 : 1, f > 0.5 ? 0.6 : 0.6, f > 0.5 ? 1 : 0.1); else _c.setRGB(f > 0.5 ? 0.45 + (1 - f) : 1, f > 0.5 ? 0.95 : 0.35 + f, 0.25);
@@ -397,6 +401,7 @@ export class View {
       if (E.wings) for (const w of E.wings) { w.count = n; w.instanceMatrix.needsUpdate = true; }
     }
     // ---- wardens + their hp bars
+    // FABLE: animation — warden sword/spear swings, shield block, fall + re-light at the hall door.
     let nw = 0;
     for (const s of G.soldiers) {
       if (s.dead > 0) continue;
@@ -413,6 +418,7 @@ export class View {
     }
     this.wardens.count = nw; this.wardens.instanceMatrix.needsUpdate = true;
     // ---- hero
+    // FABLE: animation — Captain Wren run/idle/attack cycle; Dawnburst wind-up (lantern raised overhead) before the flash.
     const h = G.hero, hv = this.hero;
     hv.visible = !(h.dead > 0);
     if (hv.visible) {
@@ -441,7 +447,7 @@ export class View {
         _q.setFromUnitVectors(_Z, _v2.normalize());
         _m.compose(_v.set(x, y, z), _q, _s.set(1, 1, p.kind === 'bolt' ? 1.8 : 1)); this.streaks.setMatrixAt(ns, _m);
         const c = COL[p.kind]; sc[ns * 3] = c.r; sc[ns * 3 + 1] = c.g; sc[ns * 3 + 2] = c.b; ns++;
-        if (p.kind === 'bolt' && Math.random() < 0.6) this.glowP.emit(x, y, z, 0, 0, 0, 0.25, 0.12, 0.02, COL.bolt);
+        if (Math.random() < (p.kind === 'bolt' ? 0.7 : 0.3)) this.glowP.emit(x, y, z, 0, 0, 0, 0.22, p.kind === 'bolt' ? 0.14 : 0.08, 0.02, COL[p.kind]);
       } else {
         if (no >= 160) continue;
         const s = p.kind === 'shell' ? 1.5 : p.kind === 'bomblet' ? 0.8 : p.kind === 'wisp' ? 0.85 : 1.1;

@@ -8,7 +8,7 @@ class Lv {
   constructor(id, o) { Object.assign(this, { id, solids: [], shards: [], relics: [], checkpoints: [], enemies: [], hazards: [], hints: [], decor: [], route: [], boss: null, portals: [] }, o); this.base = o.base ?? -4; }
   _s(o) { this.solids.push(o); return o; }
   box(x, z, w, d, top, o = {}) { return this._s({ kind: 'box', x, z, w, d, top, h: o.h ?? top - this.base, m: o.m ?? 'ground', ...o }); }
-  cyl(x, z, r, top, o = {}) { return this._s({ kind: 'cyl', x, z, r, top, h: o.h ?? top - this.base, m: o.m ?? 'ground', ...o }); }
+  cyl(x, z, r, top, o = {}) { return this._s({ kind: 'cyl', x, z, r, top, h: o.h ?? this.floatH ?? top - this.base, island: !!this.floatH && !o.h && !o.path, m: o.m ?? 'ground', ...o }); }
   ramp(x, z, w, d, top0, top1, axis = 'z', o = {}) { return this._s({ kind: 'ramp', x, z, w, d, top0, top1, axis, h: o.h ?? Math.min(top0, top1) - this.base, m: o.m ?? 'ground', ...o }); }
   plat(x, z, w, d, top, o = {}) { return this.box(x, z, w, d, top, { h: 0.7, m: 'plank', ...o }); }
   mover(x, z, w, d, top, path, o = {}) { return this.box(x, z, w, d, top, { h: 0.7, m: 'plank', path, ...o }); }
@@ -85,7 +85,7 @@ function meadow() {
   const s5 = L.box(21, -26, 9, 9, 4.6); L.way(19, 4.6, -26, 'jump');
   L.enemy('bug', { a: [18, 4.6, -29], b: [18, 4.6, -23], speed: 1.7 }); L.enemy('bug', { a: [20.5, 4.6, -29.5], b: [24.5, 4.6, -29.5], speed: 1.8 });
   L.shroom(23.6, -22.8, 1.15, 5.4, 22); L.hint(23.6, -22.8, 2.6, 'shroom'); L.ring(23.6, 6.4, -22.8, 1.8, 6);
-  L.cyl(23.6, -16.8, 1.6, 11, { m: 'stone' }); L.relic(23.6, 12, -16.8); L.deco('flower', 23.0, 11, -17.4, 1.1);
+  L.cyl(23.6, -16.8, 1.6, 11, { m: 'ground' }); L.relic(23.6, 12, -16.8); L.deco('flower', 23.0, 11, -17.4, 1.1);
   L.deco('tree', 17.6, 4.6, -22.6, 1.1); L.scatter(s5, 'tuft', 12, 6, { avoid: 2.4 });
   // S6 moving plank north
   L.mover(21, -33, 3.4, 3.4, 4.6, { a: [21, 4.6, -33], b: [21, 4.6, -43], T: 7 }); L.way(21, 4.6, -33, 'ride');
@@ -106,10 +106,12 @@ function meadow() {
   L.relic(17.8, 8.9, -73.3);
   L.deco('tree', 24.6, 8, -73.6, 1.2); L.scatter(s9, 'tuft', 10, 8, { avoid: 2.5 });
   // S10 pillars to the summit
-  [[21, -79, 9.2], [17, -83, 10.4], [21, -87.5, 11.6]].forEach(([x, z, t]) => { L.cyl(x, z, 1.6, t, { m: 'stone' }); L.shard(x, t + 0.9, z); L.way(x, t, z, 'jump'); });
+  [[21, -79, 9.2], [17, -83, 10.4], [21, -87.5, 11.6]].forEach(([x, z, t]) => { L.cyl(x, z, 1.6, t, { m: 'ground' }); L.shard(x, t + 0.9, z); L.way(x, t, z, 'jump'); });
   const top = L.cyl(21, -95, 5, 12.8); L.way(21, 12.8, -92, 'jump');
   L.goal = [21, 12.8, -96.5]; L.deco('tree', 18, 12.8, -98, 1.3); L.deco('tree', 24.4, 12.8, -97, 1); L.scatter(top, 'flower', 14, 9, { avoid: 2.2 });
   L.way(21, 12.8, -96.5, 'walk');
+  for (const [x, z, sc] of [[-8.5, -3, 2.2], [8.6, -12, 1.8], [-5.5, -18, 2.6], [6, -31, 2], [12, -19, 1.6], [28.5, -34, 2.4], [14, -40, 2.2], [28, -58, 2.8], [13.5, -66, 2], [27, -80, 2.4], [14, -90, 3], [-4, 9, 1.8]]) L.deco('rock', x, L.seaY - 0.35, z, sc, x * z);
+  L.scatter(s5, 'rock', 3, 61, { avoid: 3 }); L.scatter(s7, 'rock', 3, 62, { avoid: 3 }); L.scatter(s9, 'rock', 2, 63, { avoid: 3 }); L.scatter(s1, 'flower', 8, 64, { avoid: 2 });
   return L;
 }
 
@@ -118,7 +120,8 @@ function caves() {
   const L = new Lv('caves', { name: 'Glimmer Grotto', theme: 'caves', base: -10, killY: -7, spawn: [0, 0, 3], yaw: Math.PI, sea: 'abyss', seaY: -6, par: 170 });
   const c0 = L.box(0, 0, 10, 10, 0); L.way(0, 0, 3, 'walk'); L.line([0, 0.9, 1], [0, 0.9, -3], 3);
   // cave walls (visual mass + camera collision)
-  L.box(-11, -20, 6, 70, 16, { m: 'wall', h: 26 }); L.box(11, -26, 6, 58, 16, { m: 'wall', h: 26 });
+  { const wr = rng(77); for (const side of [-1, 1]) { let z = side < 0 ? 15 : 3; while (z > -56) { const len = 5 + wr() * 6, inner = 8 + wr() * 1.1, w = 5 + wr() * 2, top = 8 + wr() * 9;
+      const c = L.box(side * (inner + w / 2), z - len / 2, w, len, top, { m: 'wall', h: 24 }); if (wr() < 0.7) L.deco('crystal', c.x + (wr() - 0.5) * (w - 1.5), top, c.z + (wr() - 0.5) * (len - 1.5), 1 + wr() * 0.8, wr() * 6); z -= len; } } }
   L.scatter(c0, 'crystal', 6, 21, { avoid: 2.5 }); L.scatter(c0, 'rock', 5, 22, { avoid: 2.5 });
   const c1 = L.box(0, -10, 6, 6, 0); L.way(0, 0, -10, 'jump'); L.line([0, 1.6, -5.6], [0, 1.6, -6.4], 1);
   L.enemy('mite', { x: 0, y: 0, z: -10, range: 2.2, speed: 2.2, charge: 5.5 }); L.hint(0, -6, 2.4, 'mite');
@@ -129,7 +132,7 @@ function caves() {
   // elevator shaft
   L.mover(0, -37.5, 3, 3, 0, { a: [0, 0, -37.5], b: [0, 7, -37.5], T: 6.5 }); L.way(0, 0, -37.5, 'ride'); L.line([0, 2, -37.5], [0, 7, -37.5], 4);
   const c3 = L.box(0, -44, 8, 6, 7); L.way(0, 7, -43, 'jump');
-  L.enemy('mite', { x: -2, y: 7, z: -44.5, range: 1.8, speed: 2.4, charge: 6 }); L.enemy('mite', { x: 2.5, y: 7, z: -45.5, range: 1.5, speed: 2.4, charge: 6 });
+  L.enemy('mite', { x: -2.4, y: 7, z: -45.6, range: 1.4, speed: 2.4, charge: 5 }); L.enemy('mite', { x: 2.6, y: 7, z: -43.2, range: 1.2, speed: 2.4, charge: 5 });
   L.scatter(c3, 'crystal', 4, 24, { avoid: 2.4 }); L.line([-3, 7.9, -42], [3, 7.9, -42], 4);
   // great crystal pillar with orbiting platforms (a riding mushroom launches to relic #2 on top)
   L.cyl(0, -56, 2.5, 14, { m: 'crystalwall' });
@@ -157,7 +160,7 @@ function caves() {
 
 // ================================================================== 3. CLOUDTOP ISLES (sky islands)
 function sky() {
-  const L = new Lv('sky', { name: 'Cloudtop Isles', theme: 'sky', base: -5, killY: -9, spawn: [0, 0, 3], yaw: Math.PI, sea: 'clouds', seaY: -8, par: 180 });
+  const L = new Lv('sky', { name: 'Cloudtop Isles', theme: 'sky', base: -5, floatH: 3.2, killY: -9, spawn: [0, 0, 3], yaw: Math.PI, sea: 'clouds', seaY: -8, par: 180 });
   const k0 = L.cyl(0, 0, 6, 0); L.way(0, 0, 3, 'walk'); L.scatter(k0, 'flower', 16, 31, { avoid: 1.6 }); L.scatter(k0, 'tuft', 16, 32); L.deco('tree', -3.6, 0, 2.6, 1); L.deco('tree', 3.8, 0, -1.8, 0.9); L.ring(0, 0.9, -0.5, 3.6, 6);
   // cloud stairs (semi-solid: jump up through them)
   L.hint(0, -5, 2.4, 'cloud');
@@ -181,7 +184,7 @@ function sky() {
   const k8 = L.cyl(0, -95, 5, 7); L.way(0, 7, -94, 'jump'); L.enemy('puff', { x: -2, y: 8.6, z: -96, bob: 0.5, hover: 1.6 }); L.enemy('bug', { a: [2.5, 7, -97], b: [2.5, 7, -93], speed: 2 });
   L.deco('tree', 3.3, 7, -98, 1); L.scatter(k8, 'flower', 10, 34, { avoid: 2 }); L.ring(0, 7.9, -95, 3.4, 6); L.breakable(-3, -93, 1.3, 8.3, { shards: 3 });
   // rotating staircase around the sky tower
-  L.cyl(0, -107, 2, 19, { m: 'stone' }); L.relic(0, 19.9, -107);
+  L.cyl(0, -107, 2, 19, { m: 'stone', h: 30 }); L.relic(0, 19.9, -107);
   const T = 12; // all co-rotate so the offsets are constant
   [[0, 9], [0.13, 12], [0.26, 15], [0.39, 18]].forEach(([ph, top], i) => { L.moverC(0, -101.5, 1.5, top, { orbit: [0, top, -107, 5.5], T, ph: 0.25 + ph }); });
   L.way(0, 9, -101.5, 'stairs');
@@ -196,8 +199,8 @@ function sky() {
 function forge() {
   const L = new Lv('forge', { name: 'Cinder Forge', theme: 'forge', base: -4, killY: -0.9, spawn: [0, 2, 3], yaw: Math.PI, sea: 'lava', seaY: -0.4, par: 240 });
   const f0 = L.box(0, 0, 10, 10, 2); L.way(0, 2, 3, 'walk'); L.line([0, 2.9, 1], [0, 2.9, -3], 3); L.scatter(f0, 'rock', 5, 41, { avoid: 2 });
-  L.hint(0, -3.5, 2.4, 'sink');
-  [-9, -14, -19].forEach((z, i) => { L.cyl(0, z, 1.6, 2, { h: 1.4, m: 'basalt', path: { a: [0, 2, z], b: [0, -2.6, z], T: 5.5, ph: -0.18 + i * 0.12 } }); L.shard(0, 2.9, z); L.way(0, 2, z, 'jump'); });
+  L.hint(0, -3.5, 2.4, 'sink'); L.way(0, 2, -4.2, 'walk');
+  [-9, -14, -19].forEach((z, i) => { L.cyl(0, z, 1.6, 2, { h: 1.4, m: 'basalt', path: { a: [0, 2, z], b: [0, -2.2, z], T: 6.5, ph: 0.2 - i * 0.16 } }); L.shard(0, 2.9, z); L.way(0, 2, z, 'jump'); });
   const f2 = L.box(0, -27, 8, 6, 2); L.way(0, 2, -26, 'jump'); L.cp(-2.6, 2, -25.4); L.line([-3, 2.9, -29.4], [3, 2.9, -29.4], 4);
   L.hazards.push({ t: 'jet', x: -1.6, y: 2, z: -28.2, r: 0.7, h: 3.2, T: 2.4, on: 0.45, ph: 0 }, { t: 'jet', x: 1.6, y: 2, z: -28.2, r: 0.7, h: 3.2, T: 2.4, on: 0.45, ph: 0.5 });
   L.hint(0, -25, 2, 'jet');
@@ -216,11 +219,11 @@ function forge() {
   L.hazards.push({ t: 'jet', x: 20, y: 6, z: -67, r: 0.8, h: 3, T: 3, on: 0.35, ph: 0.2 });
   L.cyl(27.2, -66, 1.2, 9.4, { m: 'metal' }); L.relic(27.2, 10.3, -66); L.hazards.push({ t: 'jet', x: 27.2, y: 9.4, z: -66, r: 0.8, h: 2.6, T: 3.2, on: 0.3, ph: 0.6 });
   // bridge + boss arena
-  L.box(20, -81, 4, 12, 8, { m: 'metal' }); L.way(20, 8, -79, 'walk'); L.cp(20, 8, -78.2); L.line([20, 8.9, -77.5], [20, 8.9, -84.5], 4);
+  L.box(20, -81, 4, 12, 8, { m: 'metal' }); L.way(20, 8, -79, 'walk'); L.cp(21.3, 8, -77.6); L.line([20, 8.9, -77.5], [20, 8.9, -84.5], 4);
   L.cyl(20, -98, 11, 8, { m: 'arena' }); L.way(20, 8, -90, 'walk'); L.ring(20, 8.9, -98, 8.5, 10);
   L.boss = { x: 20, y: 8, z: -99, r: 11 };
   L.goal = [20, 8, -99]; L.goalHidden = true;
-  for (const [x, z, s] of [[-7, -12, 2], [8, -20, 2.4], [-8, -42, 2.6], [11, -40, 2], [32, -60, 2.8], [8, -70, 2.4], [34, -92, 3], [6, -104, 3.2]]) L.deco('chimney', x, -1, z, s);
+  for (const [x, z, s] of [[-26, -18, 1.1], [24, -10, 0.9], [-24, -60, 1.2], [44, -40, 1], [46, -78, 1.3], [-8, -98, 1.1], [40, -112, 1.2], [4, -126, 1]]) L.deco('chimney', x, -1, z, s);
   return L;
 }
 
