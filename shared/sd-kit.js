@@ -33,6 +33,12 @@ export async function createRenderer({ container = document.body, toneMapping = 
   renderer.domElement.classList.add('sd-canvas');
   container.appendChild(renderer.domElement);
   await renderer.init();
+  // WebGPU can lose its device (driver reset, headless software GPU). Reload once on the WebGL2 backend instead of freezing.
+  if (!FORCE_GL) renderer.backend?.device?.lost?.then((info) => {
+    if (info?.reason === 'destroyed' || sessionStorage.getItem('sd-gl-retry')) return;
+    try { sessionStorage.setItem('sd-gl-retry', '1'); } catch { /* private mode */ }
+    const u = new URL(location.href); u.searchParams.set('webgl', '1'); location.replace(u.href);
+  });
   return renderer;
 }
 
@@ -104,7 +110,7 @@ export function stageLights(scene, o = {}) {
   key.position.set(...(o.keyPos ?? [6, 11, 5]));
   key.castShadow = true;
   const s = o.shadowSize ?? 8;
-  Object.assign(key.shadow.camera, { left: -s, right: s, top: s, bottom: -s, near: 0.5, far: 40 });
+  Object.assign(key.shadow.camera, { left: -s, right: s, top: s, bottom: -s, near: 0.5, far: o.shadowFar ?? 40 });
   key.shadow.mapSize.set(2048, 2048); key.shadow.radius = 3; key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
   const rim = new THREE.DirectionalLight(o.rim ?? 0x8fb4ff, o.rimI ?? 1.1);
   rim.position.set(...(o.rimPos ?? [-7, 5, -8]));
@@ -304,11 +310,13 @@ export function toast(msg, ms = 2200) {
   setTimeout(() => { d.style.transition = 'opacity .3s'; d.style.opacity = '0'; setTimeout(() => d.remove(), 320); }, ms);
 }
 // Start menu. Must be #menu (the headless harness clicks it). `options` = [{key,label,choices:[{v,label}],value}]
-export function startMenu({ title, subtitle, options = [], startLabel = 'Play', onStart }) {
+// buttons: extra actions beside Play, e.g. [{ id: 'continue', label: 'Continue', onClick }] (the menu stays open unless onClick hides it).
+export function startMenu({ title, subtitle, options = [], startLabel = 'Play', onStart, buttons = [] }) {
   const el = document.createElement('div'); el.id = 'menu';
   const opts = options.map((o) => `<div class="sd-label">${o.label}</div><div class="sd-row" data-key="${o.key}">${o.choices.map((c) => `<button class="sd-btn ${c.v === o.value ? 'on' : ''}" data-v="${c.v}">${c.label}</button>`).join('')}</div>`).join('');
-  el.innerHTML = `<div class="sd-card"><h1>${title}</h1><p>${subtitle || ''}</p>${opts}<div class="sd-row" style="margin-top:20px"><button class="sd-btn primary" id="sd-start">${startLabel}</button></div></div>`;
+  el.innerHTML = `<div class="sd-card"><h1>${title}</h1><p>${subtitle || ''}</p>${opts}<div class="sd-row" style="margin-top:20px"><button class="sd-btn primary" id="sd-start">${startLabel}</button>${buttons.map((b, i) => `<button class="sd-btn" data-extra="${i}" id="sd-${b.id ?? 'extra' + i}">${b.label}</button>`).join('')}</div></div>`;
   document.body.appendChild(el);
+  el.querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', () => { sfx.click(); buttons[+b.dataset.extra].onClick?.(api); }));
   const values = Object.fromEntries(options.map((o) => [o.key, o.value]));
   el.querySelectorAll('.sd-row[data-key]').forEach((row) => row.addEventListener('click', (e) => {
     const b = e.target.closest('.sd-btn'); if (!b) return; sfx.click();
@@ -317,7 +325,8 @@ export function startMenu({ title, subtitle, options = [], startLabel = 'Play', 
   }));
   const go = () => { el.classList.add('hide'); sfx.select(); onStart?.(values); };
   el.querySelector('#sd-start').addEventListener('click', go);
-  return { el, show: () => el.classList.remove('hide'), hide: () => el.classList.add('hide'), values };
+  const api = { el, show: () => el.classList.remove('hide'), hide: () => el.classList.add('hide'), values };
+  return api;
 }
 // Settings panel (shake / flash / colorblind / volume / quality) behind a gear button.
 export function settingsButton(extraButtons = '') {

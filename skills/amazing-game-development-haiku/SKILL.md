@@ -59,4 +59,7 @@ node tools/shot.mjs "http://127.0.0.1:8100/games/<id>/?webgl" shot.png 4
 ## Done means
 Menu works · game can be won and lost · sounds on every action · settings work · touch works · `meta.json` filled · `thumb.jpg` saved from an in-game screenshot · no errors · it's fun for 5 minutes.
 
-Leave a `// FABLE:` comment wherever animation or music would help; a stronger model adds those later.
+## Music (already wired in the template)
+Edit `games/<id>/music.js` only: change `key`, `bpm`, the chord numbers and the `pat` strings. Keep the same layers. Then run `node tools/music-check.mjs http://127.0.0.1:8100 /games/<id>/music.js`; if a line says `SILENT` or `HOT`, change that layer's `vol`. Call `music.play('play')`, `music.intensity(0..1)` and `music.sting('win')` — nothing else.
+
+Use `squash(obj, 0.3)` from `/shared/sd-anim.js` for pops. Leave a `// FABLE:` comment wherever bigger animation would help; a stronger model adds those later.

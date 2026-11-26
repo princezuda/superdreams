@@ -39,6 +39,17 @@ Recipes that work:
 ## Stage 3 — Game feel (check every verb)
 For each verb (move, select, shoot, jump, capture, buy…): visual response + `sfx.*` within 100 ms, an eased `tween`, particles, and for impacts `shake(0.05–0.2)` + 40–80 ms hitstop. Forgiveness: coyote 100 ms, input buffer 120 ms. Accessibility via kit settings (shake, flash, colorblind, reduced motion, volume, quality) plus difficulty in the menu. Touch controls for anything playable. Fun, not compulsion.
 
+## Stage 3b — Music and animation (kits do the heavy lifting)
+```js
+import { createMusic, createAmbience, speak } from '/shared/sd-music.js';
+import { squash, hop, cine, spring, keys, gait, ik2, cloth } from '/shared/sd-anim.js';
+import { score } from './music.js';                      // copy games/_template/music.js and rewrite it
+const music = createMusic(score).play('menu');           // starts after the first click/key automatically
+music.play('play'); music.intensity(danger); music.sting('win');
+hitstop(60); await squash(piece, 0.3); slowmo(0.35, 0.8); await cine(camera, [{ pos: [0, 3, 5], look: target, dur: 0.9 }], { bars: true });
+```
+Score rules: one motif reused in every track; bass + chords + hook + light rhythm; 4–8 chords; calm games stay sparse. Run `node tools/music-check.mjs http://127.0.0.1:8100 /games/<id>/music.js` — fix any SILENT/HOT line. Animation rules: anticipation → action → settle; input never waits more than 150 ms; skip camera moves when `settings.reducedMotion`.
+
 ## Stage 4 — Verify (non-negotiable)
 ```bash
 php -S 127.0.0.1:8100 router.php &                        # from repo root
