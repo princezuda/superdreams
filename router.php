@@ -2,6 +2,8 @@
 // Dev server router: php -S 127.0.0.1:8080 router.php
 // Serves static files with the right MIME (wasm, modules) and gzip; everything else falls to PHP.
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+// Never serve internals (mirrors the Deny rules in those folders' .htaccess).
+if (preg_match('#^/(data|lib|inc|tools|tests|skills|docs)(/|$)|/\.#', $path)) { http_response_code(404); echo 'Not found'; return true; }
 $file = __DIR__ . $path;
 $mime = ['wasm'=>'application/wasm','js'=>'text/javascript','mjs'=>'text/javascript','json'=>'application/json',
          'css'=>'text/css','svg'=>'image/svg+xml','glb'=>'model/gltf-binary','gltf'=>'model/gltf+json','ktx2'=>'image/ktx2'];
