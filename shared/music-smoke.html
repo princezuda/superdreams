@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><title>music smoke</title>
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.webgpu.js","three/webgpu":"/vendor/three/build/three.webgpu.js","three/tsl":"/vendor/three/build/three.tsl.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+<pre id="out">rendering…</pre>
+<script type="module">
+// Offline-renders every instrument and (optionally) a game's score, then reports RMS/peak so levels can be checked headlessly.
+// ?score=/games/<id>/music.js  (module exporting `score` or default) renders each track at intensity 0.2 / 0.9 and each sting.
+import { renderOffline, INSTRUMENTS } from '/shared/sd-music.js';
+const stat = (buf) => { let peak = 0, sum = 0, n = 0; for (let ch = 0; ch < buf.numberOfChannels; ch++) { const d = buf.getChannelData(ch); for (let i = 0; i < d.length; i++) { const v = Math.abs(d[i]); if (v > peak) peak = v; sum += v * v; n++; } } return { rms: +Math.sqrt(sum / n).toFixed(4), peak: +peak.toFixed(3) }; };
+const res = { inst: {}, tracks: {}, stings: {}, errors: [] };
+try {
+  const DR = ['kick', 'snare', 'clap', 'hat', 'ohat', 'shaker', 'rim', 'tom', 'taiko', 'cymbal', 'riser'];
+  for (const inst of INSTRUMENTS) res.inst[inst] = stat(await renderOffline({ bpm: 100, key: 'C', scale: 'minor', chords: [0, 5, 3, 4], layers: [DR.includes(inst) ? { inst, pat: 'x---x---x---x-x-' } : ['pad', 'strings', 'choir', 'organ'].includes(inst) ? { inst } : { inst, pat: '0 . 1 . 2 . 1 .', div: 8 }] }, 4));
+  const src = new URLSearchParams(location.search).get('score');
+  if (src) {
+    const m = await import(src), score = m.score || m.default;
+    for (const [k, def] of Object.entries(score.tracks || {})) for (const x of [0.2, 0.9]) res.tracks[`${k}@${x}`] = stat(await renderOffline(def, 10, { intensity: x }));
+    for (const [k, def] of Object.entries(score.stings || {})) res.stings[k] = stat(await renderOffline(def, 5, { sting: true }));
+  }
+} catch (e) { res.errors.push(String(e.stack || e)); }
+window.__music = res; document.getElementById('out').textContent = JSON.stringify(res, null, 1);
+</script>

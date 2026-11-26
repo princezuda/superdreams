@@ -12,7 +12,11 @@
 // sections A–F. Keep every tunable in DEFAULTS so it can be remixed (meta.json "remix" mirrors it).
 // ============================================================================================
 import { THREE, createRenderer, createPipeline, autoResize, probe, startLoop, stageLights, spaceBackground, dust,
-  initUI, startMenu, settingsButton, toast, store, loadDream, sfx, tween, ease, updateTweens, shake, applyShake, flash } from '/shared/sd-kit.js';
+  initUI, startMenu, settingsButton, toast, store, loadDream, sfx, tween, ease, updateTweens, shake, applyShake, flash, hitstop } from '/shared/sd-kit.js';
+import { createMusic } from '/shared/sd-music.js';   // generative score: tracks, intensity layers, stings
+import { squash } from '/shared/sd-anim.js';        // springs, keyframes, squash, cine camera, gait, cloth
+import { score } from './music.js';
+const music = createMusic(score).play('menu');
 
 // ---- A. DEFAULTS (remixable) --------------------------------------------------------------
 const DEFAULTS = { difficulty: 'normal', colors: { accent: '#ffb347', ground: '#2a3566' }, goal: 10 };
@@ -45,18 +49,18 @@ const keys = new Set(); addEventListener('keydown', (e) => keys.add(e.code)); ad
 let touch = null; addEventListener('pointerdown', (e) => touch = e); addEventListener('pointermove', (e) => touch && (touch = e)); addEventListener('pointerup', () => touch = null);
 function placeOrb() { const a = Math.random() * Math.PI * 2, r = 1 + Math.random() * 6; orb.position.set(Math.cos(a) * r, 0.6, Math.sin(a) * r); }
 function collect() {
-  state.score++; sfx.chime(); shake(0.08); placeOrb();
-  tween(0.25, (k) => player.scale.setScalar(1 + 0.3 * Math.sin(k * Math.PI)), { ease: ease.outCubic });
+  state.score++; sfx.chime(); music.sting('collect', { duck: 0.8 }); shake(0.08); hitstop(40); placeOrb();
+  squash(player, 0.3, 0.3); music.intensity(0.3 + 0.7 * state.score / cfg.goal);
   if (state.score >= cfg.goal) win();
 }
-function win() { state.running = false; sfx.win(); flash('#ffd27a'); state.best = Math.max(state.best, state.score); store.set('template-best', state.best); toast('You win!'); menu.show(); }
+function win() { state.running = false; music.sting('win'); music.play('menu'); flash('#ffd27a'); state.best = Math.max(state.best, state.score); store.set('template-best', state.best); toast('You win!'); menu.show(); }
 placeOrb();
 
 // ---- E. UI ----------------------------------------------------------------------------------
 settingsButton();
 const menu = startMenu({ title: 'Template', subtitle: 'Collect the glowing orbs. WASD/arrows or drag.',
   options: [{ key: 'difficulty', label: 'Difficulty', value: cfg.difficulty, choices: [{ v: 'easy', label: 'Easy' }, { v: 'normal', label: 'Normal' }, { v: 'hard', label: 'Hard' }] }],
-  onStart: (v) => { cfg.difficulty = v.difficulty; state.score = 0; state.running = true; } });
+  onStart: (v) => { cfg.difficulty = v.difficulty; state.score = 0; state.running = true; music.play('play').intensity(0.3); } });
 const hud = document.getElementById('hud');
 
 // ---- F. LOOP + PROBE -------------------------------------------------------------------------

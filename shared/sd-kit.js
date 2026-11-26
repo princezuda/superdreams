@@ -14,7 +14,7 @@ const SKEY = 'sd-settings-v1';
 const readLS = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
 const writeLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } };
 export const settings = Object.assign({
-  shake: true, flash: true, colorblind: false, volume: 0.7, quality: 'high',
+  shake: true, flash: true, colorblind: false, volume: 0.7, music: 0.7, quality: 'high',
   reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
 }, readLS(SKEY) || {});
 { const q = new URLSearchParams(location.search).get('q'); if (q === 'low' || q === 'high') settings.quality = q; } // ?q=low for tests/slow devices (not saved)
@@ -68,12 +68,27 @@ export function probe(renderer, extra = {}) {
 }
 
 // Frame loop: THREE.Timer (Clock deprecated r183), dt clamped to avoid spiral-of-death.
+// Game-time scaling for animation: hitstop(ms) freezes game time briefly on impacts, slowmo(scale, sec)
+// eases into slow motion and back. startLoop applies both (step gets scaled dt, game time, real dt);
+// a custom loop calls scaledDt(realDt) itself. Reduced motion disables slow-mo.
+let gameT = 0, stopLeft = 0, slow = { scale: 1, left: 0, cur: 1 };
+export const hitstop = (ms = 60) => { stopLeft = Math.max(stopLeft, ms / 1000); };
+export const slowmo = (scale = 0.3, sec = 0.8) => { if (!settings.reducedMotion) slow = { scale, left: sec, cur: slow.cur }; };
+export function scaledDt(real) {
+  if (stopLeft > 0) { stopLeft -= real; return 0; }
+  slow.left -= real; const target = slow.left > 0 ? slow.scale : 1;
+  slow.cur += (target - slow.cur) * Math.min(1, real * 10);
+  return real * slow.cur;
+}
+/** Promise that resolves after `sec` of game time (driven by updateTweens, so it pauses with the game). */
+export const wait = (sec) => tween(sec, () => {}, { ease: (k) => k });
 export function startLoop(renderer, step, render) {
   const timer = new THREE.Timer(); timer.connect(document);
   renderer.setAnimationLoop((t) => {
     timer.update(t);
-    const dt = Math.min(timer.getDelta(), 1 / 20);
-    step(dt, timer.getElapsed());
+    const real = Math.min(timer.getDelta(), 1 / 20), dt = scaledDt(real);
+    gameT += dt;
+    step(dt, gameT, real);
     render();
     clearShake();
     const p = window.__cam;
@@ -154,7 +169,9 @@ const tweens = new Set();
 export const ease = {
   outCubic: (t) => 1 - Math.pow(1 - t, 3), inOutCubic: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
   outBack: (t) => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2), outElastic: (t) => t === 0 || t === 1 ? t : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * 2.094) + 1,
-  inQuad: (t) => t * t,
+  inQuad: (t) => t * t, outQuad: (t) => 1 - (1 - t) * (1 - t), inOutQuad: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+  inCubic: (t) => t * t * t, linear: (t) => t, inBack: (t) => 2.70158 * t * t * t - 1.70158 * t * t,
+  outBounce: (t) => { const n = 7.5625, d = 2.75; return t < 1 / d ? n * t * t : t < 2 / d ? n * (t -= 1.5 / d) * t + 0.75 : t < 2.5 / d ? n * (t -= 2.25 / d) * t + 0.9375 : n * (t -= 2.625 / d) * t + 0.984375; },
 };
 export function tween(dur, fn, { ease: e = ease.outCubic, delay = 0 } = {}) {
   // Returns a Promise with .cancel(): stops the tween where it is and resolves.
@@ -309,6 +326,7 @@ export function settingsButton(extraButtons = '') {
   <label>Screen shake <input type="checkbox" data-k="shake"></label><label>Flashes <input type="checkbox" data-k="flash"></label>
   <label>Colorblind-safe palette <input type="checkbox" data-k="colorblind"></label><label>Reduced motion <input type="checkbox" data-k="reducedMotion"></label>
   <label>Volume <input type="range" min="0" max="1" step="0.05" data-k="volume"></label>
+  <label>Music <input type="range" min="0" max="1" step="0.05" data-k="music"></label>
   <label>Graphics <select data-k="quality"><option value="high">High</option><option value="low">Low (reload)</option></select></label>
   <div class="sd-row"><button class="sd-btn primary" id="sd-close">Done</button></div></div></div>`);
   const panel = document.getElementById('sd-settings');
