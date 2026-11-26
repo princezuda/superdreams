@@ -66,6 +66,8 @@ Three jobs: **apply the quality bar** by default, **speak the language** (`gloss
 - Sprites are quads: radial `uv()` falloff + noise for soft billows.
 - Scale detail with size; never gate it on absolute height.
 - Doorways are recesses with warm emissive interiors, never flat dark quads.
+- FPS viewmodel: scale the gun ~0.3 and keep it inside the player's collision radius (no wall clipping); align sights to the camera ray for ADS; one shared muzzle-flash light keeps the light count constant.
+- Crowds of humanoids: instanced body parts posed by 2-bone IK; ray hits via a spatial grid, not scene-wide raycasts. Add a `sim(seconds)` hook so headless tests can fast-forward play.
 - Procedural space backdrops: a TSL `scene.backgroundNode` from `positionWorldDirection` (hashed star cells + fractal-noise nebula) costs zero draw calls and never tiles.
 
 ## 6. Known failure modes

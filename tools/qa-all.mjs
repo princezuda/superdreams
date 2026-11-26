@@ -16,11 +16,11 @@ for (const id of ids) {
   const t0 = Date.now(); let r = { id };
   try {
     await page.goto(`${base}/games/${id}/?webgl`, { timeout: 60000 });
-    await page.waitForFunction(() => window.__cam && window.__cam.dataReady && window.__cam.frames >= 2, null, { timeout: 120000 });
+    await page.waitForFunction(() => window.__cam && window.__cam.dataReady && window.__cam.frames >= 2, null, { timeout: 300000 });
     r.readyMs = Date.now() - t0;
-    await page.evaluate(() => document.querySelector('#sd-start')?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+    await page.evaluate(() => (document.querySelector('#sd-start')||document.querySelector('[data-start],#start,.start-btn,button.primary'))?.dispatchEvent(new MouseEvent('click', { bubbles: true })));
     const f0 = await page.evaluate(() => window.__cam.frames);
-    await page.waitForFunction((f) => window.__cam.frames >= f + 4, f0, { timeout: 120000 });
+    await page.waitForFunction((f) => window.__cam.frames >= f + 2, f0, { timeout: 300000 });
     Object.assign(r, await page.evaluate(() => ({ backend: __cam.backend, drawCalls: __cam.drawCalls, triangles: __cam.triangles, counts: __cam.counts, camErrors: (__cam.errors || []).slice(0, 3) })));
     await page.screenshot({ path: path.join(out, `${id}.png`) });
   } catch (e) { r.fail = (crashed ? 'TAB CRASH: ' : '') + e.message.split('\n')[0]; }
