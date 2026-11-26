@@ -74,6 +74,7 @@ export function startLoop(renderer, step, render) {
     const dt = Math.min(timer.getDelta(), 1 / 20);
     step(dt, timer.getElapsed());
     render();
+    clearShake();
     const p = window.__cam;
     if (p) { p.frames++; p.drawCalls = renderer.info.render.drawCalls; p.triangles = renderer.info.render.triangles; }
   });
@@ -168,14 +169,20 @@ export function updateTweens(dt) {
 }
 let shakeAmt = 0;
 export const shake = (a = 0.15) => { if (settings.shake && !settings.reducedMotion) shakeAmt = Math.max(shakeAmt, a); };
+// Shake is a render-time offset: startLoop removes it after render (call clearShake() yourself
+// if you render outside startLoop), so OrbitControls and scripted cameras never drift.
+let shk = null;
 export function applyShake(camera, dt) {
+  clearShake();
   if (shakeAmt <= 0.0005) return;
-  camera.position.x += (Math.random() - 0.5) * shakeAmt; camera.position.y += (Math.random() - 0.5) * shakeAmt;
+  shk = { camera, x: (Math.random() - 0.5) * shakeAmt, y: (Math.random() - 0.5) * shakeAmt };
+  camera.position.x += shk.x; camera.position.y += shk.y;
   shakeAmt *= Math.pow(0.0015, dt);
 }
-export function flash(color = '#fff', ms = 160) {
+export function clearShake() { if (shk) { shk.camera.position.x -= shk.x; shk.camera.position.y -= shk.y; shk = null; } }
+export function flash(color = '#fff', ms = 160, alpha = 1) {
   if (!settings.flash) return;
-  const d = document.createElement('div'); d.className = 'sd-flash'; d.style.background = color; document.body.appendChild(d);
+  const d = document.createElement('div'); d.className = 'sd-flash'; d.style.background = color; if (alpha < 1) d.style.opacity = String(alpha); document.body.appendChild(d);
   requestAnimationFrame(() => { d.style.opacity = '0'; d.style.transition = `opacity ${ms}ms ease-out`; });
   setTimeout(() => d.remove(), ms + 60);
 }
