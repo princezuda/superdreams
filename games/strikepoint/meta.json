@@ -1,0 +1,343 @@
+{
+ "id": "strikepoint",
+ "title": "Strikepoint",
+ "genre": "Shooter",
+ "subgenre": "FPS",
+ "tier": "AA",
+ "tagline": "A tactical first-person shooter: three-mission campaign, team skirmish, ten-wave holdout and a solo battle royale with building.",
+ "description": "Fight Black Tide across a rain-slick night dockyard, a sun-bleached hillside village and an industrial plant at dusk. Gunfeel first: aim down real sights, learnable recoil patterns, spread bloom, tactical and empty reloads, shells, tracers and surface impacts. Enemies take cover, peek, flank, suppress you and throw telegraphed grenades while calling out to each other. Modes: Campaign (breach, defend, plant, extract and a gunship finale), Skirmish team deathmatch vs bots, Holdout wave survival with buy stations, and Dropzone — drop onto Harrow Isle, loot tiered weapons, outrun the storm and quick-build cover from salvaged alloy.",
+ "playTime": "30–60 min",
+ "controls": "Mouse + keyboard (remappable), gamepad, or touch twin-sticks. WASD move · mouse look · LMB fire · RMB aim · Shift sprint · C crouch/slide · Space jump/mantle · R reload · G frag · T smoke · F interact · V melee · Q/E lean · B build (Dropzone) · Esc pause.",
+ "modes": [
+  "Campaign",
+  "Skirmish",
+  "Holdout",
+  "Dropzone"
+ ],
+ "themes": [
+  "Military",
+  "Night dockyard",
+  "Hillside village",
+  "Industrial plant",
+  "Battle royale"
+ ],
+ "levels": true,
+ "remix": [
+  {
+   "key": "difficulty",
+   "label": "Difficulty",
+   "type": "choice",
+   "choices": [
+    {
+     "v": "recruit",
+     "label": "Recruit"
+    },
+    {
+     "v": "regular",
+     "label": "Regular"
+    },
+    {
+     "v": "hardened",
+     "label": "Hardened"
+    },
+    {
+     "v": "veteran",
+     "label": "Veteran"
+    }
+   ],
+   "default": "regular"
+  },
+  {
+   "key": "enemyCount",
+   "label": "Enemies (Skirmish/Holdout/Dropzone)",
+   "type": "range",
+   "min": 2,
+   "max": 16,
+   "step": 1,
+   "default": 8
+  },
+  {
+   "key": "loadout.primary",
+   "label": "Primary weapon",
+   "type": "choice",
+   "choices": [
+    {
+     "v": "ar",
+     "label": "Assault rifle"
+    },
+    {
+     "v": "smg",
+     "label": "SMG"
+    },
+    {
+     "v": "shotgun",
+     "label": "Shotgun"
+    },
+    {
+     "v": "dmr",
+     "label": "Marksman rifle"
+    },
+    {
+     "v": "sniper",
+     "label": "Sniper rifle"
+    },
+    {
+     "v": "lmg",
+     "label": "LMG"
+    }
+   ],
+   "default": "ar"
+  },
+  {
+   "key": "loadout.secondary",
+   "label": "Secondary (Skirmish)",
+   "type": "choice",
+   "choices": [
+    {
+     "v": "pistol",
+     "label": "Pistol"
+    },
+    {
+     "v": "smg",
+     "label": "SMG"
+    },
+    {
+     "v": "shotgun",
+     "label": "Shotgun"
+    }
+   ],
+   "default": "pistol"
+  },
+  {
+   "key": "time.dockyard",
+   "label": "Saltmarsh Docks — time",
+   "type": "choice",
+   "choices": [
+    {
+     "v": "day",
+     "label": "Day"
+    },
+    {
+     "v": "dusk",
+     "label": "Dusk"
+    },
+    {
+     "v": "night",
+     "label": "Night"
+    },
+    {
+     "v": "storm",
+     "label": "Storm"
+    }
+   ],
+   "default": "night"
+  },
+  {
+   "key": "time.village",
+   "label": "Calvera — time",
+   "type": "choice",
+   "choices": [
+    {
+     "v": "day",
+     "label": "Day"
+    },
+    {
+     "v": "dusk",
+     "label": "Dusk"
+    },
+    {
+     "v": "night",
+     "label": "Night"
+    },
+    {
+     "v": "storm",
+     "label": "Storm"
+    }
+   ],
+   "default": "day"
+  },
+  {
+   "key": "time.plant",
+   "label": "Kessler Works — time",
+   "type": "choice",
+   "choices": [
+    {
+     "v": "day",
+     "label": "Day"
+    },
+    {
+     "v": "dusk",
+     "label": "Dusk"
+    },
+    {
+     "v": "night",
+     "label": "Night"
+    },
+    {
+     "v": "storm",
+     "label": "Storm"
+    }
+   ],
+   "default": "dusk"
+  },
+  {
+   "key": "time.island",
+   "label": "Harrow Isle — time",
+   "type": "choice",
+   "choices": [
+    {
+     "v": "day",
+     "label": "Day"
+    },
+    {
+     "v": "dusk",
+     "label": "Dusk"
+    },
+    {
+     "v": "night",
+     "label": "Night"
+    },
+    {
+     "v": "storm",
+     "label": "Storm"
+    }
+   ],
+   "default": "day"
+  },
+  {
+   "key": "gravity",
+   "label": "Gravity",
+   "type": "range",
+   "min": 0.4,
+   "max": 1.6,
+   "step": 0.1,
+   "default": 1
+  },
+  {
+   "key": "gameSpeed",
+   "label": "Game speed",
+   "type": "range",
+   "min": 0.6,
+   "max": 1.4,
+   "step": 0.05,
+   "default": 1
+  },
+  {
+   "key": "colors.friendly",
+   "label": "Friendly accent",
+   "type": "color",
+   "default": "#3cc8ff"
+  },
+  {
+   "key": "colors.enemy",
+   "label": "Enemy accent",
+   "type": "color",
+   "default": "#ff5a2e"
+  },
+  {
+   "key": "colors.hud",
+   "label": "HUD accent",
+   "type": "color",
+   "default": "#ffb02e"
+  },
+  {
+   "key": "building",
+   "label": "Building in Dropzone",
+   "type": "bool",
+   "default": true
+  },
+  {
+   "key": "rain",
+   "label": "Rain at night / in storms",
+   "type": "bool",
+   "default": true
+  }
+ ],
+ "credits": [
+  {
+   "asset": "Asphalt 02 (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Rob Tuytel",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/asphalt_02",
+   "use": "Dockyard / plant / island roads"
+  },
+  {
+   "asset": "Concrete Wall 008 (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Dario Barresi, Charlotte Baglioni",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/concrete_wall_008",
+   "use": "Concrete walls, barriers, slabs"
+  },
+  {
+   "asset": "Corrugated Iron 02 (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Jenelle van Heerden, Sergej Majboroda",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/corrugated_iron_02",
+   "use": "Shipping containers, sheds, warehouses"
+  },
+  {
+   "asset": "Plastered Wall (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Amal Kumar",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/plastered_wall",
+   "use": "Village houses"
+  },
+  {
+   "asset": "Cobblestone Floor 08 (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Rob Tuytel",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/cobblestone_floor_08",
+   "use": "Village streets"
+  },
+  {
+   "asset": "Brown Planks 05 (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Rob Tuytel",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/brown_planks_05",
+   "use": "Crates, pallets, wooden structures"
+  },
+  {
+   "asset": "Rusty Metal 02 (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Rob Tuytel",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/rusty_metal_02",
+   "use": "Ship hull, pipe racks, scrap"
+  },
+  {
+   "asset": "Metal Plate (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Rob Tuytel",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/metal_plate",
+   "use": "Catwalks, stairs, machinery"
+  },
+  {
+   "asset": "Clay Roof Tiles (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Amal Kumar",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/clay_roof_tiles",
+   "use": "Village roofs"
+  },
+  {
+   "asset": "Sparse Grass (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Amal Kumar",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/sparse_grass",
+   "use": "Village hills, island terrain"
+  },
+  {
+   "asset": "Brick Wall 09 (colour/normal/roughness, downscaled to 1K/512/256 JPG)",
+   "author": "Rob Tuytel, Matterfield",
+   "license": "CC0",
+   "url": "https://polyhaven.com/a/brick_wall_09",
+   "use": "Pump house, turbine hall, field walls"
+  }
+ ],
+ "fablePass": [
+  "Authored character animation: walk/run/crouch-walk cycles, cover peeks, reloads, grenade throws, hit reactions and ragdoll-style deaths (actors.js FABLE markers)",
+  "First-person animation polish: hand-keyed reloads per weapon, inspect, sprint-in/out, melee swing (weapons.js)",
+  "Music: menu theme, mission-start stingers, combat intensity layers, Overseer boss theme, holdout wave stinger, Dropzone storm-phase cues",
+  "Overseer gunship rotor/armour-plate animation and crash sequence (boss.js)",
+  "Voice-acted squad barks and radio chatter to replace text callouts"
+ ],
+ "thumb": "thumb.jpg"
+}

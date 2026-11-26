@@ -1,0 +1,15 @@
+The Hollow Crown — credits
+
+All art in this game is procedural: geometry built from three.js primitives, textures and item icons painted at
+runtime with Canvas 2D, skies/water/paper grain generated in TSL shaders. No third-party art, audio or fonts are used.
+Sound effects are synthesised at runtime by the shared Superdreams kit.
+
+Story, characters, dialog and world (Wrenfold, Tamsin, Queen Elowen, Sir Brannoch, Mabel Crust, Miller Hobb, Fennick,
+Granny Thistle, Grumbleroot, Keeper Marlow, Corvin the Magpie King) are original to this game.
+Inspired by the structure of classic 90s painted adventure games; no names, characters, maps or UI from any of them.
+
+Rejected / not used:
+- No downloaded assets were evaluated; the painterly look is achieved procedurally so the remix (season, banner colour)
+  can repaint every scene live.
+
+Engine: three.js r187 (MIT), vendored at /vendor/three.

@@ -1,0 +1,36 @@
+{
+  "id": "skyharbor",
+  "title": "Skyharbor",
+  "genre": "Space",
+  "subgenre": "City Builder",
+  "tier": "AA",
+  "tagline": "Find worlds, build harbour cities, raise wonders the whole galaxy travels to see.",
+  "description": "Scan the Lantern Cluster for planets — ocean, desert, ice, jungle, volcanic, crystal and gas-giant moons — each with traits like auroras, twin moons, great tides or low gravity. Settle them, lay roads, homes, hotels and spaceports, then raise one of twelve hand-built wonders: a floating ring gate, a spiral crystal helix, a tidal-glass cathedral, an orbital elevator and more. Traits multiply what tourists love, ships arc in from six old civilisations, reviews float up, and every wonder has its own after-dark moment. Make Skyharbor the most-visited world in the cluster, or play in sandbox.",
+  "playTime": "30–60+ min (autosaves)",
+  "controls": "Mouse: left-drag pan · right-drag rotate · wheel zoom · click to build or inspect. Touch: drag, pinch, two-finger twist. Keys: WASD/arrows pan · Q/E rotate · R/F tilt · 1–9 tools · L wonders · O overlay · V visit · T tourism · G goals · M galaxy · Space pause · Esc menu.",
+  "modes": ["Brightest Harbour (scenario)", "Sandbox"],
+  "themes": ["space", "city building", "tourism", "wonders", "sci-fi", "cosy", "day-night"],
+  "levels": false,
+  "remix": [
+    { "key": "planetType", "label": "First world", "type": "choice", "choices": [{ "v": "ocean", "label": "Ocean world" }, { "v": "desert", "label": "Desert world" }, { "v": "ice", "label": "Ice world" }, { "v": "jungle", "label": "Jungle world" }, { "v": "volcanic", "label": "Volcanic world" }, { "v": "crystal", "label": "Crystal world" }, { "v": "moon", "label": "Gas-giant moon" }], "default": "ocean" },
+    { "key": "startMoney", "label": "Starting credits", "type": "range", "min": 10000, "max": 300000, "step": 10000, "default": 60000 },
+    { "key": "palette", "label": "City lights palette", "type": "choice", "choices": [{ "v": "amber", "label": "Amber lanterns" }, { "v": "neon", "label": "Neon" }, { "v": "jade", "label": "Jade" }, { "v": "rose", "label": "Rose" }], "default": "amber" },
+    { "key": "colors.accent", "label": "Interface accent", "type": "color", "default": "#ffaa33" },
+    { "key": "timeSpeed", "label": "Time speed (days per minute ≈ 0.6×)", "type": "range", "min": 0.25, "max": 4, "step": 0.25, "default": 1 },
+    { "key": "eventFreq", "label": "Event frequency", "type": "range", "min": 0, "max": 3, "step": 0.5, "default": 1 },
+    { "key": "disasters", "label": "Disasters", "type": "choice", "choices": [{ "v": "off", "label": "Off" }, { "v": "gentle", "label": "Gentle" }, { "v": "frequent", "label": "Frequent" }], "default": "gentle" },
+    { "key": "unlock", "label": "Wonders unlocked", "type": "choice", "choices": [{ "v": "progress", "label": "Earn them (renown)" }, { "v": "all", "label": "All from the start" }], "default": "progress" },
+    { "key": "difficulty", "label": "Pace", "type": "choice", "choices": [{ "v": "relaxed", "label": "Relaxed" }, { "v": "standard", "label": "Standard" }, { "v": "tycoon", "label": "Tycoon" }], "default": "standard" },
+    { "key": "seed", "label": "Cluster seed (0 = random)", "type": "range", "min": 0, "max": 9999, "step": 1, "default": 0 }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Music: ambient bed per planet type, wonder-completion fanfare, festival theme",
+    "Wonder completion cinematic: choreographed camera + scaffold collapse",
+    "Visitor ship landing/take-off animation (gear, thrusters, dust) and crowd walk cycles",
+    "Construction cranes and scaffold animation for buildings and wonders",
+    "Per-landmark ambient sound (Helix hum, falls, lantern crackle)",
+    "Galaxy-to-planet descent transition (atmosphere entry)"
+  ],
+  "thumb": "thumb.jpg"
+}

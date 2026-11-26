@@ -1,0 +1,36 @@
+{
+  "id": "prism-breaker",
+  "title": "Prism Breaker",
+  "genre": "Casual",
+  "subgenre": "Brick Breaker",
+  "tier": "AA",
+  "tagline": "Shatter glass and neon into refracting shards — then bend light itself around a black hole.",
+  "description": "A 3D brick breaker with glass and neon bricks that burst into iridescent shards. Thirty hand-made levels across Crystal Caverns, Neon City and the Solar Core, each world ending in a Prism Core boss that dodges, fires orbs and raises shields. Catch Multi-ball, Laser, Wide and Slow power-ups, chain crystal charges into explosions and keep combos alive for climbing chimes. Gravity Well is the creative mode: an endless field where a movable black hole curves every shot and slingshots the ball through a wormhole.",
+  "playTime": "5–15 min sessions · 30 levels (~1–3 min each)",
+  "controls": "Drag / move the mouse to steer the paddle · tap, click or Space to launch · ←/→ or A/D · Esc/P pause",
+  "modes": ["Campaign (30 levels, 3 bosses)", "Gravity Well (creative, endless)"],
+  "themes": ["Crystal Caverns", "Neon City", "Solar Core"],
+  "levels": true,
+  "remix": [
+    { "key": "theme", "label": "World look", "type": "choice", "choices": [{ "v": "auto", "label": "Follow the campaign" }, { "v": "crystal", "label": "Crystal Caverns" }, { "v": "neon", "label": "Neon City" }, { "v": "solar", "label": "Solar Core" }], "default": "auto" },
+    { "key": "colors.accent", "label": "Ball & paddle glow", "type": "color", "default": "#7af0ff" },
+    { "key": "difficulty", "label": "Difficulty", "type": "choice", "choices": [{ "v": "easy", "label": "Easy" }, { "v": "normal", "label": "Normal" }, { "v": "hard", "label": "Hard" }], "default": "normal" },
+    { "key": "mode", "label": "Default mode", "type": "choice", "choices": [{ "v": "campaign", "label": "Campaign" }, { "v": "gravity", "label": "Gravity Well" }], "default": "campaign" },
+    { "key": "ballSpeed", "label": "Ball speed", "type": "range", "min": 0.6, "max": 1.6, "step": 0.1, "default": 1 },
+    { "key": "paddleWidth", "label": "Paddle width", "type": "range", "min": 0.7, "max": 1.6, "step": 0.1, "default": 1 },
+    { "key": "powerRate", "label": "Power-up rate", "type": "range", "min": 0, "max": 3, "step": 0.5, "default": 1 },
+    { "key": "gravity", "label": "Black hole strength (Gravity Well)", "type": "range", "min": 1, "max": 10, "step": 1, "default": 5 },
+    { "key": "shards", "label": "Shard intensity", "type": "range", "min": 0, "max": 3, "step": 1, "default": 2 },
+    { "key": "trail", "label": "Ball trail", "type": "bool", "default": true },
+    { "key": "bloom", "label": "Glow", "type": "range", "min": 0, "max": 2, "step": 0.25, "default": 1 }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Music: synthwave bed per world, boss theme with intensity layers tied to core HP",
+    "Boss: animated core phases (shield unfolding, charge-up tell before orb volleys)",
+    "Paddle: squash/stretch + thruster flare when moving fast",
+    "Finale: the three cores reassemble into a rotating prism; camera pull-back",
+    "Gravity Well: lensing distortion of the starfield around the horizon"
+  ],
+  "thumb": "thumb.jpg"
+}

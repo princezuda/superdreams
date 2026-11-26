@@ -1,0 +1,9 @@
+Skyharbor — asset credits
+
+All geometry, textures, shaders and sounds in Skyharbor are procedural and original to this game:
+- Terrain, planets, skies, water, buildings and the twelve landmarks are generated in code (three.js r187 + TSL).
+- Sound effects come from the shared Superdreams kit synth (Web Audio), no audio files.
+- Fonts: system UI fonts only.
+
+External assets used: none.
+Rejected assets: none considered — the procedural approach covered every need.

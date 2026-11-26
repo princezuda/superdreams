@@ -1,0 +1,4 @@
+Skystack — credits
+All geometry, the TSL sky shader, canvas-painted cloud/ripple textures and Web Audio SFX are generated in code in this
+folder plus the shared kit. No third-party assets.
+Rejected assets: none considered — the look is flat-shaded geometry + a procedural sky.

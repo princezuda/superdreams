@@ -1,0 +1,11 @@
+[
+  {"eval": "__cam.game.quickStart('ocean', {noTutorial: true}); 1"},
+  {"sleep": 4000},
+  {"wait": 2},
+  {"eval": "window.__lm = __cam.game.demoCity(['helix', 'halo', 'garden', 'ziggurat', 'grove'], {radius: 8}); __cam.game.setSpeed(0); __cam.game.hideUI(true); __cam.game.setTime('dusk'); 1"},
+  {"eval": "(() => { const g = __cam.game, p = g.state.planets.s0; const l = p.landmarks.find((q) => q.kind === 'helix'); return g.frameLandmark(l.uid, {yaw: -0.35, pitch: 0.13, dist: 92}); })()"},
+  {"wait": 3},
+  {"log": "[__cam.game.U.night.value, __cam.game.U.dusk.value, __cam.game.world.elev, __cam.drawCalls]"},
+  {"wait": 2},
+  {"shot": "SK/thumb-a.png"}
+]

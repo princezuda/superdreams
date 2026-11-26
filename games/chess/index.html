@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chess: Worlds</title>
+<meta name="description" content="Chess across six handcrafted worlds — Staunton classics, starfleets, galaxies, mechs, dragons and wizards. Play the AI, a friend, Chess960 or puzzles.">
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.webgpu.js","three/webgpu":"/vendor/three/build/three.webgpu.js","three/tsl":"/vendor/three/build/three.tsl.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+<style>
+  :root { --accent: #ffe2a0; --glass: rgba(12, 14, 30, .66); --line: rgba(190, 200, 255, .16); --ink: #eef2ff; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #05060c; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+  body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); user-select: none; -webkit-user-select: none; }
+  button { font-family: inherit; }
+  .hud { position: fixed; z-index: 20; pointer-events: none; transition: opacity .35s; }
+  .hud > * { pointer-events: auto; }
+  body:not(.playing) .hud { opacity: 0; pointer-events: none; }
+  body:not(.playing) .hud > * { pointer-events: none; }
+  #brand { top: 14px; left: 16px; display: flex; flex-direction: column; gap: 2px; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+  #brand b { font-size: 13px; letter-spacing: .32em; font-weight: 800; }
+  #brand span { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); opacity: .9; }
+  #turn { top: 14px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(10px); font-weight: 650; font-size: 15px; white-space: nowrap; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  #turn .dot { width: 14px; height: 14px; border-radius: 50%; background: #f4efe4; box-shadow: 0 0 0 2px rgba(255,255,255,.25); transition: background .3s; }
+  #turn[data-side="b"] .dot { background: #15161c; box-shadow: 0 0 0 2px rgba(255,255,255,.55); }
+  #turn.thinking #turn-text::after { content: ''; display: inline-block; width: 1.2em; text-align: left; animation: dots 1.2s steps(4) infinite; }
+  @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+  #turn .chk { display: none; padding: 3px 8px; border-radius: 8px; background: #d92a1f; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+  #turn.check .chk { display: inline-block; animation: pulse .9s ease-in-out infinite alternate; }
+  @keyframes pulse { to { box-shadow: 0 0 16px rgba(255,60,40,.85); } }
+  #last-move { display: none; opacity: .7; font-weight: 500; }
+  #panel { top: 72px; right: 14px; width: 250px; max-height: calc(100vh - 96px); display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,.4); }
+  .player { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid transparent; transition: border-color .25s, background .25s; }
+  .player.active { border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .player i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+  #p-white i { background: #f4efe4; } #p-black i { background: #15161c; box-shadow: 0 0 0 1.5px rgba(255,255,255,.5); }
+  .p-name { font-weight: 650; font-size: 14px; white-space: nowrap; }
+  .p-cap { flex: 1; font-size: 17px; letter-spacing: -2px; opacity: .85; overflow: hidden; white-space: nowrap; text-overflow: clip; text-align: right; }
+  .p-adv { font-size: 12px; font-weight: 700; color: var(--accent); min-width: 22px; text-align: right; }
+  #panel.as-black #p-white { order: -2; } #panel.as-black #p-black { order: 5; }
+  #moves { list-style: none; margin: 0; padding: 4px 2px; overflow-y: auto; min-height: 80px; max-height: 42vh; font: 500 13.5px/1.75 ui-monospace, "SF Mono", Menlo, Consolas, monospace; scrollbar-width: thin; }
+  #moves li { display: grid; grid-template-columns: 34px 1fr 1fr; padding: 0 6px; border-radius: 6px; }
+  #moves li:nth-child(odd) { background: rgba(255,255,255,.03); }
+  #moves b { opacity: .45; font-weight: 500; } #moves .cur { color: var(--accent); font-weight: 700; }
+  #moves .empty { display: block; opacity: .5; text-align: center; font-family: inherit; }
+  #puzzle { padding: 10px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+  .pz-k { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .7; } .pz-t { font-weight: 750; font-size: 16px; margin: 2px 0; } .pz-s { font-size: 13px; opacity: .85; }
+  .actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; order: 9; }
+  .actions .sd-btn { padding: 10px 4px; font-size: 13px; min-height: 42px; display: flex; flex-direction: column; align-items: center; gap: 3px; line-height: 1; }
+  .actions .sd-btn span { font-size: 16px; }
+  .actions .sd-btn:disabled { opacity: .38; cursor: default; transform: none; }
+  #btn-moves { display: none; }
+  #btn-hint.busy { animation: pulse .6s ease-in-out infinite alternate; }
+  #coach { bottom: 26px; left: 50%; transform: translateX(-50%); max-width: min(520px, 88vw); padding: 12px 18px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 18%, rgba(10,12,28,.85)); border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); font-weight: 600; text-align: center; box-shadow: 0 12px 36px rgba(0,0,0,.45); animation: rise .4s ease-out; }
+  #coach[hidden] { display: none; }
+  @keyframes rise { from { opacity: 0; transform: translate(-50%, 10px); } }
+  #replay-bar { bottom: 26px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; align-items: center; padding: 8px 10px 8px 18px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); font-weight: 650; }
+  #replay-bar[hidden] { display: none; }
+  .modal { position: fixed; inset: 0; z-index: 52; display: none; place-items: center; background: rgba(2,3,10,.5); backdrop-filter: blur(3px); }
+  .modal.open { display: grid; animation: fade .25s ease-out; }
+  @keyframes fade { from { opacity: 0; } }
+  .modal .sd-card { animation: pop .3s cubic-bezier(.2,1.4,.4,1); }
+  @keyframes pop { from { transform: scale(.92); opacity: 0; } }
+  .modal h2 { margin: 0 0 6px; font-size: 30px; }
+  #end h2 { font-size: clamp(32px, 7vw, 46px); background: linear-gradient(90deg, #ffd27a, var(--accent), #ffffff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #end-sub { font-size: 20px; font-weight: 700; margin: 0 0 4px; opacity: 1; }
+  .promo-btn { width: 84px; height: 96px; flex-direction: column; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+  .promo-btn span { font-size: 46px; line-height: 1; } .promo-btn small { font-size: 12px; opacity: .8; }
+  #theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0 4px; }
+  .theme-card { text-align: left; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; gap: 5px; transition: transform .12s, border-color .2s; }
+  .theme-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.4); }
+  .theme-card.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  .theme-card .sw { display: flex; gap: 3px; } .theme-card .sw i { flex: 1; height: 14px; border-radius: 4px; }
+  .theme-card b { font-size: 15px; } .theme-card small { font-size: 12px; opacity: .7; line-height: 1.35; }
+  .menu-blurb { min-height: 1.4em; color: var(--accent); font-size: 14px; margin-top: -8px !important; }
+  .menu-foot { margin-top: 14px; font-size: 12px; opacity: .55; }
+  #menu .sd-card { max-height: 92vh; overflow-y: auto; }
+  .sd-corner { z-index: 31; }
+  @media (max-width: 860px) {
+    #brand { display: none; }
+    #turn { top: 10px; left: 12px; transform: none; font-size: 14px; padding: 9px 14px; max-width: calc(100vw - 180px); overflow: hidden; }
+    #last-move { display: inline; }
+    #panel { top: auto; bottom: max(10px, env(safe-area-inset-bottom)); left: 10px; right: 10px; width: auto; max-height: none; padding: 8px; gap: 6px; display: grid; grid-template-columns: 1fr 1fr; }
+    .player { padding: 6px 8px; min-width: 0; }
+    .p-name { font-size: 13px; } .p-cap { font-size: 14px; }
+    #panel.as-black #p-white { order: 0; } #panel.as-black #p-black { order: 0; }
+    #moves, #puzzle { grid-column: 1 / -1; }
+    #moves { display: none; max-height: 30vh; }
+    body.show-moves #moves { display: block; }
+    .actions { grid-column: 1 / -1; grid-template-columns: repeat(4, 1fr); }
+    #btn-moves { display: flex; }
+    #coach { bottom: 150px; font-size: 14px; }
+    #replay-bar { bottom: 150px; }
+    #theme-grid { grid-template-columns: repeat(2, 1fr); }
+    .promo-btn { width: 68px; height: 84px; } .promo-btn span { font-size: 38px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .modal.open, .modal .sd-card, #coach { animation: none; } }
+</style>
+</head>
+<body>
+<div class="hud" id="brand"><b>CHESS: WORLDS</b><span id="theme-name">Classic</span></div>
+<div class="hud" id="turn" role="status" aria-live="polite"><i class="dot"></i><span id="turn-text">White to move</span><span class="chk">Check</span><span id="last-move"></span></div>
+<aside class="hud" id="panel" aria-label="Game panel">
+  <div class="player" id="p-black"><i></i><span class="p-name">Black</span><span class="p-cap" aria-label="Captured pieces"></span><span class="p-adv"></span></div>
+  <div id="puzzle" hidden></div>
+  <ol id="moves" aria-label="Move list"></ol>
+  <div class="player" id="p-white"><i></i><span class="p-name">White</span><span class="p-cap" aria-label="Captured pieces"></span><span class="p-adv"></span></div>
+  <div class="actions">
+    <button class="sd-btn" id="btn-undo" title="Undo (U)"><span>↶</span>Undo</button>
+    <button class="sd-btn" id="btn-hint" title="Hint (H)"><span>✦</span>Hint</button>
+    <button class="sd-btn" id="btn-flip" title="Flip view (F)"><span>⇅</span>Flip</button>
+    <button class="sd-btn" id="btn-moves" title="Show moves"><span>☰</span>Moves</button>
+  </div>
+</aside>
+<div class="hud" id="coach" hidden></div>
+<div class="hud" id="replay-bar" hidden>Replaying the game <button class="sd-btn" id="replay-skip">Skip</button></div>
+
+<div class="modal" id="promo" role="dialog" aria-label="Choose promotion"><div class="sd-card"><h2>Promote your pawn</h2><p>Choose the piece it becomes.</p><div class="sd-row" id="promo-choices"></div><div class="sd-row"><button class="sd-btn" id="promo-cancel">Cancel</button></div></div></div>
+<div class="modal" id="end" role="dialog" aria-label="Game over"><div class="sd-card"><h2 id="end-title">Checkmate!</h2><p id="end-sub"></p><p id="end-reason"></p>
+  <div class="sd-row"><button class="sd-btn primary" id="end-rematch">Rematch</button><button class="sd-btn primary" id="end-next" hidden>Next puzzle</button><button class="sd-btn" id="end-replay">Watch replay</button></div>
+  <div class="sd-row"><button class="sd-btn" id="end-close">View board</button><button class="sd-btn" id="end-menu">Main menu</button></div></div></div>
+<div class="modal" id="pause" role="dialog" aria-label="Paused"><div class="sd-card"><h2>Paused</h2><p>Take a breath. The board will wait.</p>
+  <div class="sd-row"><button class="sd-btn primary" id="pause-resume">Resume</button><button class="sd-btn" id="pause-restart">Restart</button></div>
+  <div class="sd-row"><button class="sd-btn" id="pause-settings">Settings</button><button class="sd-btn" id="pause-menu">Main menu</button></div></div></div>
+<div class="modal" id="themes" role="dialog" aria-label="Choose a world"><div class="sd-card" style="max-width:min(720px,94vw)"><h2>Choose a world</h2><p>Each world has its own board, pieces, light and capture magic. Your game carries on.</p><div id="theme-grid"></div><div class="sd-row"><button class="sd-btn primary" id="themes-close">Done</button></div></div></div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

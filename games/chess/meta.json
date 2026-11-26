@@ -1,0 +1,43 @@
+{
+  "id": "chess",
+  "title": "Chess: Worlds",
+  "genre": "Board",
+  "subgenre": "Strategy",
+  "tier": "AA",
+  "tagline": "One timeless game, six living worlds.",
+  "description": "Full-rules chess played across six handcrafted 3D worlds — lacquered Staunton classics, starship fleets, celestial galaxies, neon mechs, stone dragons and crystal wizards — each with its own board, light and capture magic. Challenge a four-level AI that thinks in a background worker, pass-and-play with a friend, shake things up with Chess960, or sharpen your eye on hand-verified mate-in-two puzzles.",
+  "playTime": "10–60 min",
+  "controls": "Mouse / touch · keyboard (arrows + Enter, H hint, U undo, F flip, T worlds, Esc pause)",
+  "levels": false,
+  "modes": ["vs AI (Easy, Medium, Hard, Master)", "2 players (hotseat)", "Chess960", "Mate-in-2 puzzles"],
+  "themes": ["Classic", "Space", "Galaxy", "Sci-Fi", "Fantasy", "Magic"],
+  "remix": [
+    { "key": "theme", "label": "World", "type": "choice", "choices": [{ "v": "classic", "label": "Classic study" }, { "v": "space", "label": "Space fleet" }, { "v": "galaxy", "label": "Galaxy" }, { "v": "scifi", "label": "Sci-Fi grid" }, { "v": "fantasy", "label": "Fantasy castle" }, { "v": "magic", "label": "Magic arcane" }], "default": "classic" },
+    { "key": "pieceSet", "label": "Piece set", "type": "choice", "choices": [{ "v": "auto", "label": "Match the world" }, { "v": "classic", "label": "Staunton" }, { "v": "space", "label": "Starships" }, { "v": "galaxy", "label": "Celestial bodies" }, { "v": "scifi", "label": "Mechs & drones" }, { "v": "fantasy", "label": "Dragons & wizards" }, { "v": "magic", "label": "Crystal mages" }], "default": "auto" },
+    { "key": "environment", "label": "Surroundings", "type": "choice", "choices": [{ "v": "auto", "label": "Match the world" }, { "v": "classic", "label": "Lamplit study" }, { "v": "space", "label": "Deep space" }, { "v": "galaxy", "label": "Spiral galaxy" }, { "v": "scifi", "label": "Neon data city" }, { "v": "fantasy", "label": "Castle courtyard" }, { "v": "magic", "label": "Arcane void" }], "default": "auto" },
+    { "key": "captureFx", "label": "Capture effect", "type": "choice", "choices": [{ "v": "auto", "label": "Match the world" }, { "v": "dust", "label": "Knock-over & dust" }, { "v": "wormhole", "label": "Wormhole" }, { "v": "supernova", "label": "Supernova" }, { "v": "derez", "label": "Voxel derez" }, { "v": "crumble", "label": "Crumble to rubble" }, { "v": "sparkle", "label": "Dissolve in sparkles" }], "default": "auto" },
+    { "key": "mode", "label": "Mode", "type": "choice", "choices": [{ "v": "ai", "label": "vs AI" }, { "v": "local", "label": "2 players" }, { "v": "puzzle", "label": "Puzzles" }], "default": "ai" },
+    { "key": "variant", "label": "Variant", "type": "choice", "choices": [{ "v": "standard", "label": "Standard" }, { "v": "chess960", "label": "Chess960" }], "default": "standard" },
+    { "key": "aiLevel", "label": "AI difficulty", "type": "choice", "choices": [{ "v": "easy", "label": "Easy" }, { "v": "medium", "label": "Medium" }, { "v": "hard", "label": "Hard" }, { "v": "master", "label": "Master" }], "default": "medium" },
+    { "key": "playerColor", "label": "Play as", "type": "choice", "choices": [{ "v": "white", "label": "White" }, { "v": "black", "label": "Black" }, { "v": "random", "label": "Random" }], "default": "white" },
+    { "key": "colors.light", "label": "Light squares (leave unchanged = world palette)", "type": "color", "default": "#e9d1a4" },
+    { "key": "colors.dark", "label": "Dark squares", "type": "color", "default": "#7b4b2c" },
+    { "key": "colors.whitePieces", "label": "White pieces", "type": "color", "default": "#f1e3c6" },
+    { "key": "colors.blackPieces", "label": "Black pieces", "type": "color", "default": "#2a1912" },
+    { "key": "colors.accent", "label": "Accent / trim", "type": "color", "default": "#d8ad52" },
+    { "key": "showLegal", "label": "Show legal moves", "type": "bool", "default": true },
+    { "key": "showCoords", "label": "Board coordinates", "type": "bool", "default": true },
+    { "key": "autoQueen", "label": "Auto-promote to queen", "type": "bool", "default": false }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Capture choreography per world: the capturing piece strikes (knight rears, dragon breathes, ship fires), hit-stop and a camera punch-in before each capture effect",
+    "Promotion transformation: the pawn ascends in a column of light and the new piece materialises with a world-specific flourish",
+    "Checkmate / victory sequence: the mated king topples in slow motion with a cinematic orbit, then a fanfare",
+    "Idle life for pieces: breathing glows, hovering ships bob, dragons blink, crystals rotate, flames flicker on Fantasy torches",
+    "Music: one ambient bed per world (study fireplace & piano, space drone, galactic choir pad, synthwave grid, medieval lute & wind, arcane chimes) ducked under SFX",
+    "Check alert: a sting plus a world-specific pulse across the board, not just the king glow",
+    "Menu attract mode: a short scripted famous game (e.g. the Opera Game) played in the background world"
+  ],
+  "thumb": "thumb.jpg"
+}

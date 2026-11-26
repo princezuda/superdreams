@@ -1,0 +1,34 @@
+{
+  "id": "starwake",
+  "title": "Starwake",
+  "genre": "Space",
+  "subgenre": "Combat & Trading Sim",
+  "tier": "AA",
+  "tagline": "A beat-up ship, a few credits, a whole frontier. Trade, hunt, smuggle, or chase the light.",
+  "description": "Fly a dented freelance hauler through the Calder Reach: twelve star systems linked by jump gates, each with its own star, planets, asteroid fields and stations to dock at. Dogfight from a modelled cockpit with lead indicators, missiles and front/rear shields; run cargo between mining, agricultural, industrial, tech and pirate economies where your trades move the prices; take bounty, escort, patrol and smuggling contracts; upgrade guns, shields, engines, armour, cargo pods and a jump drive, or buy a new hull. Three factions remember what you do, and a five-mission story about your aunt's vanished ship branches on who still trusts you.",
+  "playTime": "30-90 min first session, open-ended after",
+  "controls": "Mouse steers (offset from centre), W/S throttle, Shift afterburner, Space/LMB fire, RMB/Ctrl missile, Q/E roll, A/D/R/F strafe, T target, N nav, Z autopilot, C cruise, L dock, J jump, M map, V camera, Esc pause. Gamepad and touch (virtual stick + throttle slider) supported.",
+  "modes": ["Story + free play", "Sandbox (no story)"],
+  "themes": ["space", "trading", "dogfighting", "frontier", "factions"],
+  "levels": false,
+  "remix": [
+    { "key": "difficulty", "label": "Difficulty", "type": "choice", "choices": [{ "v": "easy", "label": "Relaxed" }, { "v": "normal", "label": "Freelancer" }, { "v": "hard", "label": "Ace" }], "default": "normal" },
+    { "key": "startCredits", "label": "Starting credits (new game)", "type": "range", "min": 0, "max": 60000, "step": 500, "default": 1500 },
+    { "key": "startShip", "label": "Starting ship (new game)", "type": "choice", "choices": [{ "v": "magpie", "label": "Magpie (freighter)" }, { "v": "kite", "label": "Kite (interceptor)" }, { "v": "ox", "label": "Ox (hauler)" }, { "v": "halberd", "label": "Halberd (heavy fighter)" }], "default": "magpie" },
+    { "key": "seed", "label": "Sector seed (new game)", "type": "range", "min": 1, "max": 999, "step": 1, "default": 7 },
+    { "key": "pirateDensity", "label": "Pirate density", "type": "range", "min": 0, "max": 10, "step": 1, "default": 5 },
+    { "key": "volatility", "label": "Economy volatility", "type": "range", "min": 0, "max": 10, "step": 1, "default": 5 },
+    { "key": "colors.nebulaA", "label": "Nebula colour A", "type": "color", "default": "#6a2a8e" },
+    { "key": "colors.nebulaB", "label": "Nebula colour B", "type": "color", "default": "#13608a" },
+    { "key": "colors.accent", "label": "HUD accent", "type": "color", "default": "#ffb347" },
+    { "key": "story", "label": "Story missions (new game)", "type": "bool", "default": true }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Music: ambient space score per faction space, combat stingers, docking/hangar theme, finale track",
+    "Animation: pilot hands on stick/throttle in cockpit, hangar crane + crew, docking clamps, capital-ship turret slew and breakup sequence",
+    "Voice-style comms barks with radio filter",
+    "Richer explosion flipbooks and capital-ship debris chunks"
+  ],
+  "thumb": "thumb.jpg"
+}

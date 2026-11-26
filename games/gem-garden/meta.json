@@ -1,0 +1,34 @@
+{
+  "id": "gem-garden",
+  "title": "Gem Garden",
+  "genre": "Casual",
+  "subgenre": "Match-3 Puzzle",
+  "tier": "AA",
+  "tagline": "Match gems, grow a garden — forty little gardens bloom into a moonlit wonder.",
+  "description": "A cosy match-3 where every cleared level plants something new: tulips, an orchard, a lily pond and finally a glowing Moon Garden. Forty hand-designed levels with score, vine, bramble, seed and collection goals; Line Gems, Bloom Bombs and Prisms that combine into board-wide combos; cascades that climb a musical scale; a Garden Bonus that turns leftover moves into fireworks. Zen mode has no limits at all. No lives, no timers, no energy — just gardening.",
+  "playTime": "5–15 min sessions · 40 levels",
+  "controls": "Swipe or tap two neighbouring gems to swap · Keyboard: arrows move, Enter selects, arrow to swap, H for a hint · Esc/P pause",
+  "modes": ["Garden (40 levels)", "Zen (endless, no limits)"],
+  "themes": ["Spring", "Autumn", "Moonlight", "Candy"],
+  "levels": true,
+  "remix": [
+    { "key": "theme", "label": "Garden theme", "type": "choice", "choices": [{ "v": "spring", "label": "Spring" }, { "v": "autumn", "label": "Autumn" }, { "v": "moonlight", "label": "Moonlight" }, { "v": "candy", "label": "Candy" }], "default": "spring" },
+    { "key": "colors.accent", "label": "Accent colour", "type": "color", "default": "#ff6fa8" },
+    { "key": "difficulty", "label": "Difficulty", "type": "choice", "choices": [{ "v": "relaxed", "label": "Relaxed (+5 moves)" }, { "v": "normal", "label": "Normal" }, { "v": "hard", "label": "Challenging (−2 moves)" }], "default": "normal" },
+    { "key": "mode", "label": "Default mode", "type": "choice", "choices": [{ "v": "garden", "label": "Garden levels" }, { "v": "zen", "label": "Zen" }], "default": "garden" },
+    { "key": "gemColors", "label": "Gem colours (fewer = easier)", "type": "range", "min": 4, "max": 6, "step": 1, "default": 6 },
+    { "key": "extraMoves", "label": "Extra moves per level", "type": "range", "min": 0, "max": 10, "step": 1, "default": 0 },
+    { "key": "juice", "label": "Sparkle intensity", "type": "range", "min": 0, "max": 3, "step": 1, "default": 2 },
+    { "key": "hintDelay", "label": "Hint after idle (seconds)", "type": "range", "min": 2, "max": 15, "step": 1, "default": 5 },
+    { "key": "gemStyle", "label": "Gem style", "type": "choice", "choices": [{ "v": "faceted", "label": "Faceted jewels" }, { "v": "glossy", "label": "Glossy candy" }], "default": "faceted" }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Music: gentle garden bed per zone (meadow, orchard, pond, moon), ducked under cascades",
+    "Plant growth: replace the scale-pop grow-in with staged sprout→bud→bloom animation",
+    "Gem idle: occasional glint sweep across random gems; special-gem creation flourish",
+    "Finale: choreographed Moon Gate opening and firefly swarm",
+    "Map: butterflies and bees following the path; character mascot walking to the next node"
+  ],
+  "thumb": "thumb.jpg"
+}

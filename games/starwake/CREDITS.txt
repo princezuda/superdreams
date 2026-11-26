@@ -1,0 +1,18 @@
+Starwake — asset credits
+
+All art in Starwake is procedural and made in code for this game:
+- Ships, stations, jump gates, cockpit, hangar: kitbashed from three.js primitives (art.js), merged per material.
+- Planets, atmospheres, rings, sun corona, gate swirl, wake ribbon, hangar force field: TSL node shaders (art.js, world.js).
+- Hull panel, rock, floor and glow textures: painted at runtime on canvas (art.js).
+- Character portraits: drawn procedurally on canvas from small parameter sets (ui.js).
+- Starfield + nebula backdrop: shared kit spaceBackground (shared/sd-kit.js).
+- Sound effects: synthesized with the Web Audio API (audio.js + kit sfx). No music yet (deferred to the Fable pass).
+
+Third-party code: three.js r187 (MIT), vendored at /vendor/three/, including the RoomEnvironment,
+BufferGeometryUtils and BloomNode addons.
+
+Rejected / not used assets: none downloaded. Considered CC0 hull textures from ambientcg.com but kept
+canvas-painted panels so the box-projected UVs on merged kitbash geometry stay consistent and the download
+budget stays at zero.
+
+Names: the sector, factions, ships, stations and characters are original to this game.

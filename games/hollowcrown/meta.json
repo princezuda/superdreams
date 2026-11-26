@@ -1,0 +1,32 @@
+{
+  "id": "hollowcrown",
+  "title": "The Hollow Crown",
+  "genre": "Adventure",
+  "subgenre": "Point & Click",
+  "tier": "AA",
+  "tagline": "Three stolen heart-stones, one royal tinker, and a narrator with opinions.",
+  "description": "A fairy-tale point-and-click adventure in painted storybook dioramas. The Crown of Wrenfold woke up hollow: its Ember, Bloom and Tide stones have been stolen. As the Queen's tinker, explore ten interconnected scenes across three chapters — the village and castle, the Whispering Woods, and the sea cliffs — solving fair, cluable inventory and dialog puzzles with a smart one-click interface, a world map, a three-tier hint system and no dead ends. Humorous 'deaths' rewind instantly; good deeds are counted but never required.",
+  "playTime": "45–90 min",
+  "controls": "Click to walk and act (smart cursor) · Right-click or long-press to look · Click an item, then a target to use it (or another item to combine) · Tab reveals hotspots · H hint · M map · Esc menu · Space/Enter advances text",
+  "modes": ["Bedtime Story (easy)", "Fairy Tale (normal)", "Grim & Riddly (hard)"],
+  "themes": ["fairy tale", "storybook", "puzzle", "comedy", "painterly"],
+  "levels": true,
+  "remix": [
+    { "key": "season", "label": "Season of the kingdom", "type": "choice", "choices": [{ "v": "spring", "label": "Spring" }, { "v": "autumn", "label": "Autumn" }, { "v": "winter", "label": "Winter" }], "default": "spring" },
+    { "key": "heroName", "label": "Hero's name", "type": "text", "default": "Tamsin" },
+    { "key": "narrator", "label": "Narrator tone", "type": "choice", "choices": [{ "v": "cheeky", "label": "Cheeky" }, { "v": "gentle", "label": "Gentle" }], "default": "cheeky" },
+    { "key": "hintFreq", "label": "Unprompted hints", "type": "choice", "choices": [{ "v": "off", "label": "Off" }, { "v": "sometimes", "label": "Sometimes" }, { "v": "often", "label": "Often" }], "default": "sometimes" },
+    { "key": "difficulty", "label": "Story difficulty (hint strength & puzzle leniency)", "type": "choice", "choices": [{ "v": "easy", "label": "Bedtime Story" }, { "v": "normal", "label": "Fairy Tale" }, { "v": "hard", "label": "Grim & Riddly" }], "default": "normal" },
+    { "key": "colors.banner", "label": "Kingdom banner colour", "type": "color", "default": "#c8324a" }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Hand-keyed character animation: walk/run cycles, talk gestures, reach/pick-up, idle fidgets (actors.js procedural rig is the placeholder)",
+    "Lip-sync / mouth shapes for NPCs and Grumbleroot's bark face",
+    "Cape and banner cloth simulation",
+    "Music: a theme per chapter, leitmotifs for Corvin and the Crown's song, coronation finale",
+    "Ambient soundscapes per scene (river, sea, birds, tavern choir) and voiced narrator",
+    "Cutscene choreography: Corvin swooping to the mirror, the lighthouse beam reveal, the epilogue coronation"
+  ],
+  "thumb": "thumb.jpg"
+}

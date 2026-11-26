@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>The Hollow Crown</title>
+<meta name="description" content="A fairy-tale point-and-click adventure: a young royal tinker must find the three stolen heart-stones of Wrenfold's crown.">
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.webgpu.js","three/webgpu":"/vendor/three/build/three.webgpu.js","three/tsl":"/vendor/three/build/three.tsl.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="loading"><div class="lcard"><div class="ltitle">The Hollow Crown</div><div class="lbar"><i id="lbarFill"></i></div><div id="lmsg">Mixing the paints…</div></div></div>
+<div id="fade"></div>
+<div id="hud">
+  <div id="place"><span id="placeChapter"></span><span id="placeName"></span></div>
+  <div id="speech"></div>
+  <div id="narr" class="hidden"><div class="ntext"></div><div class="nmore">▸</div></div>
+  <div id="choices" class="hidden"></div>
+  <div id="invbar"><div id="invscroll"></div></div>
+  <div id="cursor"><div class="cicon"></div><div class="clabel"></div></div>
+  <div id="toastArea"></div>
+  <div id="tut" class="hidden"></div>
+</div>
+<div id="chapterCard" class="hidden"><div class="ck"></div><div class="ct"></div></div>
+<div id="deathCard" class="hidden"><div class="dcard"><div class="dk">Oh dear.</div><div class="dt"></div><button class="hbtn primary" id="rewindBtn">↺ Rewind to just before</button></div></div>
+<div id="panel" class="hidden"><div class="pcard"><div class="pbody"></div></div></div>
+<div id="mapPanel" class="hidden"><div class="mapwrap"><canvas id="mapCanvas" width="1200" height="800"></canvas><button class="hbtn" id="mapClose">Close map</button></div></div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

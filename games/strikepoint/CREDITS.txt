@@ -1,0 +1,26 @@
+Strikepoint — asset credits
+===========================
+
+All 3D geometry (weapons, soldiers, drones, the Overseer gunship, buildings, props, vegetation) is procedural,
+built from primitives in code. All sound effects are synthesised at runtime with the Web Audio API. No music.
+
+Textures (CC0, Poly Haven — https://polyhaven.com/license), downloaded at 1K and recompressed:
+colour 1024px JPG q72, normal 512px JPG q82, roughness 256px greyscale JPG q80. Subjects verified visually
+(contact sheet) before use.
+- Asphalt 02 (asphalt_02) by Rob Tuytel — Dockyard / plant / island roads
+- Concrete Wall 008 (concrete_wall_008) by Dario Barresi, Charlotte Baglioni — Concrete walls, barriers, slabs
+- Corrugated Iron 02 (corrugated_iron_02) by Jenelle van Heerden, Sergej Majboroda — Shipping containers, sheds, warehouses
+- Plastered Wall (plastered_wall) by Amal Kumar — Village houses
+- Cobblestone Floor 08 (cobblestone_floor_08) by Rob Tuytel — Village streets
+- Brown Planks 05 (brown_planks_05) by Rob Tuytel — Crates, pallets, wooden structures
+- Rusty Metal 02 (rusty_metal_02) by Rob Tuytel — Ship hull, pipe racks, scrap
+- Metal Plate (metal_plate) by Rob Tuytel — Catwalks, stairs, machinery
+- Clay Roof Tiles (clay_roof_tiles) by Amal Kumar — Village roofs
+- Sparse Grass (sparse_grass) by Amal Kumar — Village hills, island terrain
+- Brick Wall 09 (brick_wall_09) by Rob Tuytel, Matterfield — Pump house, turbine hall, field walls
+
+Rejected / not used:
+- ambientCG texture sets (Concrete034 etc.): CC0 and preferred, but the download host (acg-download.struffelproductions.com)
+  is blocked by the sandbox network proxy, so they could not be fetched. Poly Haven equivalents were used instead.
+- Poly Haven 'rusty_metal_02' was kept but tinted down in code: the raw colour map is very bright/orange for machinery.
+- No CC-BY / CC-BY-NC / No-Derivatives assets are used.

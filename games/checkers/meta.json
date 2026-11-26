@@ -1,0 +1,54 @@
+{
+  "id": "checkers",
+  "title": "Checkers: Event Horizon",
+  "genre": "Board",
+  "subgenre": "Strategy",
+  "tier": "AA",
+  "tagline": "Classic checkers — until the board starts fighting back.",
+  "description": "Full American checkers with forced captures, multi-jump chains and a four-level alpha-beta AI that thinks off the main thread. Then flip on a creative mode: black holes that swallow anything beside them, tombstones that wall off lanes, telegraphed meteor strikes, or linked portals — every hazard is a real rule the AI plays around. Four hand-built themes, local two-player, undo, hints and auto-save.",
+  "playTime": "5–30 min",
+  "controls": "Mouse / touch",
+  "modes": [
+    { "id": "normal", "label": "Normal", "desc": "Classic American checkers: compulsory captures, finish every multi-jump, crown on the far row." },
+    { "id": "blackholes", "label": "Black Holes", "desc": "Black holes form with a turn of warning; any piece ending a move on or beside one is swallowed." },
+    { "id": "graves", "label": "Graves", "desc": "Captured pieces leave tombstones that block their square for a few full turns." },
+    { "id": "meteors", "label": "Meteor Shower", "desc": "Telegraphed meteors destroy whatever they hit and crater the square for 2 turns." },
+    { "id": "portals", "label": "Portals", "desc": "End a move on one linked portal to step out of the other." }
+  ],
+  "themes": [
+    { "id": "classic", "label": "Classic", "desc": "Walnut & maple marquetry board, knurled turned-wood pieces with ivory inlay, gold-crowned stacked kings." },
+    { "id": "space", "label": "Space", "desc": "Hull-plate board adrift in a nebula beside a ringed gas giant; saucer pieces with chase lights and halo kings." },
+    { "id": "fantasy", "label": "Fantasy", "desc": "Rune-carved altar stone lit by braziers; round war-shields with crowned kings." },
+    { "id": "neon", "label": "Neon", "desc": "Synthwave grid and striped sun; holographic pucks with orbiting ring kings." }
+  ],
+  "remix": [
+    { "key": "mode", "label": "Mode", "type": "choice", "choices": [
+      { "value": "normal", "label": "Normal" }, { "value": "blackholes", "label": "Black Holes" }, { "value": "graves", "label": "Graves" },
+      { "value": "meteors", "label": "Meteor Shower" }, { "value": "portals", "label": "Portals" } ], "default": "normal" },
+    { "key": "theme", "label": "Theme", "type": "choice", "choices": [
+      { "value": "classic", "label": "Classic" }, { "value": "space", "label": "Space" }, { "value": "fantasy", "label": "Fantasy" }, { "value": "neon", "label": "Neon" } ], "default": "classic" },
+    { "key": "opponent", "label": "Opponent", "type": "choice", "choices": [ { "value": "ai", "label": "vs AI" }, { "value": "local", "label": "Local 2-player" } ], "default": "ai" },
+    { "key": "aiLevel", "label": "AI level", "type": "choice", "choices": [
+      { "value": "easy", "label": "Easy" }, { "value": "medium", "label": "Medium" }, { "value": "hard", "label": "Hard" }, { "value": "master", "label": "Master" } ], "default": "medium" },
+    { "key": "flyingKings", "label": "Flying kings (long-range)", "type": "bool", "default": false },
+    { "key": "forceCapture", "label": "Compulsory captures", "type": "bool", "default": true },
+    { "key": "colors.light", "label": "Light squares", "type": "color", "default": "", "help": "Empty = theme palette" },
+    { "key": "colors.dark", "label": "Dark squares", "type": "color", "default": "", "help": "Empty = theme palette" },
+    { "key": "colors.red", "label": "First player pieces", "type": "color", "default": "", "help": "Empty = theme palette" },
+    { "key": "colors.black", "label": "Second player pieces", "type": "color", "default": "", "help": "Empty = theme palette" },
+    { "key": "colors.accent", "label": "Accent / glow", "type": "color", "default": "", "help": "Empty = theme palette" },
+    { "key": "holeEvery", "label": "Black hole every N turns", "type": "range", "min": 1, "max": 8, "step": 1, "default": 3 },
+    { "key": "graveTurns", "label": "Graves last N turns", "type": "range", "min": 1, "max": 8, "step": 1, "default": 3 }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Music: no score yet — needs a calm parlour/ambient bed per theme plus tension layers when a hazard is telegraphed (FABLE: music).",
+    "Black hole opening: gravitational-wave ripple across the board + sub-bass hit (main.js holeOpenAnim).",
+    "Spaghettification: true vertex-level tidal stretch along the infall spiral instead of an affine stretch (main.js suckAnim).",
+    "Capture: rigid-body tumble of the taken piece onto the side stack with a proper clack (main.js capture).",
+    "Coronation: light shaft, choir sting and slow-mo crown spin when a man is crowned (main.js promoteAnim).",
+    "Graves: a spectral ghost (cloth/face) curling out of a crumbling tombstone instead of particle wisps (fx.js GravesFX.fade).",
+    "Victory: bespoke celebration — pieces leap and spin, fireworks, music sting (main.js celebrate)."
+  ],
+  "thumb": "thumb.jpg"
+}

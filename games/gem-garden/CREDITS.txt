@@ -1,0 +1,4 @@
+Gem Garden — credits
+All art (gems, plants, garden, UI) is procedurally drawn in Canvas 2D code in this folder; all sound is synthesised
+with Web Audio (audio.js + the shared kit). No third-party assets are used.
+Rejected assets: none considered — procedural vector art reads crisper at every phone DPR than any small raster pack.

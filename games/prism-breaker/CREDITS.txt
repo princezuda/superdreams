@@ -1,0 +1,4 @@
+Prism Breaker — credits
+All geometry, materials (TSL node shaders), textures and sound are generated in code in this folder (game.js, audio.js)
+plus the shared kit; three.js r187 RoomEnvironment (MIT, vendored) provides the reflection probe. No third-party assets.
+Rejected assets: none considered — glass/neon looks rely on shader fresnel + bloom rather than texture packs.
