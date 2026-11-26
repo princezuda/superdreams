@@ -1,0 +1,36 @@
+{
+  "id": "pebble-peaks",
+  "title": "Pebble Peaks",
+  "genre": "Action",
+  "subgenre": "3D Collectathon Platformer",
+  "tier": "AA",
+  "tagline": "Run, hop, roll and ground-pound a little river stone up four worlds to cool a grumpy forge golem.",
+  "description": "Cobble is a small round river stone with a moss cap and a two-leaf sprout. Climb Mossy Meadow, Glimmer Grotto, Cloudtop Isles and the Cinder Forge: a tight third-person platformer with variable-height jumps, a double hop, roll and long jump, ground pound and pound-jump, coyote time, jump buffering and ledge forgiveness. Gather shards, hunt three hidden Star Fossils in every world (behind long jumps, under low roofs, inside cracked boulders and atop sky towers), ride moving and orbiting platforms, outrun crumbling bridges, bop Mossbugs, Gloomites, Pufflings and Cinderblobs, and finish with a boss fight against Old Clinker. Best times and fossils are saved; Pebble Plateau is your hub and level select. Find all 12 fossils for a Golden Cobble.",
+  "playTime": "15–30 min (more for every fossil and best time)",
+  "controls": "WASD/arrows run · Space jump (hold = higher, again = double hop) · Shift roll / ground pound · mouse drag or Q/E camera · gamepad · touch stick + Jump/Action",
+  "modes": ["Relaxed", "Normal", "Tough"],
+  "themes": ["Meadow", "Crystal caves", "Sky islands", "Lava forge"],
+  "levels": true,
+  "remix": [
+    { "key": "difficulty", "label": "Difficulty", "type": "choice", "choices": [{ "v": "easy", "label": "Relaxed (5 hearts, falls are free)" }, { "v": "normal", "label": "Normal" }, { "v": "hard", "label": "Tough" }], "default": "normal" },
+    { "key": "colors.body", "label": "Cobble's stone colour", "type": "color", "default": "#b3a9c9" },
+    { "key": "colors.moss", "label": "Moss cap colour", "type": "color", "default": "#6fcf4f" },
+    { "key": "colors.shard", "label": "Shard colour", "type": "color", "default": "#ffcf4a" },
+    { "key": "jump", "label": "Jump height", "type": "range", "min": 0.85, "max": 1.3, "step": 0.05, "default": 1 },
+    { "key": "speed", "label": "Run speed", "type": "range", "min": 0.8, "max": 1.3, "step": 0.05, "default": 1 },
+    { "key": "gravity", "label": "Gravity (floatiness)", "type": "range", "min": 0.7, "max": 1.3, "step": 0.05, "default": 1 },
+    { "key": "camDist", "label": "Camera distance", "type": "range", "min": 7, "max": 13, "step": 0.5, "default": 9.5 },
+    { "key": "doubleJump", "label": "Double hop", "type": "bool", "default": true },
+    { "key": "assist", "label": "Platforming assist (wider ledge grab, longer coyote/buffer)", "type": "bool", "default": false },
+    { "key": "timer", "label": "Show timer", "type": "bool", "default": true },
+    { "key": "shadows", "label": "Shadows", "type": "bool", "default": true }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Music: per-world themes (meadow whistle/ukulele, caves marimba, sky harp/flute, forge brass + anvils), boss variant, hub waltz, ducking under fanfares",
+    "Cobble: authored animation clips — idle fidgets, run cycle with arm pumps, double-hop somersault, pound windup spin, roll curl, hurt flinch, victory dance, sleepy idle",
+    "Enemies: walk/charge/hop cycles, defeat pops; Old Clinker roar, leap anticipation, dazed wobble, defeat crumble",
+    "Level intro fly-throughs and a short ending cutscene at the Great Heartstone"
+  ],
+  "thumb": "thumb.jpg"
+}

@@ -1,0 +1,40 @@
+{
+  "id": "lantern-hold",
+  "title": "Lantern Hold",
+  "genre": "Strategy",
+  "subgenre": "Tower Defense",
+  "tier": "AA",
+  "tagline": "Keep the lanterns burning. Hold the twilight valley against the shadows.",
+  "description": "A 3D tower defense on hand-built dioramas. Eight maps across a twilight forest, a frozen lake and ember ruins; five towers — Lantern Archers, Ember Kilns, Moonglass Prisms, Lantern Beacons and Warden Halls — each with three tiers and two end-branches (Starshot or Hawkeye, Bombard or Cluster, Lattice or Sun Lens, Sunflare or Hearth, Bulwark or Lancers). Eight kinds of shadow creature: swarming gloomlings, fast hounds, armoured brutes, flying moth wraiths, blobs that split, stalkers you can only see in lantern light, healers that shrug off magic and the Eclipse Colossus. Command Captain Wren and her Dawnburst, read the next wave from the rift, call it early for gold, play at ×1/×2/×3, earn up to three stars per map, then see how long you last in Endless.",
+  "playTime": "10–20 min per map (autosaves between waves)",
+  "controls": "Mouse/touch: tap a build spot or tower for its ring menu (tap once to preview, again to confirm), tap the hero then the road to move her, drag to pan, wheel/pinch to zoom. Keys: 1–5 build · U upgrade · S sell · T targeting · H hero · Q Dawnburst · Space call wave · F speed · WASD pan · Esc pause.",
+  "modes": [
+    { "id": "campaign", "label": "Campaign", "desc": "Eight maps in three biomes, unlocked one by one; 1–3 stars from lives left." },
+    { "id": "endless", "label": "Endless", "desc": "Any map you have beaten, with ever-growing waves and a Colossus every tenth wave. How long can you hold?" }
+  ],
+  "themes": ["tower defense", "strategy", "fantasy", "twilight", "lanterns", "diorama", "forest", "snow", "lava"],
+  "levels": true,
+  "remix": [
+    { "key": "difficulty", "label": "Difficulty", "type": "choice", "choices": [{ "v": "casual", "label": "Casual" }, { "v": "normal", "label": "Normal" }, { "v": "veteran", "label": "Veteran" }], "default": "normal" },
+    { "key": "lives", "label": "Lives (20 = difficulty default)", "type": "range", "min": 1, "max": 99, "step": 1, "default": 20 },
+    { "key": "goldMul", "label": "Bounty multiplier", "type": "range", "min": 0.5, "max": 3, "step": 0.1, "default": 1 },
+    { "key": "enemyHp", "label": "Shade health", "type": "range", "min": 0.5, "max": 3, "step": 0.1, "default": 1 },
+    { "key": "enemySpeed", "label": "Shade speed", "type": "range", "min": 0.5, "max": 2, "step": 0.1, "default": 1 },
+    { "key": "waveGap", "label": "Seconds between waves", "type": "range", "min": 8, "max": 60, "step": 1, "default": 25 },
+    { "key": "sky", "label": "Sky", "type": "choice", "choices": [{ "v": "dusk", "label": "Biome dusk" }, { "v": "midnight", "label": "Midnight" }, { "v": "aurora", "label": "Aurora" }], "default": "dusk" },
+    { "key": "lanternColor", "label": "Lantern light", "type": "color", "default": "#ffd49a" },
+    { "key": "colors.accent", "label": "Interface accent", "type": "color", "default": "#ffd27a" },
+    { "key": "heroName", "label": "Hero name", "type": "text", "default": "Captain Wren" },
+    { "key": "unlockAll", "label": "All maps unlocked", "type": "bool", "default": false }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Music: a twilight bed per biome (forest strings, frozen glass harmonica, ember drums) with a tension layer that rises with enemies on the road and a boss theme for the Eclipse Colossus.",
+    "Enemy locomotion: walk/run cycles, moth wing flaps with body roll, blob jiggle, stalker cloak cloth, Colossus stomp with dust (view.js writeEnemy is procedural bob only).",
+    "Tower attack animations: archers draw and loose, kiln barrel recoil + door glow surge, prism charge-up, beacon shutters snapping open on Sunflare, warden sword swings (view.js syncTowers / consume).",
+    "Hero: Captain Wren run/idle/attack cycle, Dawnburst wind-up pose, respawn re-lighting at the Hold.",
+    "Build and upgrade: scaffold-and-hammer construction instead of a scale pop; branch upgrades get a short camera push-in.",
+    "Victory: lanterns along the road light up one by one toward the Hold; defeat: they go out in sequence."
+  ],
+  "thumb": "thumb.jpg"
+}

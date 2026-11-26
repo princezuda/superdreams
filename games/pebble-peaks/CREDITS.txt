@@ -1,0 +1,5 @@
+Pebble Peaks — credits
+All geometry (rounded terrain blocks, lathe pillars, mascot, enemies, boss, props), the TSL shaders (grass-drip terrain,
+sky, water/lava/abyss/cloud seas, portal swirls, jets) and canvas-painted textures, plus all Web Audio SFX, are generated
+in code in this folder and the shared Super Dreams kit. No third-party assets.
+Rejected assets: none considered — the toy-diorama look comes from procedural rounded geometry and vertex/attribute colour.
