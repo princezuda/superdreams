@@ -195,7 +195,7 @@ function newGame(o = {}, resume = null) {
   else if (mode === 'puzzle') { const idx = o.puzzleIndex ?? store.get('chess-puzzle', 0) % PUZZLES.length; G.puzzle = { idx, stage: 0, solved: false }; fen = PUZZLES[idx].fen; }
   else if ((o.variant || cfg.variant) === 'chess960') fen = chess960Fen(o.n960 ?? Math.floor(Math.random() * 960));
   if (resume && resume.puzzle != null) G.puzzle = { idx: resume.puzzle, stage: resume.ucis.length ? 1 : 0, solved: false };
-  G.gid = (G.gid || 0) + 1; G.busy = false; moveChain = Promise.resolve();
+  G.gid = (G.gid || 0) + 1; G.t0 = Date.now(); G.busy = false; moveChain = Promise.resolve();
   G.chess = new Chess(fen); G.startFen = fen; G.ucis = []; G.captured = []; G.over = null; G.lastMove = null; G.replaying = false;
   G.mode = mode;
   let pc = o.playerColor || cfg.playerColor; if (pc === 'random') pc = Math.random() < 0.5 ? 'white' : 'black';
@@ -331,12 +331,17 @@ function sendToTray(m, animate) {
 }
 async function promoteMesh(mesh, type, animate) {
   // FABLE: promotion transformation (pawn ascends, light column, new piece materialises with theme flourish)
-  if (animate) await tween(0.18, (k) => mesh.scale.setScalar(1 - k * 0.95), { ease: ease.inQuad });
+  if (animate) { // pawn rises into a column of light, then the new piece morphs out of it
+    const col = new THREE.Color(look.T.marker); fx.flashCol.value.copy(col).multiplyScalar(2.5); fx.flashMesh.visible = true; fx.flashMesh.position.set(mesh.position.x, 1.0, mesh.position.z);
+    sfx.magic(); flash('rgba(255,240,200,.25)', 220);
+    await tween(0.3, (k) => { mesh.scale.set(1 - k * 0.6, 1 + k * 0.4, 1 - k * 0.6); mesh.position.y = k * 0.35; fx.flashMesh.scale.set(0.12 + k * 0.1, 0.2 + k * 1.2, 0.12 + k * 0.1); }, { ease: ease.inQuad });
+    await tween(0.12, (k) => mesh.scale.setScalar(Math.max(0.02, 0.6 * (1 - k))));
+  }
   mesh.geometry = pieceGeometry(look.set, type); mesh.userData.type = type; mesh.rotation.y = facing(type, mesh.userData.color);
   if (!animate) { mesh.scale.setScalar(1); return; }
   sfx.chime(); fx.ring.visible = true; fx.ring.position.set(mesh.position.x, 0.03, mesh.position.z); fx.ringCol.value.set(look.T.marker).multiplyScalar(2.5);
-  await tween(0.4, (k) => { mesh.scale.setScalar(0.05 + k * 0.95); fx.ring.scale.setScalar(0.4 + k * 1.4); fx.ringCol.value.set(look.T.marker).multiplyScalar(2.5 * (1 - k)); }, { ease: ease.outBack });
-  fx.ring.visible = false;
+  await tween(0.45, (k) => { mesh.scale.setScalar(0.05 + k * 0.95); mesh.position.y = 0.35 * (1 - k); fx.ring.scale.setScalar(0.4 + k * 1.4); fx.ringCol.value.set(look.T.marker).multiplyScalar(2.5 * (1 - k)); fx.flashMesh.scale.set(0.22 * (1 - k) + 0.01, 1.4 * (1 - k) + 0.01, 0.22 * (1 - k) + 0.01); fx.flashCol.value.set(look.T.marker).multiplyScalar(2.5 * (1 - k)); }, { ease: ease.outBack });
+  fx.ring.visible = false; fx.flashMesh.visible = false; squash(mesh, 0.2);
 }
 
 // ------------------------------------------------------------------ selection, markers, highlights
@@ -463,6 +468,10 @@ function endGame(st, silent = false) {
   $('#end-title').textContent = title;
   $('#end-sub').textContent = sub;
   $('#end-reason').textContent = st.reason === 'checkmate' ? `by checkmate in ${Math.ceil(G.chess.ply / 2)} moves` : `by ${st.reason}`;
+  $('#end-crest').textContent = st.winner === WHITE ? '♔' : st.winner === BLACK ? '♚' : '½';
+  $('#end-score').textContent = st.result === '1/2-1/2' ? '½–½' : st.result.replace('-', '–');
+  $('#st-moves').textContent = Math.ceil(G.chess.ply / 2); $('#st-caps').textContent = G.captured.length;
+  const secs = Math.round((Date.now() - (G.t0 || Date.now())) / 1000); $('#st-time').textContent = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
   $('#end-next').hidden = !G.puzzle; $('#end-rematch').hidden = !!G.puzzle;
   if (!silent) {
     if (st.reason === 'checkmate') {
@@ -580,8 +589,9 @@ renderer.domElement.addEventListener('pointermove', (e) => {
 addEventListener('keydown', (e) => {
   if (e.target.closest && e.target.closest('input,select,textarea')) return;
   const k = e.key;
-  if ((k === 'Escape' || k === 'p' || k === 'P') && G.started) { if ($('#promo').classList.contains('open')) return; if (G.selected && k === 'Escape') { clearSelection(); return; } togglePause(); return; }
+  if ((k === 'Escape' || k === 'p' || k === 'P') && G.started) { if ($('#promo').classList.contains('open')) { if (k === 'Escape') $('#promo-cancel').click(); return; } if (G.selected && k === 'Escape') { clearSelection(); return; } togglePause(); return; }
   if (!G.started || G.paused || !$('#menu').classList.contains('hide')) return;
+  if ($('#promo').classList.contains('open')) { const i = 'qrbn'.indexOf(k.toLowerCase()); if (i >= 0) $('#promo-choices').children[i]?.click(); return; }
   const dirs = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
   if (dirs[k]) {
     e.preventDefault(); G.kb = true; const flipK = (G.playerColor === BLACK) !== G.flipped ? -1 : 1;

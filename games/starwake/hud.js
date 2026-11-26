@@ -93,7 +93,7 @@ export function drawHUD(G, dt) {
     project(G, nav.pos, sp);
     const label = `${nav.name} · ${fmtD(d)}`;
     if (sp.behind || sp.x < 20 || sp.y < 20 || sp.x > W - 20 || sp.y > Hh - 20) edgeArrow(ctx, sp.x, sp.y, c, small ? fmtD(d) : nav.name);
-    else { ctx.strokeStyle = c; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(sp.x, sp.y - 10); ctx.lineTo(sp.x + 10, sp.y); ctx.lineTo(sp.x, sp.y + 10); ctx.lineTo(sp.x - 10, sp.y); ctx.closePath(); ctx.stroke(); ctx.fillStyle = c; ctx.font = '600 11px ui-monospace,Menlo,monospace'; ctx.textAlign = 'center'; ctx.fillText(label, sp.x, sp.y - 16); }
+    else { ctx.strokeStyle = c; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(sp.x, sp.y - 10); ctx.lineTo(sp.x + 10, sp.y); ctx.lineTo(sp.x, sp.y + 10); ctx.lineTo(sp.x - 10, sp.y); ctx.closePath(); ctx.stroke(); ctx.fillStyle = c; ctx.font = '600 11px ui-monospace,Menlo,monospace'; ctx.textAlign = 'center'; const hw = ctx.measureText(label).width / 2 + 8; ctx.fillText(label, Math.min(W - hw, Math.max(hw, sp.x)), Math.max(18, sp.y - 16)); }
   }
   // target
   const T = P.target;
