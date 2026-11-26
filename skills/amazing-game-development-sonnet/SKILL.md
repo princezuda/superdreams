@@ -67,3 +67,9 @@ node tools/shot.mjs "http://127.0.0.1:8100/games/<id>/?webgl" out.png 4
 - Fog colour must match the horizon, not the zenith.
 - Noise gates set on [-1,1] fire almost never — real summed-octave noise has σ≈0.12–0.2.
 - Pointer lock throws outside a user gesture; never gate movement on it.
+- `positionLocal` is post-instance in r187 — use `positionGeometry` for per-instance patterns.
+- Pale materials go white under a PMREM env — lower `envMapIntensity` per material.
+- ACES washes out neon; use `THREE.NeutralToneMapping` for neon/arcade and card/board games.
+- Never add/remove lights at runtime (shader recompiles); reuse a fixed pool.
+- One canvas texture per building can't be merged — use a TSL window grid driven by a vertex attribute.
+- Canvas-2D games are fine for cards/match-3 (crisp text at phone size); still expose `window.__cam` with `frames`/`dataReady`.

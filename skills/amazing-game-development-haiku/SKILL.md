@@ -29,6 +29,7 @@ const DEFAULTS = { difficulty: 'normal', colors: { accent: '#ffb347', ground: '#
 new THREE.MeshStandardNodeMaterial({ color: '#...', roughness: 0.6, metalness: 0.1 })  // keep metalness ≤ 0.3
 new THREE.MeshBasicNodeMaterial({ color: new THREE.Color('#ffaa33').multiplyScalar(3) }) // glows with bloom
 ```
+If a light-coloured object looks pure white, set `mat.envMapIntensity = 0.2`. Never add or remove lights while playing.
 Set `mesh.castShadow = true` on objects and `receiveShadow = true` on the ground. Many copies of one shape → `new THREE.InstancedMesh(geo, mat, count)`.
 Detail texture:
 ```js

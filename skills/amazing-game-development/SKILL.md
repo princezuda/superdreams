@@ -17,7 +17,9 @@ Three jobs: **apply the quality bar** by default, **speak the language** (`gloss
 | `EffectComposer` + `UnrealBloomPass` | Still fine for `WebGLRenderer`. For `WebGPURenderer`: `new THREE.RenderPipeline(renderer)` (PostProcessing renamed r183) with TSL `pass(scene, cam)` + `bloom()` from `three/addons/tsl/display/BloomNode.js`. |
 | ShaderMaterial/GLSL for everything | Prefer **node materials + TSL** (`MeshStandardNodeMaterial`, `colorNode`, `positionNode`, `emissiveNode`) — compiles to WGSL and GLSL. TSL renames: `setName()` (not `label()`), `isolate()` (not `cache()`), `TWO_PI` (not `PI2`), `negateOnBackSide()`; `Source` → `TextureSource`. |
 | Load three from a CDN | CDNs/npm may be blocked in agent sandboxes and add a runtime dependency. **Vendor** the exact version (`/vendor/three/`) and use an import map: `"three"` and `"three/webgpu"` → `build/three.webgpu.js`, `"three/tsl"` → `build/three.tsl.js`, `"three/addons/"` → `examples/jsm/`. |
-| Tone mapping = ACES only | ACES for filmic contrast; **AgX** keeps saturated emissives (neon, magic, nebulae) from hue-shifting; **Neutral** for UI-accurate colours (product/board games). |
+| Tone mapping = ACES only | ACES for filmic contrast (washes out neon); **AgX** keeps saturated emissives (magic, nebulae) from hue-shifting; **Neutral** for neon arcade and UI-accurate colours (board/card games). |
+| `positionLocal` = mesh-space vertex | In r187 it is **post-instance**. For per-instance patterns use `positionGeometry`; per-instance colour via `instancedBufferAttribute`. |
+| Lamp posts = real `PointLight`s | Changing the light count recompiles every shader. Keep a **fixed pool** of lights and reassign them to the nearest points of interest each frame. |
 
 `WebGPURenderer({ forceWebGL })` runs the same node materials on WebGL2. Always `await renderer.init()` before the first render. Ship WebGPU by default with `?webgl` as a forced fallback.
 
@@ -66,6 +68,11 @@ Three jobs: **apply the quality bar** by default, **speak the language** (`gloss
 - Sprites are quads: radial `uv()` falloff + noise for soft billows.
 - Scale detail with size; never gate it on absolute height.
 - Doorways are recesses with warm emissive interiors, never flat dark quads.
+- A PMREM environment turns pale materials white — set `envMapIntensity` per material (0–0.3 for bricks/UI-coloured parts).
+- City windows: procedural TSL grid on merged geometry driven by a vertex attribute, anti-aliased with derivatives (`fwidth`) — no per-building canvas textures (they can't merge). One time-of-day uniform drives sky, fog, windows and lights.
+- Merge static parts per material across a hierarchy (a landmark ≈ 6 draw calls). Picking on terrain: ray-march the heightfield instead of raycasting the mesh.
+- Split-screen: two `pass()` nodes composited by `screenUV.x` so one bloom covers both halves. Orthographic/iso cameras: draw the sky gradient in screen space, not as a dome.
+- Distance haze with a blue shift: `scene.fogNode`.
 - FPS viewmodel: scale the gun ~0.3 and keep it inside the player's collision radius (no wall clipping); align sights to the camera ray for ADS; one shared muzzle-flash light keeps the light count constant.
 - Crowds of humanoids: instanced body parts posed by 2-bone IK; ray hits via a spatial grid, not scene-wide raycasts. Add a `sim(seconds)` hook so headless tests can fast-forward play.
 - Procedural space backdrops: a TSL `scene.backgroundNode` from `positionWorldDirection` (hashed star cells + fractal-noise nebula) costs zero draw calls and never tiles.

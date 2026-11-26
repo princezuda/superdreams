@@ -262,7 +262,7 @@ const css = `
 let uiReady = false;
 export function initUI({ vignette = true, grain = true } = {}) {
   if (uiReady) return; uiReady = true;
-  const s = document.createElement('style'); s.textContent = css; document.head.appendChild(s);
+  const s = document.createElement('style'); s.textContent = css; document.head.prepend(s);
   document.body.classList.add('sd-ui');
   if (vignette) document.body.insertAdjacentHTML('beforeend', '<div class="sd-vignette"></div>');
   if (grain) document.body.insertAdjacentHTML('beforeend', '<div class="sd-grain"></div>');
