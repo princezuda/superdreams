@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><title>three smoke</title>
+<script type="importmap">{"imports":{"three":"/vendor/three/build/three.webgpu.js","three/webgpu":"/vendor/three/build/three.webgpu.js","three/tsl":"/vendor/three/build/three.tsl.js","three/addons/":"/vendor/three/examples/jsm/"}}</script>
+<style>html,body{margin:0;background:#111}</style></head><body>
+<script type="module">
+import * as THREE from 'three';
+import { color, positionLocal, sin, time } from 'three/tsl';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const forceGL = location.search.includes('webgl');
+const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: forceGL });
+renderer.setSize(640, 360); document.body.appendChild(renderer.domElement);
+await renderer.init();
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x203050);
+const cam = new THREE.PerspectiveCamera(50, 640/360, 0.1, 100); cam.position.set(0, 1.5, 4);
+new OrbitControls(cam, renderer.domElement);
+const m = new THREE.MeshStandardNodeMaterial(); m.colorNode = color(0xff8833).mul(sin(positionLocal.y.mul(6).add(time)).mul(0.3).add(0.7));
+scene.add(new THREE.Mesh(new THREE.TorusKnotGeometry(0.8, 0.28, 128, 24), m));
+scene.add(new THREE.HemisphereLight(0xbfd8ff, 0x302010, 1.2)); const d = new THREE.DirectionalLight(0xffffff, 2.5); d.position.set(3,4,2); scene.add(d);
+window.__cam = { frames: 0, backend: renderer.backend.isWebGPUBackend ? 'webgpu' : 'webgl2', gltf: typeof GLTFLoader };
+renderer.setAnimationLoop(() => { renderer.render(scene, cam); window.__cam.frames++; });
+</script></body></html>

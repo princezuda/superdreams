@@ -1,0 +1,11 @@
+# Apache: correct MIME for wasm/modules, compression, long cache on immutable vendored libs.
+AddType application/wasm .wasm
+AddType text/javascript .js .mjs
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/json application/wasm image/svg+xml
+</IfModule>
+<IfModule mod_headers.c>
+  <If "%{REQUEST_URI} =~ m#^/vendor/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>
