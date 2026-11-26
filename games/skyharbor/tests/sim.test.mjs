@@ -75,8 +75,8 @@ function play(seed, type, days = 50, log = false) {
   S.startScan(st, 's0'); for (let i = 0; i < 3; i++) S.simHour(st);
   const p = S.settle(st, 's0', 'Skyharbor').planet;
   let radius = 5; layRoads(st, p, radius);
-  const free = () => blocks(p).filter((b) => { for (let j = 0; j < 4; j++) for (let i = 0; i < 4; i++) if (p.grid[(b.z + j) * GRID + b.x + i] !== 0 || p.land[(b.z + j) * GRID + b.x + i] !== 0) return false; return true; });
-  const needFree = (n) => { let f = free(); while (f.length < n && radius < 16) { radius += 2; layRoads(st, p, radius); f = free(); } return f; };
+  const free = () => blocks(p).filter((b) => { if (!S.roadAdjacent(p, b.x, b.z, 4)) return false; let land = 0; for (let j = 0; j < 4; j++) for (let i = 0; i < 4; i++) { if (p.grid[(b.z + j) * GRID + b.x + i] !== 0) return false; if (p.land[(b.z + j) * GRID + b.x + i] === 0) land++; } return land >= 12; });
+  const needFree = (n) => { let f = free(); while (f.length < n && radius < 20) { radius += 2; layRoads(st, p, radius); f = free(); } return f; };
   const spot = (kind) => { const sz = S.sizeOf(kind); let best = null; for (let z = 0; z < GRID; z++) for (let x = 0; x < GRID; x++) { if (!S.canPlace(p, kind, x, z).ok || !S.roadAdjacent(p, x, z, sz)) continue; const d = Math.hypot(x - 16, z - 16); if (!best || d < best.d) best = { x, z, d }; } return best; };
   const M = { mixed: ['housing', 'shop', 'housing', 'hotel', 'housing', 'shop', 'housing', 'hotel'], util: ['power', 'water', 'housing', 'housing', 'park', 'housing', 'shop', 'housing'], stay: ['hotel', 'shop', 'hotel', 'housing', 'hotel', 'park', 'housing', 'shop'], homes: ['housing', 'housing', 'park', 'housing', 'shop', 'housing', 'housing', 'park'] };
   const lmTry = () => {
@@ -91,14 +91,15 @@ function play(seed, type, days = 50, log = false) {
     for (let h = 0; h < 24; h++) S.simHour(st);
     const sp = p.stats, portCost = S.costOf(st, 'spaceport', p);
     const building = (k) => p.buildings.some((b) => b.kind === k && b.built < 1);
-    const place1 = (k) => { const b = spot(k); if (b && S.placeBuilding(st, p, k, b.x, b.z).ok) { S.computeCity(st, p); return true; } return false; };
+    const place1 = (k) => { let b = spot(k); if (!b && radius < 20) { radius += 2; layRoads(st, p, radius); b = spot(k); } if (b && S.placeBuilding(st, p, k, b.x, b.z).ok) { S.computeCity(st, p); return true; } return false; };
     for (let guard = 0; guard < 6; guard++) {
       // 1 utilities
       if (sp.powerOk < 1 && st.money > 6000 && !building('power') && place1('power')) continue;
       if (sp.waterOk < 1 && st.money > 4000 && !building('water') && place1('water')) continue;
       // 2 landing slots: if ships are being turned away, save for a port before anything else
       const portNeed = sp.turnedAway > sp.visitors * 0.2 && !building('spaceport');
-      if (portNeed) { if (st.money >= portCost + 500 && place1('spaceport')) continue; break; }
+      if (portNeed && st.money < portCost + 500) break;
+      if (portNeed && place1('spaceport')) continue;
       // 3 transit for every landmark that lacks it (cheap, +reviews +capacity)
       const noT = p.landmarks.find((l) => l.built >= 1 && !l.transit);
       if (noT && st.money > 3500) { let best = null; for (let z = noT.z - 3; z <= noT.z + noT.s + 2; z++) for (let x = noT.x - 3; x <= noT.x + noT.s + 2; x++) if (S.canPlace(p, 'transit', x, z).ok && S.roadAdjacent(p, x, z, 1)) { best = { x, z }; break; } if (best && S.placeBuilding(st, p, 'transit', best.x, best.z).ok) { S.computeCity(st, p); continue; } }
@@ -133,5 +134,6 @@ for (const type of only ? [only] : verbose ? ['ocean'] : S.TYPE_IDS) {
   console.log(`  ${type.padEnd(9)} 1k visitors: day ${r.k1}  most-visited: day ${r.won}  final money ${last.money}  vis/day ${last.vis}  rating ${last.rating}  best ${last.best}  pop ${last.pop}  milestones ${Object.keys(r.st.milestones).length}`);
   assert.ok(r.k1 != null && r.k1 <= 12, `${type}: first 1k visitors by day 12 (got ${r.k1})`);
   assert.ok(last.money > -5000, `${type}: not bankrupt`);
+  assert.ok(r.won != null && r.won >= 10 && r.won <= 45, `${type}: scenario winnable in days 10–45 (got ${r.won})`);
 }
 console.log(`\n${pass} tests passed`);

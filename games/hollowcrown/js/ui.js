@@ -80,10 +80,10 @@ export class UI {
         b.addEventListener('pointerup', (e) => { e.stopPropagation(); finish(o.id); });
         el.appendChild(b);
       });
-      el.classList.remove('hidden'); $('#invbar').classList.add('dim');
+      el.classList.remove('hidden'); $('#invbar').style.visibility = 'hidden';
       const key = (e) => { const n = parseInt(e.key, 10); if (n >= 1 && n <= opts.length) { e.preventDefault(); finish(opts[n - 1].id); } };
       addEventListener('keydown', key);
-      const finish = (id) => { removeEventListener('keydown', key); el.classList.add('hidden'); $('#invbar').classList.remove('dim'); this.o.sfx?.('click'); resolve(id); };
+      const finish = (id) => { removeEventListener('keydown', key); el.classList.add('hidden'); $('#invbar').style.visibility = 'visible'; this.o.sfx?.('click'); resolve(id); };
       this._choiceKey = key;
       setTimeout(() => el.querySelector('.choice')?.focus({ preventScroll: true }), 30);
     });

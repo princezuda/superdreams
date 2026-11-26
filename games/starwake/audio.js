@@ -30,6 +30,7 @@ function v({ type = 'sine', f0 = 440, f1 = f0, dur = 0.15, vol = 0.2, noise = fa
   if (pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, pan)); node.connect(p); node = p; }
   node.connect(g); g.connect(out); src.start(t); src.stop(t + dur + 0.05);
 }
+// FABLE: music (ambient score per faction space, combat stingers, hangar theme) layers on top of these SFX
 export const audio = {
   ensure,
   engine(throttle, boost, cruise, on = true) {

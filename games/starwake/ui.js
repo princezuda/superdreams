@@ -53,7 +53,7 @@ export function initUI(G) {
   const showNext = () => {
     if (cur || !queue.length) return; cur = queue.shift();
     drawPortrait(C.querySelector('canvas'), cur.who); C.querySelector('b').textContent = cur.who.name + (cur.who.title ? ` · ${cur.who.title}` : '');
-    const p = C.querySelector('p'); p.textContent = ''; C.classList.remove('hide'); audio.comms();
+    const p = C.querySelector('p'); p.textContent = ''; C.classList.remove('hide'); audio.comms(); // FABLE: radio-filtered voice barks per character
     let i = 0; const txt = cur.text; const tick = () => { if (!cur) return; i = Math.min(txt.length, i + 2); p.textContent = txt.slice(0, i); if (i < txt.length) setTimeout(tick, 18); }; tick();
     setTimeout(() => { C.classList.add('hide'); cur = null; setTimeout(showNext, 250); }, cur.dur * 1000 + txt.length * 18);
   };

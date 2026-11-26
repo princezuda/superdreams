@@ -249,7 +249,7 @@ SCENE_DEFS.throne = {
     banners: { p: [2.6, 6.4, -4.9], s: [1.2, 2.8, 0.3], walk: [2.6, -1.9] },
   },
   exits: { courtyard: { p: [9.0, 1.9, 0.8], s: [0.8, 3.8, 2.8], walk: [7.7, 0.8], dir: 'right' } },
-  npcs: { queen: { at: [-1.6, -2.7], face: 0.25, make: () => makeHuman({ name: 'queen', skin: '#f3d0b4', hair: '#c8c0b8', hairStyle: 'bun', hat: 'crown', robe: true, robeC: '#7a3a8a', top: '#7a3a8a', robeHem: '#e8c050', cape: '#a8242e', capeLen: 1.0, glasses: '#c8a040', collar: '#f4ecdc', boots: '#4a2a3a', scale: 1.04, rig: {} }) } },
+  npcs: { queen: { at: [-1.6, -2.7], face: 0.25, walk: [-0.2, -1.5], make: () => makeHuman({ name: 'queen', skin: '#f3d0b4', hair: '#c8c0b8', hairStyle: 'bun', hat: 'crown', robe: true, robeC: '#7a3a8a', top: '#7a3a8a', robeHem: '#e8c050', cape: '#a8242e', capeLen: 1.0, glasses: '#c8a040', collar: '#f4ecdc', boots: '#4a2a3a', scale: 1.04, rig: {} }) } },
 };
 
 // ------------------------------------------------------------------ 2. COURTYARD

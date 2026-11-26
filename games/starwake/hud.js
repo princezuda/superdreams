@@ -53,7 +53,11 @@ function edgeArrow(ctx, x, y, color, label) {
   const m = 46; const k = Math.min((cx - m) / Math.abs(dx || 1e-6), (cy - m) / Math.abs(dy || 1e-6));
   const ax = cx + dx * k, ay = cy + dy * k;
   ctx.save(); ctx.translate(ax, ay); ctx.rotate(Math.atan2(dy, dx)); ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-6, -9); ctx.lineTo(-2, 0); ctx.lineTo(-6, 9); ctx.closePath(); ctx.fill(); ctx.restore();
-  if (label) { ctx.fillStyle = color; ctx.font = '600 11px ui-monospace,Menlo,monospace'; ctx.textAlign = 'center'; ctx.fillText(label, ax - dx * 30, ay - dy * 22 + 4); }
+  if (label) { // clamp the label inside the screen + safe margin so it never clips at an edge
+    ctx.fillStyle = color; ctx.font = '600 11px ui-monospace,Menlo,monospace'; ctx.textAlign = 'center';
+    const hw = ctx.measureText(label).width / 2 + 8; const lx = Math.min(innerWidth - hw, Math.max(hw, ax - dx * 30)); const ly = Math.min(innerHeight - 12, Math.max(18, ay - dy * 22 + 4));
+    ctx.fillText(label, lx, ly);
+  }
 }
 function brackets(ctx, x, y, r, color, lw = 2) {
   const k = Math.max(r * 0.45, 5); ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.beginPath();
@@ -165,7 +169,7 @@ export function drawHUD(G, dt) {
   if (warnK && Math.sin(H.t * 14) > 0) { ctx.fillStyle = '#ff3b3b'; ctx.font = '800 18px ui-monospace,Menlo,monospace'; ctx.fillText('◆ MISSILE ◆', cx, cy - 92); }
   if (hf < 0.25 && Math.sin(H.t * 8) > 0) { ctx.fillStyle = '#ff5a5a'; ctx.font = '800 13px ui-monospace,Menlo,monospace'; ctx.fillText('HULL CRITICAL', cx, cy + 62); }
   if (G.warnMsg && G.warnMsg.t > 0) { G.warnMsg.t -= dt; ctx.fillStyle = '#ff9a3a'; ctx.font = '800 14px ui-monospace,Menlo,monospace'; ctx.fillText(G.warnMsg.text, cx, cy - 116); }
-  const ctxHint = G.contextHint; if (ctxHint) { ctx.fillStyle = '#eef2ff'; ctx.font = '600 13px Inter,system-ui,sans-serif'; ctx.globalAlpha = 0.85 + Math.sin(H.t * 4) * 0.15; ctx.fillText(ctxHint, cx, G.view === 'cockpit' && !small ? Hh * 0.655 : Hh * 0.2); ctx.globalAlpha = 1; }
+  const ctxHint = G.contextHint; if (ctxHint) { ctx.fillStyle = '#eef2ff'; ctx.font = '600 13px Inter,system-ui,sans-serif'; ctx.globalAlpha = 0.85 + Math.sin(H.t * 4) * 0.15; ctx.fillText(ctxHint, cx, G.view === 'cockpit' && !small ? Hh * 0.655 : small ? Hh * 0.36 : Hh * 0.2); ctx.globalAlpha = 1; }
 }
 
 // ---------------------------------------------------------------- MFDs (10 Hz)

@@ -1,7 +1,7 @@
 // Starwake — procedural art: kitbashed hard-surface ships/stations/gates, TSL planets + sun + gate swirl, asteroids, cockpit, hangar.
 import { THREE, canvasTexture } from '/shared/sd-kit.js';
 import { Fn, uniform, vec2, vec3, vec4, float, mix, smoothstep, dot, normalize, pow, max, min, abs, clamp, sin, cos, atan, length, uv, time,
-  positionLocal, positionWorld, normalWorld, cameraPosition, mx_fractal_noise_float, mx_noise_float, exp, fract, step } from 'three/tsl';
+  positionLocal, positionWorld, normalWorld, cameraPosition, positionView, normalView, mx_fractal_noise_float, mx_noise_float, exp, fract, step } from 'three/tsl';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { rng } from './data.js';
 
@@ -51,7 +51,7 @@ export const PALETTES = {
   player: { hull: '#cfc6b6', trim: '#d8802a', dark: '#2c3038', glow: '#ffb070' },
   concord: { hull: '#e2e9f2', trim: '#3a7ad0', dark: '#2a3140', glow: '#8fd0ff' },
   hollows: { hull: '#a99c86', trim: '#e0a030', dark: '#34302a', glow: '#ffc070' },
-  veil: { hull: '#3e383c', trim: '#c42a3a', dark: '#1c1a1e', glow: '#ff5a44' },
+  veil: { hull: '#6a5f63', trim: '#d8303f', dark: '#2c282d', glow: '#ff5a44' },
   wake: { hull: '#1d3038', trim: '#3ee0d0', dark: '#0c1418', glow: '#6ff7e8' },
   station: { hull: '#c4c8ce', trim: '#d89030', dark: '#30343c', glow: '#ffd890' },
 };
@@ -67,6 +67,11 @@ export function mats(palette = 'player') {
     glass: new THREE.MeshStandardNodeMaterial({ color: '#0d1a26', metalness: 0.9, roughness: 0.08, emissive: '#06121c' }),
     rock: new THREE.MeshStandardNodeMaterial({ color: '#6c655e', map: TEX.rock, metalness: 0.05, roughness: 0.95 }),
   };
+  // rim light: cool fresnel emissive on hulls so dark silhouettes still read against black space at dogfight range
+  const rimC = vec3(...new THREE.Color(P.glow).lerp(new THREE.Color('#9cc4ff'), 0.6).toArray());
+  const rimK = palette === 'station' || palette === 'hangar' ? 0.12 : palette === 'veil' || palette === 'wake' ? 0.55 : 0.35;
+  const rim = Fn(() => { const V = normalize(positionView.negate()); return rimC.mul(pow(float(1).sub(max(dot(normalView, V), 0.0)), 2.6)).mul(rimK); });
+  for (const k of ['hull', 'trim', 'dark']) m[k].emissiveNode = rim();
   return (matCache[palette] = m);
 }
 
@@ -514,6 +519,7 @@ export function cockpitModel(palette = 'player', screens) {
   K.strut('hull', [-0.42, 0.66, -0.92], [0.42, 0.66, -0.92], 0.028);
   K.strut('hull', [0, 0.66, -0.92], [0, 0.82, 0.4], 0.022);
   root.add(K.build(M, 2.4));
+  // FABLE: pilot hands on stick + throttle, animated with player input
   // instrument panel group (tilted back toward the pilot), sized so all three MFDs sit fully on screen
   const panel = new THREE.Group(); panel.position.set(0, -0.475, -0.94); panel.rotation.x = -0.36; root.add(panel);
   const pk = new Kit(); pk.box('dark', 2.7, 0.36, 0.06, 0, 0, 0); pk.box('hull', 2.7, 0.025, 0.08, 0, 0.18, 0.01);
@@ -549,6 +555,7 @@ export function hangarScene(lightHex = '#ffd27a', backgroundNode = null) {
   for (let i = 0; i < 12; i++) K.mirror((s) => K.box('glow', 1.2, 1.2, 1.2, s * 72, 4 + i * 3.6, -99));
   // landing pad
   K.cyl('dark', 26, 28, 1.2, 0, 0.6, 0, 0, 0, 0, 40); K.cyl('hull', 20, 21, 1.3, 0, 0.65, 0, 0, 0, 0, 40);
+  // FABLE: animate the hangar crane, docking clamps and deck crew around the pad
   // gantry crane + crate stacks against the walls + fuel lines
   K.mirror((s) => { K.box('hull', 3, 52, 3, s * 50, 26, -40); K.box('trim', 2, 2, 60, s * 50, 50, -20); });
   K.box('hull', 104, 3, 3, 0, 51, -40); K.box('trim', 8, 6, 8, 18, 46, -40); K.strut('dark', [18, 43, -40], [18, 28, -40], 0.3);

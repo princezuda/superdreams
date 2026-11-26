@@ -1,0 +1,6 @@
+{"url":"http://127.0.0.1:8106/games/hollowcrown/index.html?webgl&q=low","w":390,"h":844,
+"init":"localStorage.clear(); localStorage.setItem('sd-hollowcrown-opts', JSON.stringify({textSpeed:'instant',autoAdvance:false,fontSize:'m'})); localStorage.setItem('sd-hollowcrown-tut', JSON.stringify({talk:1,inventory:1,selected:1,combine:1}));",
+"steps":[
+ {"wait":1,"shot":"phone_title.png"},
+ {"eval":"document.querySelector('#menu').classList.add('hide'); __cam.game.fast(true); __cam.game.set('intro'); __cam.game.goto('square').then(()=>{__cam.game.fast(false); ['crown','feather','tongs','water','bread','pass'].forEach(i=>__cam.game.give(i)); __cam.game.hero(-1,1.5,0.4); __cam.game.act('mabel','look');}); 1","ms":4000,"wait":2,"shot":"phone_square.png"}
+]}

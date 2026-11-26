@@ -314,7 +314,7 @@ export function planetAppeal(st, p) {
   return A;
 }
 function eventMult(st, p) { let m = 1; for (const e of st.events) if (e.planet === p.sys) m *= e.mult || 1; return m; }
-export function rivalAppeal(st, w) { const D = DIFFICULTY[st.difficulty] || DIFFICULTY.standard; const g = 1.6 + (st.day - 1) * 0.045; return Object.fromEntries(VT.map((t) => [t, (w.dest.A[t] || 0) * g * D.rivals])); }
+export function rivalAppeal(st, w) { const D = DIFFICULTY[st.difficulty] || DIFFICULTY.standard; const g = 2.4 + (st.day - 1) * 0.06; return Object.fromEntries(VT.map((t) => [t, (w.dest.A[t] || 0) * g * D.rivals])); }
 const STAY_HOME = 4.5;
 
 // daily demand by visitor type headed for each player planet (before capacity)

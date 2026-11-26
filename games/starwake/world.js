@@ -756,6 +756,7 @@ function spawnPirateWave(G, R, fac, n) {
   const from = R.capital.pos.clone().add(new V3(0, -20, -160)).applyAxisAngle(UP, 0);
   for (let i = 0; i < n; i++) spawnShip(G, fac === 'veil' ? (i === 2 ? 'marauder' : 'jackal') : 'kite', fac, from.clone().add(new V3(i * 40 - 40, -i * 15, -i * 30)), { lvl: 3, palette: fac, look: G.player.pos, name: fac === 'veil' ? 'Veil raider' : 'Concord Lancer', ai: { state: 'attack', canFlee: false }, loot: 0.3 }).aggro = true;
 }
+// FABLE: finale music track; turret slew animation toward targets
 function finaleTick(G, R, dt) {
   const cap = R.capital; if (!cap.alive) return;
   const nav = G.navs.find((n) => n.id === 'capital'); if (nav) nav.pos = R.phase === 1 ? (R.gens.find((g) => g.alive)?.pos || cap.pos) : R.core.pos;
@@ -772,7 +773,7 @@ function finaleTick(G, R, dt) {
       R.phase = 3; R.boomT = 0; G.ui.objective(null); removeNav(G, 'capital');
       for (const s of G.ships) if (s.alive && s.fac === cap.fac && s !== cap) { s.ai && (s.ai.state = 'flee'); }
     }
-  } else if (R.phase === 3) {
+  } else if (R.phase === 3) { // FABLE: hand-authored capital-ship break-up (hull sections shearing, turret slew) + finale music swell
     R.boomT += dt;
     if (Math.random() < dt * 6) explosionFX(G, _a.set((Math.random() - 0.5) * 60, (Math.random() - 0.5) * 30, (Math.random() - 0.5) * 220).applyQuaternion(cap.quat).add(cap.pos).clone(), 2 + Math.random() * 2);
     cap.ang.set(0.03, 0.02, 0.08);
