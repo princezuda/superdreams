@@ -86,4 +86,8 @@ node tools/shot.mjs "http://127.0.0.1:8100/games/<id>/?webgl" out.png 4
 - ACES washes out neon; use `THREE.NeutralToneMapping` for neon/arcade and card/board games.
 - Never add/remove lights at runtime (shader recompiles); reuse a fixed pool.
 - One canvas texture per building can't be merged — use a TSL window grid driven by a vertex attribute.
+- `InstancedMesh.instanceColor` is already multiplied into the colour — multiplying it again in `colorNode` double-tints.
+- `normalMap()` on custom geometry silently needs a `uv` attribute. `mesh.clone()` can turn a rotation into (π,0,π): set the whole quaternion/rotation, not one axis.
+- CSS `font:` shorthand with `inherit` as the family is invalid and drops the whole rule.
+- Racing: one spline ribbon for the road with markings in its shader; fixed physics sub-steps with exact line-crossing times; ghost laps stored at fixed time slots and interpolated.
 - Canvas-2D games are fine for cards/match-3 (crisp text at phone size); still expose `window.__cam` with `frames`/`dataReady`.
