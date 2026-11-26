@@ -22,17 +22,18 @@ const DC_IMPOSSIBLE = [
 ];
 
 // Genre keywords used to pick the closest existing template.
-const DC_GENRES = [
-  'chess' => ['chess', 'checkmate', 'king', 'queen', 'bishop', 'rook', 'pawn', 'knight piece'],
-  'checkers' => ['checkers', 'draughts', 'black hole', 'graves'],
-  'fps' => ['fps', 'shooter', 'shoot', 'gun', 'sniper', 'soldier', 'first person', 'first-person', 'arena', 'deathmatch'],
-  'space' => ['space', 'galaxy', 'planet', 'starship', 'spaceship', 'trader', 'trading', 'dogfight', 'privateer', 'asteroid', 'colony', 'city builder', 'landmark'],
-  'adventure' => ['adventure', 'point and click', 'point-and-click', 'quest', 'puzzle story', 'fairy tale', 'kingdom', 'story game'],
-  'rpg' => ['rpg', 'jrpg', 'role playing', 'role-playing', 'party', 'turn based', 'dungeon', 'loot'],
-  'racing' => ['race', 'racing', 'kart', 'car', 'drift'],
-  'platformer' => ['platformer', 'jump', 'side scroller', 'side-scroller', 'metroidvania'],
-  'puzzle' => ['puzzle', 'match 3', 'match-3', 'tetris', 'sudoku', 'sliding'],
-  'casual' => ['casual', 'idle', 'clicker', 'quick game', 'simple game', 'relaxing'],
+const DC_GENRES = [ // game id => request keywords (ids must match games/<id>/)
+  'chess' => ['chess', 'checkmate', 'queen', 'bishop', 'rook', 'pawn', 'knight piece', 'chess960'],
+  'checkers' => ['checkers', 'draughts', 'black hole', 'graves', 'meteor', 'portal'],
+  'strikepoint' => ['fps', 'shooter', 'shoot', 'gun', 'sniper', 'soldier', 'first person', 'first-person', 'deathmatch', 'battle royale', 'military', 'campaign'],
+  'starwake' => ['starship', 'spaceship', 'trader', 'trading', 'dogfight', 'privateer', 'freelancer', 'pirate', 'cockpit', 'space combat', 'smuggl'],
+  'skyharbor' => ['planet', 'colony', 'city builder', 'landmark', 'wonder', 'tourism', 'tourist', 'build a city', 'settle'],
+  'hollowcrown' => ['adventure', 'point and click', 'point-and-click', 'quest', 'fairy tale', 'kingdom', 'story game', "king's quest", 'inventory puzzle'],
+  'gem-garden' => ['match 3', 'match-3', 'gems', 'jewel', 'garden', 'swap'],
+  'prism-breaker' => ['breakout', 'brick', 'paddle', 'arkanoid', 'bricks'],
+  'skystack' => ['stack', 'tower', 'one tap', 'one-tap', 'stacker'],
+  'solitaire' => ['solitaire', 'klondike', 'freecell', 'spider', 'patience', 'cards', 'card game'],
+  'drift-snake' => ['snake', 'neon', 'tron', 'light cycle', 'slither'],
 ];
 
 const DC_COLORS = ['red' => '#d8343a', 'blue' => '#2f6fe0', 'green' => '#2ea35a', 'gold' => '#e5b53a', 'yellow' => '#f2d43c', 'purple' => '#8a4fe0', 'pink' => '#ec6ab4', 'orange' => '#f08a2b', 'black' => '#15161a', 'white' => '#f3f1ea', 'silver' => '#c4c8d0', 'cyan' => '#3cd6e8', 'teal' => '#1fa39a', 'brown' => '#7a4b2a'];
