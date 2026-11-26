@@ -121,7 +121,7 @@ function overhang(ctx, o = {}) {
 // far countryside: a huge fogged meadow plane + two painted ridge cards so the diorama never shows its edge
 function farland(ctx, o = {}) {
   const B = ctx.B;
-  B.add(new THREE.PlaneGeometry(420, 260, 1, 1), o.col ?? S.grassDark, { x: 0, y: o.y ?? -0.06, z: -150, rx: -PI / 2, ao: false, jit: 0 });
+  B.add(new THREE.PlaneGeometry(420, 260, 1, 1), o.col ?? S.grassDark, { x: 0, y: o.y ?? -0.06, z: -128, rx: -PI / 2, ao: false, jit: 0 });
   const hz = new THREE.Color(S.sky.horizon);
   const near = ridgeCard({ seed: o.seed ?? 6, layers: [{ y: 0.7, amp: 0.25, f: 0.009, ph: 1.3, c1: new THREE.Color(S.grass).lerp(hz, 0.35).getStyle(), c2: new THREE.Color(S.grassDark).lerp(hz, 0.25).getStyle(), trees: 2, tr: 14, tc: new THREE.Color(S.dark).lerp(hz, 0.3).getStyle() }] });
   const far = ridgeCard({ seed: (o.seed ?? 6) + 5, layers: [{ y: 0.55, amp: 0.45, f: 0.004, ph: 0.2, c1: new THREE.Color(S.dark).lerp(hz, 0.7).getStyle(), c2: new THREE.Color(S.grassDark).lerp(hz, 0.55).getStyle(), snow: S.roofSnow }] });
@@ -432,7 +432,7 @@ export const setBannerForNPCs = (c) => { ctx0.banner = c; };
 SCENE_DEFS.mill = {
   cam: { pos: [0, 4.6, 14.2], look: [0, 1.6, -1], fov: 38, drift: 0.12, halfW: 8.5 },
   env: () => ({ sky: { ...S.sky, cloudAmt: 0.5, sunDir: [0.5, 0.4, -0.75] }, fog: [S.sky.horizon, 24, 80], hemi: [S.hemiSky, S.hemiGround, 0.9], key: { pos: [8, 11, 7], col: S.key, I: 2.4 }, rim: { pos: [-8, 6, -10], col: '#a0c4ff', I: 1.0 }, amb: 0.14 }),
-  ground: { W: 34, D: 26, cx: 0, cz: -3, hf: (x, z) => (z < -4.2 ? -0.5 - Math.min(1, (-4.2 - z) * 0.5) * 0.3 : z < -3.6 ? (z + 3.6) * 0.8 : 0) + (z < -8.6 ? (-8.6 - z) * 0.35 : 0), paint: () => ({
+  ground: { W: 34, D: 26, cx: 0, cz: -3, hf: (x, z) => (z < -4.2 ? -0.5 - Math.min(1, (-4.2 - z) * 0.5) * 0.3 : z < -3.6 ? (z + 3.6) * 0.8 : 0) + (z < -8.6 ? Math.min(0.9, (-8.6 - z) * 0.35) : 0), paint: () => ({
     pal: pal(), seed: 13, flowers: 380,
     paths: [{ pts: [[-12, 2.6], [-5, 1.6], [-2.2, -1.6], [-2.0, -3.0]], w: 1.8, col: S.dirt, col2: S.dirt2 }, { pts: [[2.8, -3.8], [2.8, -9.6]], w: 1.4, col: '#8a6a4a', col2: S.dirt2 }],
     patches: [{ x: 0, z: -4.4, r: 12, sz: 0.06, col: '#6a5a40', n: 900, a: 0.5 }, { x: 4.6, z: 2.2, r: 2.4, sz: 0.7, col: S.grassDark, n: 300 }],
@@ -443,7 +443,7 @@ SCENE_DEFS.mill = {
   build(ctx) {
     const B = ctx.B;
     // river across the back + far bank
-    farland(ctx, { seed: 4 });
+    farland(ctx, { seed: 4, y: 0.06 });
     ctx.obj.river = waterPlane(ctx, 60, 4.6, 0, -0.62, -6.4, { flow: [0.9, 0.0], scale: 1, speed: 0.4 });
     for (let x = -14; x < 14; x += 0.9) { rock(B, x + B.r() * 0.5, -4.15 - B.r() * 0.3, { s: 0.22 + B.r() * 0.2, y: -0.4, col: '#8a8074' }); if (B.r() < 0.6) grass(B, x, -3.9, { n: 4, y: -0.05 }); }
     for (let x = -14; x < 14; x += 1.4) grass(B, x, -8.9, { n: 5, y: -0.4 });
@@ -588,13 +588,13 @@ SCENE_DEFS.glade = {
   build(ctx) {
     const B = ctx.B;
     // crooked cottage
-    B.push(-3.2, 0, -4.8, 0.25);
-    B.add(houseGeo(3.6, 3.0, 2.3, 2.2), '#e8dcc0', { rz: 0.04, jit: 0.06, aoH: 1.2 });
-    B.push(0, 0, 0, 0, 1, 0, 0.04); roof(B, 3.6, 3.0, 2.3, 2.2, S.roofSnow ? '#eef2f8' : '#8a6a3a', { t: 0.42, over: 0.4, ex: 0.4, snow: S.roofSnow }); B.pop();
+    B.push(-3.2, 0, -4.8, 0.55);
+    B.add(houseGeo(3.6, 3.0, 2.3, 1.55), '#e8dcc0', { rz: 0.04, jit: 0.06, aoH: 1.2 });
+    B.push(0, 0, 0, 0, 1, 0, 0.04); roof(B, 3.6, 3.0, 2.3, 1.6, S.roofSnow ? '#eef2f8' : '#7a5a30', { t: 0.42, over: 0.4, ex: 0.4, snow: S.roofSnow }); B.pop();
     box(B, 3.7, 0.4, 3.1, '#8a7a6a', 0, 0.2, 0, { jit: 0.14 });
     B.add(new THREE.CircleGeometry(0.55, 16, 0, PI), '#5a3a22', { y: 1.0, z: 1.52, ao: false }); box(B, 1.1, 1.0, 0.06, '#5a3a22', 0, 0.5, 1.52); box(B, 1.26, 1.2, 0.04, '#3a2a1a', 0, 0.62, 1.5);
     for (const wx of [-1.1, 1.1]) { B.add(new THREE.CircleGeometry(0.3, 12), '#ffd27a', { x: wx, y: 1.6, z: 1.53, mat: 'glow', ao: false }); tor(B, 0.3, 0.05, '#5a3a22', wx, 1.6, 1.55, { ts: 12, rs: 4 }); }
-    B.push(1.0, 4.0, -0.4, 0, 1, 0, -0.2); cyl(B, 0.25, 0.32, 1.8, '#9a8a7a', 0, 0, 0, { seg: 7, jit: 0.15 }); B.pop();
+    B.push(1.0, 3.6, -0.4, 0, 1, 0, -0.2); cyl(B, 0.25, 0.32, 1.8, '#9a8a7a', 0, 0, 0, { seg: 7, jit: 0.15 }); B.pop();
     B.pop();
     // cauldron on a fire
     B.push(0.8, 0, -1.2, 0);
@@ -671,7 +671,7 @@ SCENE_DEFS.oak = {
     for (const [x, y, z, rz, ry, l] of [[-2.6, 5.4, 0, 0.9, 0, 3.4], [0.2, 6.2, -1.2, -0.3, 0.6, 3.0], [-1, 6.0, 1.0, 0.4, -0.9, 2.6]]) cyl(B, 0.26, 0.45, l, bark, x, y, z, { rz, ry, seg: 8 });
     // bark furrows + moss beard
     for (let i = 0; i < 18; i++) { const a = -0.9 + (i / 18) * 1.8; box(B, 0.06, 2 + B.r() * 2.5, 0.08, '#4a3626', Math.sin(a) * 1.55, 2.4 + B.r(), Math.cos(a) * 1.55, { ry: a, jit: 0.1 }); }
-    for (let i = 0; i < 12; i++) sph(B, 0.2, S.roofSnow ? '#d8e4ec' : '#6a8a3a', -0.4 + (B.r() - 0.5) * 1.2, 1.2 - B.r() * 0.6, 1.62, { sy: 1.6, ao: false });
+    for (let i = 0; i < 12; i++) sph(B, 0.17, S.roofSnow ? '#d8e4ec' : '#6a8a3a', (B.r() - 0.5) * 0.9, 1.75 - B.r() * 0.5, 1.56, { sy: 1.7, ao: false });
     B.pop();
     // canopy masses (fill top of frame)
     const leaves = S.leaf;
@@ -753,7 +753,7 @@ function seaAndHorizon(ctx, y = -6, o = {}) {
 }
 SCENE_DEFS.cliffs = {
   cam: { pos: [0, 4.4, 14.2], look: [0, 2.2, -1.5], fov: 38, drift: 0.12, halfW: 8.5 },
-  env: () => ({ sky: { ...S.sky, cloudAmt: 0.65, sunDir: [0.55, 0.3, -0.8] }, fog: [S.sky.horizon, 30, 160], hemi: [S.hemiSky, S.hemiGround, 0.85], key: { pos: [9, 10, 4], col: S.key, I: 2.4 }, rim: { pos: [-8, 6, -10], col: '#a0d0ff', I: 1.1 }, amb: 0.15 }),
+  env: () => ({ sky: { ...S.sky, cloudAmt: 0.65, sunDir: [0.75, 0.3, -0.6] }, fog: [S.sky.horizon, 45, 260], hemi: [S.hemiSky, S.hemiGround, 0.85], key: { pos: [9, 10, 4], col: S.key, I: 2.4 }, rim: { pos: [-8, 6, -10], col: '#a0d0ff', I: 1.1 }, amb: 0.15 }),
   ground: { W: 34, D: 26, cx: 0, cz: -3, hf: (x, z) => { const edge = 5.6 + z * 0.35; return x > edge ? -Math.min(9, (x - edge) * 2.2 + (x - edge) ** 2 * 0.6) : Math.sin(x * 0.3) * 0.12 + (z < -7 ? (-7 - z) * 0.25 : 0); }, paint: () => ({
     pal: pal(), seed: 29, flowers: 520,
     paths: [{ pts: [[-13, 2.0], [-6, 1.4], [-2.0, -0.4], [-3.4, -2.6]], w: 1.6, col: S.dirt, col2: S.dirt2 }, { pts: [[-2.0, -0.4], [2, 1.4], [5.4, 3.0], [7.4, 4.4]], w: 1.4, col: S.dirt, col2: S.dirt2 }],
@@ -793,6 +793,7 @@ SCENE_DEFS.cliffs = {
     B.push(3.2, 0, -1.8, -0.6); for (let i = 0; i < 3; i++) { const a = (i / 3) * PI * 2; cyl(B, 0.03, 0.03, 1.5, '#5a3a22', Math.cos(a) * 0.3, 0.7, Math.sin(a) * 0.3, { rz: Math.cos(a) * 0.35, rx: -Math.sin(a) * 0.35, seg: 4 }); } cyl(B, 0.08, 0.12, 1.2, '#c8a050', 0, 1.6, 0.2, { rx: -1.2, seg: 10 }); B.pop();
     // fence along the cliff, flowers (sea pinks), rocks
     fence(B, [[3.9, -4.4], [5.0, -1.2], [5.9, 1.4], [6.4, 3.0]], { col: '#9a8a70' });
+    for (let z = -12; z < 6; z += 0.55) { const ex = 5.6 + z * 0.35; rock(B, ex + 0.25 + B.r() * 0.4, z, { s: 0.35 + B.r() * 0.35, y: -0.45, col: '#9a8e80' }); if (B.r() < 0.7) grass(B, ex - 0.1, z + 0.2, { n: 5 }); }
     for (let i = 0; i < 16; i++) flowers(B, -8 + B.r() * 12, -3 + B.r() * 7.6, { n: 4, r: 0.4, cols: S.roofSnow ? S.flowers : ['#f4a8c8', '#ffffff', '#f8d0e0'] });
     for (let i = 0; i < 14; i++) grass(B, -8 + B.r() * 13, -4 + B.r() * 8.6, { n: 5 });
     rock(B, -1.2, -4.4, { s: 0.6 }); rock(B, 1.6, 4.2, { s: 0.4 }); rock(B, -6.4, 3.8, { s: 0.5 });

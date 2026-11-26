@@ -468,7 +468,7 @@ function endGame(st, silent = false) {
   if (G.puzzle) { title = st.reason === 'checkmate' && st.winner === WHITE ? 'Puzzle solved!' : 'Not quite'; sub = PUZZLES[G.puzzle.idx].name; }
   $('#end-title').textContent = title;
   $('#end-sub').textContent = sub;
-  $('#end-reason').textContent = st.reason === 'checkmate' ? `by checkmate in ${Math.ceil(G.chess.ply / 2)} moves` : `by ${st.reason}`;
+  $('#end-reason').textContent = st.reason === 'checkmate' ? `by checkmate in ${Math.ceil(G.chess.ply / 2)} move${Math.ceil(G.chess.ply / 2) === 1 ? '' : 's'}` : `by ${st.reason}`;
   $('#end-crest').textContent = st.winner === WHITE ? '♔' : st.winner === BLACK ? '♚' : '½';
   $('#end-score').textContent = st.result === '1/2-1/2' ? '½–½' : st.result.replace('-', '–');
   $('#st-moves').textContent = Math.ceil(G.chess.ply / 2); $('#st-caps').textContent = G.captured.length;
