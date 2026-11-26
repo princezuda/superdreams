@@ -5,7 +5,7 @@ import { CAST } from './story.js';
 import { HEROES, SKILLS, ITEMS, EQUIP, SHOPS, TYPES, ENEMIES, DIFFICULTY } from './data.js';
 import { heroStats, skillsFor, itemName, priceOf, count, equip, unequip, canEquip, equipDelta, useItemField, buy, sell, isEquip, fmtTime, saveSummary } from './rules.js';
 import { xpToNext } from './data.js';
-import { paintPortrait } from './pixel.js';
+import { paintPortrait, paintMonsterSheet } from './pixel.js';
 import { I } from './input.js';
 import { MAPS } from './maps.js';
 
@@ -22,6 +22,9 @@ export const ICON = {
 };
 export const typeIcon = (t) => `<i class="ty ty-${t}" title="${TYPES[t]?.name || '?'}">${ICON[t] || ICON.unknown}</i>`;
 const portraitCache = {};
+const monCache = {};
+// small face crop of a monster's idle frame (turn strip / bestiary)
+export function monsterIcon(sprite) { if (!monCache[sprite]) { const sh = paintMonsterSheet(sprite), S = sh.height, c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(sh, S * 0.1, S * 0.1, S * 0.8, S * 0.8, 0, 0, 32, 32); monCache[sprite] = c.toDataURL(); } return monCache[sprite]; }
 export function portrait(who) { if (!CAST[who]) return ''; if (!portraitCache[who]) portraitCache[who] = paintPortrait(CAST[who].look).toDataURL(); return portraitCache[who]; }
 
 export class UI {
@@ -29,7 +32,7 @@ export class UI {
     this.app = app; this.stack = []; this.dlgOpen = false; this.speedMs = { slow: 34, normal: 18, fast: 7, instant: 0 };
     document.body.insertAdjacentHTML('beforeend', `
       <div id="hud" class="ew"><div id="area"><span class="k"></span><span class="n"></span></div><div id="objective"></div></div>
-      <div id="prompt" class="ew"><b class="key"></b><span></span></div>
+      <div id="prompt" class="ew"><div class="pw"><b class="key"></b><span></span></div></div>
       <div id="emotes"></div>
       <div id="dlg" class="ew panel hidden"><div class="pt"><img alt=""></div><div class="body"><div class="name"></div><div class="text"></div></div><div class="next">▼</div></div>
       <div id="choices" class="ew panel hidden"></div>

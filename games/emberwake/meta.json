@@ -1,0 +1,33 @@
+{
+  "id": "emberwake",
+  "title": "Emberwake",
+  "genre": "RPG",
+  "subgenre": "JRPG",
+  "tier": "AA",
+  "tagline": "The Great Ember is going out. Keep the Wake, break their guard, and find who is snuffing the light.",
+  "description": "A compact story JRPG in hand-built pixel dioramas. On the longest night of the year a grey stranger steals Kindlewick's shrine-ember, and apprentice wickwarden Rook sets out after it — gathering Bram, a miner with a hammer called Pebble, and Ines, a tide-reader searching for her father. Explore two towns, a living overworld and three dungeons; fight visible enemies (strike first, or slip past) in readable turn-based battles where you hunt weaknesses to Break shields, bank and spend Boost Points, and time button presses for bonus damage and blocks. Levels, skills, equipment, shops, inns, shrines, a bestiary, three save slots plus autosave, and a complete story with a real ending.",
+  "playTime": "60–90 min",
+  "controls": "Move WASD / arrows / left stick / touch pad · Act Enter / Space / Z / Ⓐ · Back / run X / Shift / Ⓑ · Menu Esc / P / Start · Boost Q R / LB RB / ± · Timed press: press Act as the ring closes (or tap)",
+  "modes": ["Story (easy)", "Normal", "Hard"],
+  "themes": ["jrpg", "pixel diorama", "fantasy", "turn-based", "story"],
+  "levels": true,
+  "remix": [
+    { "key": "difficulty", "label": "Difficulty (new game)", "type": "choice", "choices": [{ "v": "easy", "label": "Story" }, { "v": "normal", "label": "Normal" }, { "v": "hard", "label": "Hard" }], "default": "normal" },
+    { "key": "heroName", "label": "Hero's name", "type": "text", "default": "Rook" },
+    { "key": "battleSpeed", "label": "Battle speed", "type": "choice", "choices": [{ "v": 1, "label": "1×" }, { "v": 1.5, "label": "1.5×" }, { "v": 2, "label": "2×" }], "default": 1 },
+    { "key": "timing", "label": "Timed presses", "type": "choice", "choices": [{ "v": "normal", "label": "Normal" }, { "v": "wide", "label": "Wide window" }, { "v": "auto", "label": "Automatic" }], "default": "normal" },
+    { "key": "xpRate", "label": "Experience rate", "type": "range", "min": 0.5, "max": 3, "step": 0.25, "default": 1 },
+    { "key": "startGold", "label": "Starting gold (new game)", "type": "range", "min": 0, "max": 2000, "step": 20, "default": 40 },
+    { "key": "autumn", "label": "Autumn leaves", "type": "bool", "default": true },
+    { "key": "colors.accent", "label": "UI accent", "type": "color", "default": "#ffb45a" }
+  ],
+  "credits": [],
+  "fablePass": [
+    "Music: Kindlewick hearth waltz, Saltmere shanty, overworld travel theme, three dungeon beds, battle theme with a Break stinger layer, three boss themes, Emberwake finale + credits song",
+    "Battle choreography: keyed wind-ups and follow-through per weapon, per-skill VFX timing, camera cuts on Break and boss phases, hit-stop",
+    "Character animation: richer walk/run cycles, talk gestures, idle fidgets; boss idle loops (Rootmother breathing roots, Brinewarden claws, Morrow's cloak)",
+    "Encounter transition (ember-swirl shatter) and the ending sequence: the Great Ember splitting into a hundred sparks over the sea",
+    "Ambient soundscapes per map (festival crowd, surf and gulls, dripping cave, wind on the spire)"
+  ],
+  "thumb": "thumb.jpg"
+}

@@ -31,20 +31,23 @@ export class Field {
     for (const c of [...this.root.children]) { this.root.remove(c); c.traverse?.((o) => { if (o.geometry) o.geometry.dispose(); }); }
     this.ents.clear(); this.followers = []; this.trail = [];
     const Mp = MAPS[mapId]; this.map = mapId; this.Mp = Mp;
-    const preset = mapId === 'kindlewick' && this.f.ending ? 'dawn' : mapId === 'saltglass' && this.f.boss2 ? 'crystalLit' : Mp.light;
-    this.app.lighting.apply(preset);
+    const preset = this.preset = mapId === 'kindlewick' && this.f.ending ? 'dawn' : mapId === 'saltglass' && this.f.boss2 ? 'crystalLit' : Mp.light;
+    this.cam.pitch = Mp.kind === 'dungeon' ? 0.86 : 0.7; this.cam.dist = Mp.kind === 'dungeon' ? 21 : 23;
+    this.app.lighting.camDist = this.cam.dist; this.app.lighting.apply(preset);
     spriteLight.value = { cave: 0.55, crystal: 0.55, crystalLit: 0.5, night: 0.5 }[preset] ?? 0.32;
     const B = this.built = buildWorld(mapId, this.f); this.root.add(B.group);
     this.app.fx.setFlames(B.flames); this.app.fx.setAmbient(this.f.ending && mapId === 'kindlewick' ? 'dawn' : AMBIENT[mapId], null);
-    this.cam.pitch = Mp.kind === 'dungeon' ? 0.86 : 0.72; this.cam.dist = Mp.kind === 'dungeon' ? 16 : 18;
+    this.cam.pitch = Mp.kind === 'dungeon' ? 0.86 : 0.7; this.cam.dist = Mp.kind === 'dungeon' ? 21 : 23;
     // dynamic toggles that depend on flags
     this.refreshDynamic();
     // player + party trail
     const lead = this.s.party[0];
     this.player = this.spawnActor('player', CAST[lead].look, lead, at[0], at[1], dir);
     this.player.speed = 3.4;
-    for (const id of this.s.party.slice(1)) { const fo = this.spawnActor('follow:' + id, CAST[id].look, id, at[0], at[1], dir); this.followers.push(fo); }
-    for (let i = 0; i < 60; i++) this.trail.push({ x: at[0], z: at[1], dir });
+    // lay the party out in a line behind the leader (and seed the trail along it)
+    const [bx, bz] = DIRS[dir] || [0, 1];
+    for (let i = 0; i < 60; i++) { let x = at[0] - bx * i * 0.12, z = at[1] - bz * i * 0.12; if (!walkable(mapId, x, z, this.f)) { x = this.trail[i - 1]?.x ?? at[0]; z = this.trail[i - 1]?.z ?? at[1]; } this.trail.push({ x, z, dir }); }
+    this.s.party.slice(1).forEach((id, i) => { const tp = this.trail[Math.min(59, (i + 1) * 7)]; const fo = this.spawnActor('follow:' + id, CAST[id].look, id, tp.x, tp.z, dir); this.followers.push(fo); });
     // NPCs / enemies / chests / shrines
     for (const n of Mp.npcs || []) { const e = this.spawnActor(n.id, CAST[n.cast].look, n.cast, n.x, n.z, n.face || 'down'); e.ent = n; e.kind = 'npc'; e.home = [n.x, n.z]; e.wanderT = Math.random() * 3; }
     for (const en of Mp.enemies || []) { const big = en.boss; const a = new Actor({ monster: en.sprite, scale: big ? 1 : 0.7 }); const e = this.wrap(en.id, a, en.x, en.z, 'right'); e.ent = en; e.kind = 'enemy'; e.home = [en.x, en.z]; e.state = 'idle'; e.wanderT = Math.random() * 2; e.stun = 0; }
@@ -54,6 +57,14 @@ export class Field {
     this.cam.x = at[0]; this.cam.z = at[1]; this.cam.over = null; this.cam.zoom = 1;
     this.app.lighting.follow(at[0], at[1]);
     this.updateCamera(0, true);
+  }
+  // back from a battle: restore this map's look without rebuilding it
+  resume() {
+    this.app.lighting.camDist = this.cam.dist; this.app.lighting.apply(this.preset);
+    spriteLight.value = { cave: 0.55, crystal: 0.55, crystalLit: 0.5, night: 0.5 }[this.preset] ?? 0.32;
+    this.app.fx.setFlames(this.built.flames); this.app.fx.setAmbient(this.f.ending && this.map === 'kindlewick' ? 'dawn' : AMBIENT[this.map], null);
+    for (const e of this.ents.values()) if (e.kind === 'enemy') { e.state = 'idle'; e.goal = null; }
+    this.syncVisibility(); this.refreshDynamic(); this.updateCamera(0, true);
   }
   wrap(id, actor, x, z, dir) { const e = { id, actor, x, z, y: groundY(this.map, x, z), dir, visible: true }; actor.face(dir); actor.tilt(this.cam.pitch); this.root.add(actor.group); this.ents.set(id, e); this.place(e); return e; }
   spawnActor(id, look, key, x, z, dir) { const a = new Actor({ look, key }); return this.wrap(id, a, x, z, dir); }
@@ -132,6 +143,7 @@ export class Field {
       else if (e.kind === 'enemy' && e.visible) this.updateEnemy(e, dt, canControl);
       else if (e.kind === 'shrine') { e.gem.position.y = Math.sin(t * 2) * 0.06; e.gem.rotation.y = t; }
     }
+    if (this.app.mode !== 'field' && this.app.mode !== 'title') { this.app.ui.prompt(null); this.updateCamera(dt); return; }
     // ---- interaction target + prompt
     this.nearest = canControl ? this.findInteract() : null;
     this.app.ui.prompt(this.nearest ? this.screenOf(this.nearest.x, (this.nearest.y || 0) + (this.nearest.kind === 'npc' ? 2.0 : 1.2), this.nearest.z) : null, this.nearest?.label);
@@ -139,7 +151,7 @@ export class Field {
     // ---- exits & triggers (edge-triggered inside World)
     if (canControl) W.onMove(P.x, P.z);
     // ---- lights, camera
-    this.app.lighting.assign(this.built.lights, this.cam.x, this.cam.z, { x: P.x, y: P.y + 1.4, z: P.z + 0.6 });
+    this.app.lighting.assign(this.built.lights, this.cam.x, this.cam.z, { x: P.x + 0.4, y: P.y + 2.6, z: P.z + 0.3 });
     for (const fn of this.built.anim) fn(t);
     this.updateCamera(dt);
   }
@@ -191,7 +203,7 @@ export class Field {
     e.actor.face(e.dir); e.actor.animate(dt);
     e.y += (groundY(this.map, e.x, e.z) + (en.sprite === 'thornbat' || en.sprite === 'moth' || en.sprite === 'shade' || en.sprite === 'lamp' ? 0.35 + Math.sin(this.t * 3 + e.x) * 0.1 : 0) - e.y) * Math.min(1, dt * 10);
     this.place(e);
-    if (canControl && e.stun <= 0 && this.encounterCooldown <= 0 && d < (en.boss ? 1.6 : 0.75) && !en.still) this.app.encounter(e, false);
+    if (canControl && e.stun <= 0 && this.encounterCooldown <= 0 && d < (en.boss ? 1.7 : 0.75) && (!en.still || en.script)) this.app.encounter(e, false);
   }
   findInteract() {
     const P = this.player, [fx, fz] = DIRS[P.dir]; let best = null, bd = 1e9;

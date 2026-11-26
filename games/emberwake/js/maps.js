@@ -22,7 +22,7 @@ function overworldTiles() {
   // west forest + scattered woods
   for (let z = 0; z < H; z++) for (let x = 0; x < W; x++) {
     const r = R();
-    if (x < 17 && r < 0.5) set(x, z, r < 0.25 ? 'P' : 'T');
+    if (x < 17 && r < 0.38) set(x, z, r < 0.2 ? 'P' : 'T');
     else if (r < 0.06) set(x, z, 'T'); else if (r < 0.1) set(x, z, 'f'); else if (r < 0.12) set(x, z, 'b');
   }
   // north mountains with a ragged edge
@@ -54,6 +54,7 @@ function overworldTiles() {
   // grotto mouth below the lighthouse
   rect(40, 6, 41, 7, ',');
   rect(11, 8, 13, 9, '.'); rect(10, 8, 10, 8, ',');
+  rect(12, 22, 15, 26, '.');
   // Thornwall
   rect(19, 16, 21, 19, 'x'); rect(17, 15, 23, 15, '#'); rect(16, 19, 24, 20, 'T');
   // borders
@@ -139,7 +140,7 @@ export const MAPS = {
     props: [
       { k: 'village', x: 8, z: 31 }, { k: 'cave', x: 8.5, z: 4.6 }, { k: 'town', x: 37, z: 25 }, { k: 'lighthouse', x: 41, z: 3.8 },
       { k: 'grotto', x: 40.5, z: 6.5 }, { k: 'sign', x: 10.6, z: 16, text: 'East: Saltmere · North: Mossbarrow Hollow' }, { k: 'sign', x: 33.6, z: 16.2, text: 'South: Saltmere · North: the Tidewatch Light' },
-      { k: 'windmill', x: 14, z: 25 }, { k: 'ruin', x: 26, z: 11.5 }, { k: 'spire', x: 56, z: -14 }, { k: 'stones', x: 31.5, z: 13 },
+      { k: 'windmill', x: 13.5, z: 24.2 }, { k: 'ruin', x: 26, z: 11.5 }, { k: 'spire', x: 56, z: -14 }, { k: 'stones', x: 31.5, z: 13 },
     ],
     npcs: [
       { id: 'traveller', x: 12.5, z: 18.6, cast: 'traveller', face: 'left', script: 'traveller' },
@@ -207,7 +208,7 @@ export const MAPS = {
       { id: 'm1', x: 15.5, z: 19.5, group: 'g5', sprite: 'rootling' }, { id: 'm2', x: 5.5, z: 10.8, group: 'g2', sprite: 'gloomcap' },
       { id: 'm3', x: 24.5, z: 10.8, group: 'g6', sprite: 'boar' }, { id: 'm4', x: 15, z: 9.5, group: 'g7', sprite: 'rootling' },
       { id: 'm5', x: 25.5, z: 15.5, group: 'g4', sprite: 'thornbat' },
-      { id: 'boarA', x: 15.5, z: 22.2, group: 'gbram', sprite: 'boar', cond: (f) => f.bramTalk && !f.bram, still: true, script: 'bramFight' },
+      { id: 'boarA', x: 15.5, z: 22.2, group: 'gbram', sprite: 'boar', cond: (f) => !f.bram, still: true, script: 'bramMeet' },
       { id: 'rootmother', x: 15, z: 3.2, group: 'boss1', sprite: 'rootmother', boss: true, still: true, cond: (f) => !f.boss1, script: 'boss1' },
     ],
     chests: [{ id: 'mb1', x: 4.5, z: 16.3, item: 'w_brand', n: 1 }, { id: 'mb2', x: 26.5, z: 15.5, item: 'tonic', n: 3 }, { id: 'mb3', x: 20.5, z: 2.5, item: 'ash', n: 1 }, { id: 'mb4', x: 10.5, z: 24.5, gold: 60 }],
@@ -446,10 +447,10 @@ export function groundY(id, x, z) {
 const STAGE_W = 24, STAGE_H = 16;
 function stage(fill, fn) { const g = Array.from({ length: STAGE_H }, () => Array(STAGE_W).fill(fill)); fn(g); return g.map((r) => r.join('')); }
 export const STAGES = {
-  field: { light: 'dusk', tiles: stage('.', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = 'T'; g[1][x] = x % 3 ? 'T' : 'P'; g[2][x] = x % 4 === 1 ? 'T' : '.'; } for (let x = 0; x < STAGE_W; x++) { g[8][x] = ','; g[9][x] = ','; } for (const [x, z] of [[3, 4], [19, 5], [7, 13], [16, 12], [21, 10]]) g[z][x] = 'f'; for (let x = 0; x < STAGE_W; x++) { g[15][x] = 'T'; } g[3][12] = 'b'; }) },
-  forest: { light: 'cave', tiles: stage('r', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = 'R'; g[1][x] = 'R'; g[2][x] = x % 5 ? 'R' : 'r'; g[15][x] = 'R'; } for (const [x, z] of [[4, 5], [18, 4], [10, 12], [20, 11], [2, 10]]) g[z][x] = 'm'; g[3][7] = 'o'; g[3][16] = 'o'; }) },
-  coast: { light: 'bluedusk', tiles: stage('s', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = '~'; g[1][x] = '~'; g[2][x] = '~'; g[3][x] = x % 6 ? 's' : '~'; g[15][x] = 'P'; g[14][x] = x % 3 ? '.' : 'P'; } }) },
-  grotto: { light: 'crystal', tiles: stage('r', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = 'R'; g[1][x] = 'R'; g[2][x] = '~'; g[3][x] = x % 4 ? 'r' : '~'; g[15][x] = 'R'; } g[4][4] = 'c'; g[5][19] = 'c'; g[12][2] = 'c'; g[13][21] = 'c'; }) },
+  field: { light: 'dusk', tiles: stage('.', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = 'T'; g[1][x] = x % 3 ? 'T' : 'P'; g[2][x] = x % 4 === 1 ? 'T' : '.'; } for (let x = 0; x < STAGE_W; x++) { g[8][x] = ','; g[9][x] = ','; } for (const [x, z] of [[3, 4], [19, 5], [7, 13], [16, 12], [21, 10]]) g[z][x] = 'f'; for (let x = 0; x < STAGE_W; x++) { g[15][x] = x % 5 === 2 ? 'f' : '.'; } g[3][12] = 'b'; }) },
+  forest: { light: 'cave', tiles: stage('r', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = 'R'; g[1][x] = 'R'; g[2][x] = x % 5 ? 'R' : 'r'; } for (const [x, z] of [[4, 5], [18, 4], [10, 12], [20, 11], [2, 10]]) g[z][x] = 'm'; g[3][7] = 'o'; g[3][16] = 'o'; }) },
+  coast: { light: 'bluedusk', tiles: stage('s', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = '~'; g[1][x] = '~'; g[2][x] = '~'; g[3][x] = x % 6 ? 's' : '~'; g[15][x] = '.'; } }) },
+  grotto: { light: 'crystal', tiles: stage('r', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = 'R'; g[1][x] = 'R'; g[2][x] = '~'; g[3][x] = x % 4 ? 'r' : '~'; } g[4][4] = 'c'; g[5][19] = 'c'; g[12][2] = 'c'; g[13][21] = 'c'; }) },
   spire: { light: 'night', tiles: stage('=', (g) => { for (let x = 0; x < STAGE_W; x++) { g[0][x] = ' '; g[1][x] = ' '; g[2][x] = x > 3 && x < 20 ? 'W' : ' '; g[15][x] = ' '; g[14][x] = x % 7 === 3 ? ' ' : '='; } }) },
 };
 for (const [k, S] of Object.entries(STAGES)) MAPS['stage_' + k] = { name: 'Battle', kind: 'stage', light: S.light, tiles: S.tiles, floor: k === 'grotto' ? { r: 'grotto' } : null, props: k === 'spire' ? [{ k: 'brazier', x: 5, z: 4 }, { k: 'brazier', x: 19, z: 4 }, { k: 'emberFar', x: 12, z: -10 }] : k === 'grotto' ? [{ k: 'crystal', x: 4.5, z: 4.5, c: '#7fe8ff' }, { k: 'crystal', x: 19.5, z: 5.5, c: '#b08cff' }] : k === 'forest' ? [{ k: 'mushrooms', x: 4.5, z: 5.5 }, { k: 'mushrooms', x: 18.5, z: 4.5 }] : [], start: [12, 8] };

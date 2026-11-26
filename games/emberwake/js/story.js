@@ -62,7 +62,7 @@ export const SCRIPTS = {
     await G.fx('snatch', 16, 4.2);
     await G.say('odile', 'The shard! Something took the shard — it\'s in the square! Rook, after it!');
     G.flag('intro'); await G.hide('morrowSpy'); await G.camReset();
-    await G.hint('Walk with WASD / arrow keys / left stick / the touch pad. Touch the shadow-creature in the square to fight it.');
+    await G.hint('Walk with WASD / arrow keys / left stick / the touch pad. Walk into the shadow-creature in the square to fight it.');
   },
   async tutorial(G) {
     await G.say('rook', 'Hey! Put that back — that\'s ours!');

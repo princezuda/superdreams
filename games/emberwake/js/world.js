@@ -31,7 +31,7 @@ export function buildWorld(mapId, flags = {}) {
   for (let z = 0; z < H; z++) for (let x = 0; x < W; x++) {
     const c = Mp.tiles[z][x], b = heightAt(mapId, x + 0.5, z + 0.5);
     let h = b;
-    if (c === '#') h = b + 1.0 + hash2(x >> 1, z >> 1, 3) * 1.1 + hash2(x, z, 4) * 0.4 + (kind === 'field' && z < 3 ? 1.2 : 0);
+    if (c === '#') h = b + 1.2 + Math.round(hash2(x >> 2, z >> 2, 3) * 2) * 0.75 + (hash2(x, z, 4) < 0.15 ? 0.75 : 0) + (kind === 'field' && z < 3 ? 1.5 : 0);
     else if (c === 'R') h = b + 1.6 + hash2(x, z, 5) * 0.5;
     else if (c === 'W') h = b + 1.4;
     else if (c === '~') h = -0.7;
@@ -44,11 +44,12 @@ export function buildWorld(mapId, flags = {}) {
   out.tops = top;
 
   // ---------------------------------------------------------------- terrain faces
-  const texFor = (c, x, z) => { const o = floorOverride[c]; if (o) return T[o]; const l = GROUND_TEX[c] || ['grass1']; return T[l[Math.floor(hash2(x, z, 9) * l.length)]]; };
+  const texFor = (c, x, z) => { const o = floorOverride[c]; if (o) return T[o]; if (c === '#' && kind !== 'dungeon' && top[z * W + x] < 2.4) return T[hash2(x, z, 3) < 0.5 ? 'grass2' : 'grass3']; const l = GROUND_TEX[c] || ['grass1']; return T[l[Math.floor(hash2(x, z, 9) * l.length)]]; };
   const sideFor = (c) => T[SIDE_TEX[c] || 'dirtside'];
   const groundTint = (c, x, z) => {
-    const n = hash2(x, z, 1) * 0.08 - 0.04;
-    if ('.fTPbF'.includes(c)) return [1 + n, 1 + n, 1 + n];
+    const n = hash2(x, z, 1) * 0.08 - 0.04, lo = hash2(x >> 2, z >> 2, 11) * 0.16 - 0.08;
+    if ('.fTPbF'.includes(c)) return [1 + n + lo * 0.6, 1 + n + lo, 1 + n + lo * 0.3];
+    if (c === '#') return [1.05 + n, 1.0 + n, 0.95 + n];
     return [1 + n * 0.5, 1 + n * 0.5, 1 + n * 0.5];
   };
   const isWaterT = (x, z, strict) => { const c = tl(x, z); if (c === null) return !strict ? false : kind === 'town' || kind === 'field' ? isEdgeSea(x, z) : false; return c === '~'; };
@@ -91,8 +92,8 @@ export function buildWorld(mapId, flags = {}) {
     if (!seaSouth) sk(0, H, W, H + pad);
     const m = new THREE.Mesh(skirt.build(), M.world); m.receiveShadow = true; out.group.add(m);
     // forest wall beyond the border so the camera never sees bare skirt
-    for (let i = 0; i < 160; i++) {
-      const side = i % 4; let x, z;
+    for (let i = 0; i < (kind === 'stage' ? (Mp.light === 'dusk' ? 50 : 0) : 160); i++) {
+      const side = kind === 'stage' ? 2 : i % 4; let x, z;
       if (side === 0) { x = -2 - R() * 10; z = R() * H; } else if (side === 1 && !seaEast) { x = W + 1 + R() * 10; z = R() * H; } else if (side === 2) { x = R() * W; z = -2 - R() * 8; } else if (!seaSouth) { x = R() * W; z = H + 1 + R() * 6; } else continue;
       if (R() < 0.5) pine(gL, gW, x, 0, z, 0.9 + R() * 0.6, R); else tree(gL, gW, x, 0, z, 0.9 + R() * 0.5, R, mapId);
     }
@@ -158,11 +159,13 @@ function stairs(g, id, x, z, h, hT) {
   }
 }
 
+let AUTUMN = true;
+export function setSeason(autumn) { AUTUMN = !!autumn; }
 const LEAF_PALETTES = { kindlewick: ['#5aa04a', '#d8902a', '#c85a2a', '#7ab04a', '#e8b040'], overworld: ['#4e9a40', '#5aa84a', '#6ab04a', '#d89a3a', '#3e8a3a', '#c86a2a'], saltmere: ['#4a9050', '#3e8048', '#5aa058'], default: ['#4e9a40', '#5aa84a'] };
 function tree(gL, gW, x, y, z, s, R, mapId) {
   gW.geom(new THREE.CylinderGeometry(0.1 * s, 0.17 * s, 1.1 * s, 6), T.bark, [0.9, 0.9, 0.9], mat4(x, y + 0.55 * s, z));
-  const pal = LEAF_PALETTES[mapId] || LEAF_PALETTES.default; const base = pal[Math.floor(R() * pal.length)];
-  const blobs = [[0, 1.45, 0, 0.62], [-0.32, 1.2, 0.12, 0.46], [0.34, 1.25, -0.05, 0.48], [0.05, 1.85, -0.05, 0.42]];
+  const pal = (AUTUMN && LEAF_PALETTES[mapId]) || LEAF_PALETTES.default; const base = pal[Math.floor(R() * pal.length)];
+  const blobs = [[0, 1.45, 0, 0.64], [-0.34, 1.2, 0.12, 0.47], [0.3, 1.78, -0.05, 0.44]];
   for (const [bx, by, bz, br] of blobs) {
     const k = 0.9 + R() * 0.2;
     gL.geom(new THREE.IcosahedronGeometry(br * s, 1), T.leaves, rgb(base, k), mat4(x + bx * s, y + by * s, z + bz * s, R() * 6, 1, 0.92, 1), { jitter: 0.1 * s, seed: x * 7 + z, ex: { sway: 1 }, uvScale: [2, 2], colFn: (p, C) => { const t = Math.max(0.6, Math.min(1.15, 0.75 + (p.y - y) / (2.2 * s) * 0.4 + (p.z - z) * 0.15)); return [C[0] * t, C[1] * t, C[2] * t]; } });
@@ -193,7 +196,7 @@ function thornCluster(g, x, y, z, R) {
 function rootTangle(g, x, y, z, R) { for (let i = 0; i < 3; i++) g.geom(new THREE.CylinderGeometry(0.12, 0.2, 1.8, 6), T.roots, [0.9, 0.9, 0.9], mat4(x + (R() - 0.5) * 0.5, y + 0.6, z + (R() - 0.5) * 0.4, R() * 3, 1, 1, 1, (R() - 0.5) * 1.2, (R() - 0.5) * 1.6), { jitter: 0.05 }); }
 function crystal(gG, gW, x, y, z, c, s, R) {
   rock(gW, x, y, z, 0.3 * s, R, T.cavewall);
-  for (let i = 0; i < 4; i++) { const h = (0.6 + R() * 0.8) * s; gG.geom(new THREE.OctahedronGeometry(0.18 * s, 0), T.cloth, rgb(c, 1.4 + R() * 0.6), mat4(x + (R() - 0.5) * 0.4 * s, y + h * 0.45, z + (R() - 0.5) * 0.4 * s, R() * 3, 1, h * 3.2, 1, (R() - 0.5) * 0.6, (R() - 0.5) * 0.6)); }
+  for (let i = 0; i < 4; i++) { const h = (0.6 + R() * 0.8) * s; gG.geom(new THREE.OctahedronGeometry(0.18 * s, 0), T.cloth, rgb(c, 0.75 + R() * 0.35), mat4(x + (R() - 0.5) * 0.4 * s, y + h * 0.45, z + (R() - 0.5) * 0.4 * s, R() * 3, 1, h * 3.2, 1, (R() - 0.5) * 0.6, (R() - 0.5) * 0.6)); }
 }
 
 // ================================================================ buildings
@@ -259,10 +262,10 @@ function shrineHouse(g, gG, b, out, flags) {
   g.box(cx - 1.2, 0, z + d - 0.1, cx + 1.2, 0.22, z + d + 0.35, { side: T.housestone, top: T.stone });
   for (const [px, pz] of [[x + 0.7, z + 0.8], [x + w - 0.7, z + 0.8], [x + 0.7, z + d - 0.6], [x + w - 0.7, z + d - 0.6]]) { g.box(px - 0.16, 0.45, pz - 0.16, px + 0.16, 2.9, pz + 0.16, T.darkwood); g.box(px - 0.22, 0.45, pz - 0.22, px + 0.22, 0.65, pz + 0.22, T.housestone); }
   // two-tier pagoda roof
-  for (const [y0, s, hh] of [[2.9, 1.0, 0.9], [3.6, 0.55, 0.9]]) {
-    const hw = (w / 2 + 0.4) * s, hd = (d / 2 + 0.4) * s, apex = V(cx, y0 + hh, cz);
+  for (const [y0, s, hh] of [[2.9, 0.78, 0.75], [3.5, 0.42, 0.95]]) {
+    const hw = (w / 2 + 0.25) * s, hd = (d / 2 + 0.25) * s, apex = V(cx, y0 + hh, cz);
     const c4 = [V(cx - hw, y0, cz + hd), V(cx + hw, y0, cz + hd), V(cx + hw, y0, cz - hd), V(cx - hw, y0, cz - hd)];
-    for (let i = 0; i < 4; i++) g.tri(c4[i], c4[(i + 1) % 4], apex, T.roof, [0, 0], [1, 0], [0.5, 1], rgb('#b8442a', i === 0 ? 1.3 : 1.0));
+    for (let i = 0; i < 4; i++) g.tri(c4[i], c4[(i + 1) % 4], apex, T.roof, [0, 0], [1, 0], [0.5, 1], rgb('#7a3428', i === 0 ? 1.25 : 0.95));
     g.box(cx - hw, y0 - 0.12, cz - hd, cx + hw, y0, cz + hd, T.darkwood, [0.8, 0.8, 0.8], { top: false });
   }
   gG.geom(new THREE.OctahedronGeometry(0.16, 0), T.cloth, rgb('#ffd060', 2.5), mat4(cx, 5.2, cz));
@@ -285,7 +288,7 @@ const PROPS = {
       gDS.tri(V(x - dx, y, z - dz), V(x + dx, y, z + dz), V(x, y - 0.32, z), T.cloth, [0, 1], [1, 1], [0.5, 0], rgb(cols[i % cols.length], 1.1));
     }
   },
-  stall(P, p) { const { gW, gDS, out, R } = P; for (const [dx, dz] of [[-0.8, -0.4], [0.8, -0.4], [-0.8, 0.4], [0.8, 0.4]]) gW.box(p.x + dx - 0.05, 0, p.z + dz - 0.05, p.x + dx + 0.05, 1.7, p.z + dz + 0.05, T.darkwood); gW.box(p.x - 0.85, 0, p.z - 0.1, p.x + 0.85, 0.75, p.z + 0.45, T.wood); gDS.face(V(p.x - 1.0, 1.55, p.z + 0.75), V(2.0, 0, 0), V(0, 0.4, -1.3), T.awning, rgb(p.c, 1.2)); for (let i = 0; i < 6; i++) gW.geom(new THREE.SphereGeometry(0.1, 6, 4), T.cloth, rgb(['#e84a3a', '#f0c040', '#7ac04a', '#e8903a'][i % 4]), mat4(p.x - 0.6 + i * 0.24, 0.84, p.z + 0.15 + (R() - 0.5) * 0.2)); out.colliders.push({ x: p.x - 0.5, z: p.z, r: 0.55 }, { x: p.x + 0.5, z: p.z, r: 0.55 }); },
+  stall(P, p) { const { gW, gDS, out, R } = P; for (const [dx, dz] of [[-0.8, -0.4], [0.8, -0.4], [-0.8, 0.4], [0.8, 0.4]]) gW.box(p.x + dx - 0.05, 0, p.z + dz - 0.05, p.x + dx + 0.05, 1.7, p.z + dz + 0.05, T.darkwood); gW.box(p.x - 0.85, 0, p.z - 0.1, p.x + 0.85, 0.75, p.z + 0.45, T.wood); gDS.face(V(p.x - 1.0, 1.55, p.z + 0.75), V(2.0, 0, 0), V(0, 0.4, -1.3), T.awning, rgb(p.c, 0.5).map((v) => v + 0.55)); for (let i = 0; i < 6; i++) gW.geom(new THREE.SphereGeometry(0.1, 6, 4), T.cloth, rgb(['#e84a3a', '#f0c040', '#7ac04a', '#e8903a'][i % 4]), mat4(p.x - 0.6 + i * 0.24, 0.84, p.z + 0.15 + (R() - 0.5) * 0.2)); out.colliders.push({ x: p.x - 0.5, z: p.z, r: 0.55 }, { x: p.x + 0.5, z: p.z, r: 0.55 }); },
   well(P, p) { const { gW, out } = P; gW.geom(new THREE.CylinderGeometry(0.62, 0.66, 0.7, 12, 1, true), T.housestone, [1, 1, 1], mat4(p.x, 0.35, p.z), { uvScale: [3, 1] }); gW.geom(new THREE.CylinderGeometry(0.5, 0.5, 0.05, 12), T.riverbed, [0.4, 0.5, 0.6], mat4(p.x, 0.45, p.z)); gW.geom(new THREE.TorusGeometry(0.62, 0.07, 4, 14), T.housestone, [1, 1, 1], mat4(p.x, 0.7, p.z, 0, 1, 1, 1, Math.PI / 2)); for (const s of [-1, 1]) gW.box(p.x + s * 0.55 - 0.05, 0.6, p.z - 0.05, p.x + s * 0.55 + 0.05, 1.9, p.z + 0.05, T.darkwood); gW.face(V(p.x - 0.8, 1.75, p.z + 0.55), V(1.6, 0, 0), V(0, 0.45, -0.55), T.roof, rgb('#7a4a3a', 1.2)); gW.face(V(p.x + 0.8, 1.75, p.z - 0.55), V(-1.6, 0, 0), V(0, 0.45, 0.55), T.roof, rgb('#7a4a3a', 0.9)); out.colliders.push({ x: p.x, z: p.z, r: 0.75 }); },
   barrel(P, p) { const { gW, out } = P; gW.geom(new THREE.CylinderGeometry(0.26, 0.24, 0.62, 10), T.wood, [1, 1, 1], mat4(p.x, 0.31, p.z), { uvScale: [2, 1] }); for (const y of [0.12, 0.5]) gW.geom(new THREE.TorusGeometry(0.265, 0.02, 3, 12), T.iron, [1, 1, 1], mat4(p.x, y, p.z, 0, 1, 1, 1, Math.PI / 2)); out.colliders.push({ x: p.x, z: p.z, r: 0.3 }); },
   crate(P, p) { const { gW, out } = P; gW.box(p.x - 0.28, 0, p.z - 0.28, p.x + 0.28, 0.55, p.z + 0.28, T.wood); out.colliders.push({ x: p.x, z: p.z, r: 0.32 }); },
@@ -311,7 +314,7 @@ const PROPS = {
   stones(P, p) { const { gW, out } = P; for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2, x = p.x + Math.cos(a) * 1.3, z = p.z + Math.sin(a) * 1.0; gW.geom(new THREE.BoxGeometry(0.35, 1.2, 0.25), T.statue, [0.9, 0.9, 0.95], mat4(x, 0.55, z, a, 1, 1, 1, 0, 0.08), { jitter: 0.04 }); out.colliders.push({ x, z, r: 0.25 }); } },
   spire(P, p) { const { gW, gG } = P; gW.geom(new THREE.IcosahedronGeometry(6, 1), T.cliff, [0.45, 0.45, 0.55], mat4(p.x, -2, p.z, 0, 1.5, 0.6, 1), { jitter: 1 }); gW.geom(new THREE.CylinderGeometry(0.8, 2.6, 18, 8), T.brick, [0.5, 0.5, 0.6], mat4(p.x, 9, p.z), { uvScale: [4, 10] }); gG.geom(new THREE.SphereGeometry(1.2, 10, 8), T.cloth, rgb('#ff5a2a', 1.8), mat4(p.x, 19.2, p.z)); P.out.lights.push({ x: p.x, y: 19, z: p.z, c: '#ff5a2a', i: 0.1, r: 1 }); },
   roots(P, p) { P.dyn.gateRoots ||= new GB(); const g = P.dyn.gateRoots; for (let i = 0; i < 9; i++) g.geom(new THREE.CylinderGeometry(0.16, 0.26, 2.4, 6), T.roots, [0.9, 0.85, 0.8], mat4(p.x - 1.8 + i * 0.45, 1.0, p.z + 0.4 + (i % 2) * 0.2, i, 1, 1, 1, (P.R() - 0.5) * 0.5, (i % 2 ? 1 : -1) * (0.3 + P.R() * 0.4)), { jitter: 0.05 }); P.dyn.glowRoots ||= new GB(); for (let i = 0; i < 6; i++) glowDot(P.dyn.glowRoots, p.x - 1.5 + i * 0.6, 0.6 + (i % 3) * 0.5, p.z + 0.6, '#ff9a3a', 0.06); },
-  mushrooms(P, p) { const { gW, gG, out, R } = P; for (let i = 0; i < 5; i++) { const x = p.x + (R() - 0.5) * 1.2, z = p.z + (R() - 0.5) * 0.9, h = 0.2 + R() * 0.45, r = 0.12 + R() * 0.15; gW.geom(new THREE.CylinderGeometry(r * 0.3, r * 0.4, h, 6), T.cloth, [0.85, 0.82, 0.75], mat4(x, h / 2, z)); gG.geom(new THREE.SphereGeometry(r, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), T.cloth, rgb(i % 2 ? '#5affd0' : '#7ad8ff', 1.5), mat4(x, h, z, 0, 1, 0.7, 1)); } out.lights.push({ x: p.x, y: 0.8, z: p.z, c: '#4affc8', i: 2.6, r: 5 }); },
+  mushrooms(P, p) { const { gW, gG, out, R } = P; for (let i = 0; i < 5; i++) { const x = p.x + (R() - 0.5) * 1.2, z = p.z + (R() - 0.5) * 0.9, h = 0.2 + R() * 0.45, r = 0.12 + R() * 0.15; gW.geom(new THREE.CylinderGeometry(r * 0.3, r * 0.4, h, 6), T.cloth, [0.85, 0.82, 0.75], mat4(x, h / 2, z)); gG.geom(new THREE.SphereGeometry(r, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), T.cloth, rgb(i % 2 ? '#5affd0' : '#7ad8ff', 1.0), mat4(x, h, z, 0, 1, 0.7, 1)); } out.lights.push({ x: p.x, y: 0.8, z: p.z, c: '#4affc8', i: 2.6, r: 5 }); },
   crystal(P, p) { crystal(P.gG, P.gW, p.x, 0, p.z, p.c || '#7fe8ff', p.big ? 1.6 : 1, P.R); P.out.lights.push({ x: p.x, y: 1.2, z: p.z + 0.4, c: p.c || '#7fe8ff', i: p.big ? 4 : 2.8, r: p.big ? 7 : 5 }); P.out.colliders.push({ x: p.x, z: p.z, r: p.big ? 0.8 : 0.5 }); },
   beam(P, p) { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.8, 9, 16, 1, true), beamMat()); m.position.set(p.x, 4.5, p.z); m.renderOrder = 5; P.out.group.add(m); P.out.dyn.beam = m; },
   heart(P, p) { if (P.flags.boss1) return; P.dyn.glowHeart ||= new GB(); P.dyn.glowHeart.geom(new THREE.IcosahedronGeometry(0.6, 1), T.cloth, rgb('#ff7a2a', 1.6), mat4(p.x, 1.4, p.z - 0.6, 0, 1.6, 1.2, 1), { jitter: 0.1 }); },

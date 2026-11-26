@@ -1,0 +1,10 @@
+Emberwake — credits & asset record
+
+All visuals are generated at runtime in code: pixel-art characters, monsters and portraits (js/pixel.js),
+the tile atlas (js/atlas.js), terrain/buildings/props (js/world.js). All sound effects are Web Audio synthesis
+(js/audio.js on the shared kit). Story, characters, names and world are original.
+
+Third-party code: three.js r187 (MIT), vendored by the site.
+
+External assets used: none.
+Rejected assets: none considered — the pixel-diorama look is easier to keep coherent when every texel is painted by the same code.

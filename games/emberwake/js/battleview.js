@@ -13,13 +13,13 @@ import { buildWorld } from './world.js';
 import { U } from './render.js';
 import { I } from './input.js';
 import { tween, ease, shake, flash, settings } from '/shared/sd-kit.js';
-import { typeIcon, portrait } from './ui.js';
+import { typeIcon, portrait, monsterIcon } from './ui.js';
 import { count } from './rules.js';
 
 const X0 = 300, Z0 = 0;
-const PARTY_POS = [[16.6, 7.5], [17.7, 8.9], [18.8, 10.3]];
-const FOE_POS = [[7.4, 8.4], [5.2, 6.8], [5.4, 10.4], [3.2, 8.6]];
-const BOSS_POS = [6.2, 8.2];
+const PARTY_POS = [[15.4, 7.2], [16.4, 8.6], [17.4, 10.0]];
+const FOE_POS = [[8.6, 8.4], [6.6, 6.9], [6.8, 10.2], [4.8, 8.5]];
+const BOSS_POS = [7.2, 8.0];
 const esc = (t) => String(t).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
 export class BattleView {
@@ -48,7 +48,7 @@ export class BattleView {
     for (const c of [...this.root.children]) { this.root.remove(c); c.traverse?.((o) => o.geometry?.dispose()); }
     const st = this.stage = buildWorld('stage_' + region, s.flags); this.root.add(st.group);
     this.lights = st.lights.map((l) => ({ ...l, x: l.x + X0, z: l.z + Z0 }));
-    A.lighting.apply(MAPS['stage_' + region].light === 'night' && s.flags.boss3 ? 'dawn' : MAPS['stage_' + region].light);
+    A.lighting.camDist = (this.b.boss ? 23 : 21) * (A.aspect < 1 ? 1.55 : 1) - 4; U.occl.value = 0; A.lighting.apply(MAPS['stage_' + region].light === 'night' && s.flags.boss3 ? 'dawn' : MAPS['stage_' + region].light);
     spriteLight.value = { cave: 0.6, crystal: 0.6, night: 0.55 }[MAPS['stage_' + region].light] ?? 0.38;
     A.fx.setFlames(st.flames.map(([x, y, z, k, t]) => [x + X0, y, z + Z0, k, t]));
     A.fx.setAmbient(null);
@@ -58,8 +58,9 @@ export class BattleView {
     this.b.enemies().forEach((u) => this.addUnit(u, this.b.boss && ids.length === 1 ? BOSS_POS : FOE_POS[u.slot]));
     this.boost = 0; this.ui();
     this.el.classList.remove('hidden'); A.field.root.visible = false; this.root.visible = true;
-    this.cam = { x: 12, z: 8.6, y: 1.1, dist: this.b.boss ? 16.5 : 14.5, pitch: 0.36, t: 0 };
+    this.cam = { x: 12, z: 8.6, y: 1.2, dist: this.b.boss ? 23 : 21, pitch: 0.36, t: 0 };
     this.updateCamera(0, true);
+    A.ui.clearBattleWipe();
     // entrance
     for (const v of this.units.values()) { const dx = v.u.side === 'party' ? 4 : -4; const tx = v.px; v.px += dx; tween(0.55 / Math.min(this.sp, 2), (k) => (v.px = tx + dx * (1 - k)), { ease: ease.outCubic }); }
     await this.wait(0.5);
@@ -76,9 +77,10 @@ export class BattleView {
     actor.tilt(0.36); this.root.add(actor.group);
     const v = { u, actor, px: pos[0], pz: pos[1], py: 0, hx: pos[0], hz: pos[1], bob: Math.random() * 6, flashT: 0, fly: ['thornbat', 'moth', 'shade', 'lamp', 'eel'].includes(ENEMIES[u.id]?.sprite) };
     if (u.side === 'party') actor.pose = 'idle0';
-    this.units.set(u.uid, v); this.syncActor(v); return v;
+    this.units.set(u.uid, v); actor.group.position.set(v.px, 0, v.pz); return v;
   }
   end() {
+    U.occl.value = 1;
     this.el.classList.add('hidden'); this.root.visible = false; this.app.field.root.visible = true;
     for (const v of this.units?.values() || []) v.actor.dispose();
     this.q('.tags').innerHTML = ''; this.q('.pops').innerHTML = '';
@@ -319,7 +321,7 @@ export class BattleView {
     this.placeTags();
     // turn strip
     const q = b.queue(10);
-    this.q('.turns').innerHTML = q.map((x, i) => { const u = b.unit(x.uid); const prev = q[i - 1]; return `${prev && prev.round !== x.round ? '<span class="nx">NEXT</span>' : ''}<span class="tk ${u.side} ${i === 0 ? 'now' : ''} ${x.skip ? 'skip' : ''}">${u.side === 'party' ? `<img src="${portrait(u.id)}" alt="">` : `<b>${esc(u.name.replace(/^The /, '').slice(0, 2))}</b>`}</span>`; }).join('');
+    this.q('.turns').innerHTML = q.map((x, i) => { const u = b.unit(x.uid); const prev = q[i - 1]; return `${prev && prev.round !== x.round ? '<span class="nx">NEXT</span>' : ''}<span class="tk ${u.side === 'party' ? 'tp' : 'te'} ${i === 0 ? 'now' : ''} ${x.skip ? 'skip' : ''}">${u.side === 'party' ? `<img src="${portrait(u.id)}" alt="">` : `<img class="mon" src="${monsterIcon(ENEMIES[u.id].sprite)}" alt="${esc(u.name)}">`}</span>`; }).join('');
   }
   placeTags() {
     this.q('.tags').querySelectorAll('.etag').forEach((el) => { const v = this.units.get(+el.dataset.u); if (!v) return; const p = this.scr(v.px, v.py - 0.05, v.pz + 0.4); el.style.transform = `translate(${Math.round(p.x)}px,${Math.round(p.y)}px)`; });
@@ -362,8 +364,8 @@ export class BattleView {
     // gently lean toward whoever is acting
     const act = this.active && this.units.get(this.active); const lx = act ? (act.px - 12) * 0.12 : 0;
     const tx = 12 + lx; C.x += (tx - C.x) * (snap ? 1 : 1 - Math.exp(-dt * 2));
-    const dist = C.dist * (portrait ? 1.25 : 1), br = settings.reducedMotion ? 0 : Math.sin(C.t * 0.4) * 0.15;
-    cam.fov = portrait ? 52 : 30; cam.aspect = this.app.aspect; cam.updateProjectionMatrix();
+    const dist = C.dist * (portrait ? 1.55 : 1), br = settings.reducedMotion ? 0 : Math.sin(C.t * 0.4) * 0.15;
+    cam.fov = portrait ? 50 : 30; cam.aspect = this.app.aspect; cam.updateProjectionMatrix();
     cam.position.set(C.x + X0 + br, C.y + Math.sin(C.pitch) * dist, C.z + Z0 + Math.cos(C.pitch) * dist);
     cam.lookAt(C.x + X0, C.y, C.z + Z0);
     this.app.lighting.follow(C.x + X0, C.z + Z0);
@@ -373,6 +375,7 @@ export class BattleView {
   // ------------------------------------------------------------------ victory
   async victory() {
     const A = this.app, b = this.b; b.commit();
+    if (b.rewards) b.rewards.xp = Math.round(b.rewards.xp * (A.cfg?.xpRate || 1));
     const r = applyRewards(A.s, b);
     for (const v of this.units.values()) if (v.u.side === 'party' && v.u.hp > 0) v.actor.pose = 'victory';
     A.sfx.victory?.();
