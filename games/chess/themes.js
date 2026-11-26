@@ -29,7 +29,7 @@ export const THEMES = {
   },
   galaxy: {
     label: 'Galaxy', blurb: 'Suns, moons and ringed giants on a board of glowing nebula glass.', set: 'galaxy', env: 'galaxy', fx: 'supernova', board: 'nebula',
-    colors: { light: '#b0a3de', dark: '#1a1240', whitePieces: '#fff1cf', blackPieces: '#2a1850', accent: '#8ab8f0' },
+    colors: { light: '#7a6db0', dark: '#120c2c', whitePieces: '#fff1cf', blackPieces: '#2a1850', accent: '#8ab8f0' },
     glow: ['#ffc860', '#c05cff'], marker: '#ffe08a', capture: '#ff60c0', last: '#b89cff',
     piece: { rough: 0.22, metal: 0.1, clearcoat: 1, clearRough: 0.1, accentMetal: 0.2, accentRough: 0.1, pattern: 'celestial', glowGain: 1.6 },
     lights: { sky: 0xc0a8ff, ground: 0x0a0618, hemi: 0.38, key: 0xfff0d8, keyI: 2.0, keyPos: [6, 10, 6], rim: 0xc070ff, rimI: 1.8, rimPos: [-7, 4, -7], amb: 0.08 },
@@ -101,7 +101,7 @@ export function pieceMaterial(theme, side, colors) {
   const pulse = sin(time.mul(5.0)).mul(0.3).add(0.7);
   const breathe = sin(time.mul(1.7).add(positionWorld.x.mul(0.7))).mul(0.15).add(0.85);
   let em = glowC.mul(part.y).mul(P.glowGain).mul(breathe);
-  if (P.pattern === 'crystal' || P.pattern === 'celestial') em = em.add(glowC.mul(rim).mul(side ? 0.28 : 0.3));
+  if (P.pattern === 'crystal' || P.pattern === 'celestial') em = em.add(glowC.mul(rim).mul(P.pattern === 'celestial' ? (side ? 0.7 : 0.55) : side ? 0.28 : 0.3));
   m.emissiveNode = em
     .add(MARK.mul(rim.mul(1.4).add(0.12)).mul(sel.mul(1.3).add(hov.mul(0.45))))
     .add(vec3(1.0, 0.1, 0.04).mul(rim.mul(2.2).add(0.35)).mul(chk).mul(pulse));
@@ -230,7 +230,7 @@ export function boardMaterial(style, tex) {
   const P = {
     wood: { roughness: 0.34, metalness: 0, clearcoat: 0.75, clearcoatRoughness: 0.16, em: 0 },
     deck: { roughness: 0.42, metalness: 0.55, clearcoat: 0.2, clearcoatRoughness: 0.4, em: 1.4 },
-    nebula: { roughness: 0.12, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.05, em: 1.3 },
+    nebula: { roughness: 0.2, metalness: 0.05, clearcoat: 0.6, clearcoatRoughness: 0.1, em: 0.9 },
     grid: { roughness: 0.25, metalness: 0.4, clearcoat: 0.8, clearcoatRoughness: 0.1, em: 1.5 },
     stone: { roughness: 0.88, metalness: 0, clearcoat: 0, clearcoatRoughness: 0.5, em: 0 },
     arcane: { roughness: 0.3, metalness: 0.1, clearcoat: 0.5, clearcoatRoughness: 0.15, em: 1.6 },

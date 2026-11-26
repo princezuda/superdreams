@@ -99,6 +99,33 @@ button{font-family:inherit}
 #gallery{position:fixed;inset:0;z-index:28;display:none;pointer-events:none}
 #gallery.show{display:block}
 #gallery .gcard{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:min(360px,calc(100vw - 32px));max-height:calc(100vh - 120px);overflow:auto;padding:16px 18px;pointer-events:auto}
+@media (max-width:720px){#gallery .gcard{top:auto;bottom:76px;transform:none;max-height:38vh}}
+#gallery .gnav{position:absolute;right:16px;bottom:16px;display:flex;gap:8px;pointer-events:auto}
+#gallery .gtitle{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:12px;letter-spacing:.4em;text-transform:uppercase;color:#ffd27a;pointer-events:none}
+body.gclean #gallery .gcard,body.gclean #gallery .gnav,body.gclean #gallery .gtitle,body.gclean .sd-corner{display:none}
+#eyebar{left:50%;bottom:14px;transform:translateX(-50%);display:none;gap:6px;padding:6px}
+#eyebar.show{display:flex}
+.modal{position:fixed;inset:0;z-index:52;display:none;place-items:center;background:rgba(2,3,10,.6);backdrop-filter:blur(4px)}
+.modal.open{display:grid}
+.modal .sd-card{max-height:86vh;overflow:auto;text-align:left}
+.modal .sd-card h1{text-align:center}
+.mile{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(160,180,255,.08);font-size:14px}
+.mile .dot{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;border:1px solid var(--line)}
+.mile.done .dot{background:linear-gradient(135deg,#6aff9a,#3ac8ff);color:#06101a;border:none;font-weight:900}
+.mile small{display:block;color:var(--dim);font-size:12px}
+.lmgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.lmc{padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);cursor:pointer;font-size:12px;text-align:left;color:var(--txt)}
+.lmc:hover{background:rgba(120,140,255,.15)}
+.lmc b{display:block;font-size:13px;margin-bottom:2px}
+.lmc.locked{opacity:.45;cursor:not-allowed}
+.lmc .p{color:#ffd27a;font-weight:700}
+.flow{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;font-size:12px;margin:6px 0}
+.flow .n{padding:8px;border-radius:10px;background:rgba(255,255,255,.05);text-align:center}
+.flow .n b{display:block;font-size:16px}
+.flow .a{color:var(--dim);font-size:18px}
+.lb{display:flex;justify-content:space-between;font-size:13px;padding:4px 6px;border-radius:7px}
+.lb.you{background:rgba(255,210,122,.14);color:#ffe0a0;font-weight:700}
+#menu .sd-card{max-height:94vh;overflow:auto}
 @media (max-width:720px){
   #topbar{right:8px;left:8px;top:58px;gap:5px}
   #planetChip{display:none}

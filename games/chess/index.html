@@ -64,6 +64,11 @@
   #end-sub { font-size: 20px; font-weight: 700; margin: 0 0 4px; opacity: 1; }
   .promo-btn { width: 84px; height: 96px; flex-direction: column; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
   .promo-btn span { font-size: 46px; line-height: 1; } .promo-btn small { font-size: 12px; opacity: .8; }
+  .promo-btn:first-child { border-color: var(--accent); box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 45%, transparent); }
+  .promo-btn:hover span { transform: scale(1.12); } .promo-btn span { transition: transform .15s; }
+  #end-crest { font-size: 64px; line-height: 1; margin-bottom: 6px; filter: drop-shadow(0 0 18px color-mix(in srgb, var(--accent) 70%, transparent)); }
+  #end-score { display: inline-block; font: 800 22px/1 ui-monospace, Menlo, monospace; letter-spacing: .12em; padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,.06); border: 1px solid var(--line); margin: 6px 0 4px; }
+  .end-stats { display: flex; justify-content: center; gap: 18px; margin: 10px 0 4px; font-size: 13px; opacity: .85; } .end-stats b { display: block; font-size: 20px; color: var(--accent); }
   #theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0 4px; }
   .theme-card { text-align: left; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; gap: 5px; transition: transform .12s, border-color .2s; }
   .theme-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.4); }
@@ -83,11 +88,12 @@
     .p-name { font-size: 13px; } .p-cap { font-size: 14px; }
     #panel.as-black #p-white { order: 0; } #panel.as-black #p-black { order: 0; }
     #moves, #puzzle { grid-column: 1 / -1; }
-    #moves { display: none; max-height: 30vh; }
-    body.show-moves #moves { display: block; }
+    #moves { display: none; }
+    body.show-moves #moves { display: block; position: fixed; left: 10px; right: 10px; bottom: 148px; max-height: 40vh; padding: 10px; border-radius: 16px; background: rgba(10,12,28,.94); border: 1px solid var(--line); box-shadow: 0 -10px 40px rgba(0,0,0,.5); z-index: 25; animation: rise .25s ease-out; }
+    body.show-moves #btn-moves { border-color: var(--accent); }
     .actions { grid-column: 1 / -1; grid-template-columns: repeat(4, 1fr); }
     #btn-moves { display: flex; }
-    #coach { bottom: 150px; font-size: 14px; }
+    #coach { bottom: auto; top: 62px; font-size: 13.5px; padding: 9px 14px; animation: none; }
     #replay-bar { bottom: 150px; }
     #theme-grid { grid-template-columns: repeat(2, 1fr); }
     .promo-btn { width: 68px; height: 84px; } .promo-btn span { font-size: 38px; }
@@ -113,8 +119,8 @@
 <div class="hud" id="coach" hidden></div>
 <div class="hud" id="replay-bar" hidden>Replaying the game <button class="sd-btn" id="replay-skip">Skip</button></div>
 
-<div class="modal" id="promo" role="dialog" aria-label="Choose promotion"><div class="sd-card"><h2>Promote your pawn</h2><p>Choose the piece it becomes.</p><div class="sd-row" id="promo-choices"></div><div class="sd-row"><button class="sd-btn" id="promo-cancel">Cancel</button></div></div></div>
-<div class="modal" id="end" role="dialog" aria-label="Game over"><div class="sd-card"><h2 id="end-title">Checkmate!</h2><p id="end-sub"></p><p id="end-reason"></p>
+<div class="modal" id="promo" role="dialog" aria-label="Choose promotion"><div class="sd-card"><h2>Promote your pawn</h2><p>Choose what it becomes · Q R B N keys</p><div class="sd-row" id="promo-choices"></div><div class="sd-row"><button class="sd-btn" id="promo-cancel">Cancel</button></div></div></div>
+<div class="modal" id="end" role="dialog" aria-label="Game over"><div class="sd-card"><div id="end-crest">♔</div><h2 id="end-title">Checkmate!</h2><p id="end-sub"></p><div id="end-score">1-0</div><p id="end-reason"></p><div class="end-stats"><span><b id="st-moves">0</b>moves</span><span><b id="st-caps">0</b>captures</span><span><b id="st-time">0:00</b>played</span></div>
   <div class="sd-row"><button class="sd-btn primary" id="end-rematch">Rematch</button><button class="sd-btn primary" id="end-next" hidden>Next puzzle</button><button class="sd-btn" id="end-replay">Watch replay</button></div>
   <div class="sd-row"><button class="sd-btn" id="end-close">View board</button><button class="sd-btn" id="end-menu">Main menu</button></div></div></div>
 <div class="modal" id="pause" role="dialog" aria-label="Paused"><div class="sd-card"><h2>Paused</h2><p>Take a breath. The board will wait.</p>
