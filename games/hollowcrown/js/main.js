@@ -30,7 +30,7 @@ const tmpV = new THREE.Vector3(), ray = new THREE.Raycaster(), ndc = new THREE.V
 async function boot() {
   lmsg('Mixing the paints…', 0.1);
   initUI({ vignette: false, grain: false });
-  document.body.classList.add('fs-' + opts.fontSize);
+  document.body.classList.add('fs-' + opts.fontSize); $('#invbar').style.visibility = 'hidden';
   cfg = await loadDream(DEFAULTS, onLive);
   sanitize(cfg);
   if (Q.get('q') === 'low') settings.quality = 'low';
@@ -272,6 +272,7 @@ function walkHeroTo(x, z) {
 
 // ------------------------------------------------------------------ engine host
 let playing = false;
+const setPlaying = (v) => { playing = v; $('#invbar').style.visibility = v ? 'visible' : 'hidden'; };
 function makeHost() {
   return {
     queue: [],
@@ -482,10 +483,10 @@ function showTitle() {
     subtitle: 'A fairy-tale adventure. Wrenfold\'s crown woke up hollow — its three heart-stones stolen in the night. Only the royal tinker can bring them home.',
     options: [{ key: 'difficulty', label: 'Story difficulty', value: cfg.difficulty, choices: [{ v: 'easy', label: 'Bedtime Story' }, { v: 'normal', label: 'Fairy Tale' }, { v: 'hard', label: 'Grim & Riddly' }] }],
     startLabel: 'New Game',
-    onStart: (vals) => { newGame(vals.difficulty); },
+    onStart: (vals) => { document.activeElement?.blur?.(); if (!playing) newGame(vals.difficulty); },
   });
   const row = m.el.querySelector('#sd-start').parentElement;
-  if (hasAuto) { const b = document.createElement('button'); b.className = 'sd-btn'; b.id = 'continueBtn'; b.textContent = 'Continue'; b.onclick = () => { m.hide(); sfx.select(); loadState(store.get(AUTO_KEY).state); }; row.prepend(b); }
+  if (hasAuto) { const b = document.createElement('button'); b.className = 'sd-btn'; b.id = 'continueBtn'; b.textContent = 'Continue'; b.onclick = () => { b.blur(); if (playing) return; m.hide(); sfx.select(); loadState(store.get(AUTO_KEY).state); }; row.prepend(b); }
   const lb = document.createElement('button'); lb.className = 'sd-btn'; lb.textContent = 'Load'; lb.onclick = () => openSaves('load', () => {}); row.appendChild(lb);
   const note = document.createElement('p'); note.style.cssText = 'font-size:13px;margin:14px 0 0'; note.innerHTML = 'Click to walk &amp; act · Right-click / long-press to look · Tab reveals hotspots · H hint · M map · Esc menu'; m.el.querySelector('.sd-card').appendChild(note);
   titleMenu = m;
@@ -494,12 +495,12 @@ let titleMenu = null;
 async function newGame(diff) {
   E.s = newState({ difficulty: diff });
   E.s.difficulty = diff; cfg.difficulty = diff;
-  playing = true; document.body.classList.add('playing'); ui.renderInv();
+  setPlaying(true); document.body.classList.add('playing'); ui.renderInv();
   hostMsg('start', { mode: diff });
   await E.boot();
 }
 async function loadState(st) {
-  E.load(st); playing = true; document.body.classList.add('playing'); ui.renderInv();
+  E.load(st); setPlaying(true); document.body.classList.add('playing'); ui.renderInv();
   $('#mapBtn').style.display = E.s.map ? '' : 'none';
   if (E.s.ended) E.s.ended = false;
   await E.boot();
@@ -604,7 +605,7 @@ async function endCard(sum) {
 // ------------------------------------------------------------------ test hooks (window.__cam.game)
 function hooks() {
   return {
-    goto: async (id, entry = 'map') => { if (!SCENE_DEFS[id]) return false; playing = true; document.body.classList.add('playing'); titleMenu?.hide(); E.s.visited[id] = true; await E.run(() => E.enter(id, entry)); return true; },
+    goto: async (id, entry = 'map') => { if (!SCENE_DEFS[id]) return false; setPlaying(true); document.body.classList.add('playing'); titleMenu?.hide(); E.s.visited[id] = true; await E.run(() => E.enter(id, entry)); return true; },
     give: (item) => { if (!ITEMS[item]) return false; E.G.give(item); ui.renderInv(); return true; },
     set: (flag, v = true) => { E.s.f[flag] = v; cur?.built.apply?.(E.s); },
     state: () => JSON.parse(JSON.stringify(E.s)),
@@ -614,7 +615,7 @@ function hooks() {
     start: (diff = 'normal') => { titleMenu?.hide(); return newGame(diff); },
     solveAll: async () => {
       fast = true; ui.auto = true; titleMenu?.hide();
-      E.s = newState({ difficulty: cfg.difficulty }); playing = true; document.body.classList.add('playing');
+      E.s = newState({ difficulty: cfg.difficulty }); setPlaying(true); document.body.classList.add('playing');
       await E.boot();
       const probs = await runOps(E, WALKTHROUGH, H);
       fast = false; ui.auto = false;
@@ -622,9 +623,12 @@ function hooks() {
     },
     walkthrough: () => WALKTHROUGH,
     runOps: async (ops) => { fast = true; ui.auto = true; const p = await runOps(E, ops, H); fast = false; ui.auto = false; return p; },
-    view: async (id, flags = {}) => { Object.assign(E.s.f, flags); playing = false; titleMenu?.hide(); await buildScene(id, 'start', { quiet: true }); await renderer.compileAsync(scene, camera).catch(() => {}); return true; },
+    view: async (id, flags = {}) => { Object.assign(E.s.f, flags); setPlaying(false); titleMenu?.hide(); await buildScene(id, 'start', { quiet: true }); await renderer.compileAsync(scene, camera).catch(() => {}); return true; },
     hero: (x, z, f) => { hero.root.position.set(x, 0, z); if (f != null) hero.face = hero.faceTarget = f; },
     say: (who, text) => { ui.line(who, text); },
+    act: (hid, verb = 'use', item = null) => { E.interact(hid, verb, item); return true; },
+    combine: (a, b) => { E.combine(a, b); return true; },
+    dbg: () => ({ active: ui.active && { who: ui.active.who, typing: ui.active.typing, full: ui.active.full.slice(0, 40) }, busy: E.busy, narrHidden: $('#narr').classList.contains('hidden'), scene: curId, playing, opts }),
   };
 }
 

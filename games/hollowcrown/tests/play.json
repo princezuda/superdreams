@@ -1,0 +1,5 @@
+{"url":"http://127.0.0.1:8106/games/hollowcrown/index.html?webgl&q=low","w":640,"h":360,"steps":[
+ {"eval":"document.querySelector('#menu').classList.add('hide')"},
+ {"eval":"__cam.game.solveAll()","wait":1},
+ {"eval":"({s: __cam.game.state().f.finaleDone, ended: __cam.game.state().ended, score: __cam.game.state().deeds, errs: __cam.errors})","wait":2,"shot":"solved.png"}
+]}

@@ -80,7 +80,7 @@ export function drawHUD(G, dt) {
     const r = Math.max(7, Math.min(60, s.radius / Math.max(sp.depth, 1) * G.camera.projectionMatrix.elements[5] * Hh / 2));
     ctx.globalAlpha = s.parent ? 0.55 : 0.75; brackets(ctx, sp.x, sp.y, r + 3, c, 1.4); ctx.globalAlpha = 1;
     if (s.parent && s.invuln) continue;
-    if (d < 1500 || s.parent) { ctx.fillStyle = c; ctx.font = '10px ui-monospace,Menlo,monospace'; ctx.textAlign = 'center'; ctx.globalAlpha = 0.7; ctx.fillText(s.parent ? s.name : fmtD(d), sp.x, sp.y + r + 14); ctx.globalAlpha = 1; }
+    if (s.parent ? d < 380 : d < 1500) { ctx.fillStyle = c; ctx.font = '10px ui-monospace,Menlo,monospace'; ctx.textAlign = 'center'; ctx.globalAlpha = 0.7; ctx.fillText(s.parent ? s.name : fmtD(d), sp.x, sp.y + r + 14); ctx.globalAlpha = 1; }
   }
   // nav marker
   const nav = G.navs[G.navSel];

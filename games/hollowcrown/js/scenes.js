@@ -118,6 +118,15 @@ function overhang(ctx, o = {}) {
   }
   for (const [x, z, s] of o.shrubs ?? [[-4.9, 6.4, 0.55], [-3.9, 6.9, 0.4], [5.0, 6.5, 0.6], [4.1, 7.0, 0.38]]) bush(B, x, z, { s, flowers: o.flowers, n: 5 });
 }
+// far countryside: a huge fogged meadow plane + two painted ridge cards so the diorama never shows its edge
+function farland(ctx, o = {}) {
+  const B = ctx.B;
+  B.add(new THREE.PlaneGeometry(420, 260, 1, 1), o.col ?? S.grassDark, { x: 0, y: o.y ?? -0.06, z: -150, rx: -PI / 2, ao: false, jit: 0 });
+  const hz = new THREE.Color(S.sky.horizon);
+  const near = ridgeCard({ seed: o.seed ?? 6, layers: [{ y: 0.7, amp: 0.25, f: 0.009, ph: 1.3, c1: new THREE.Color(S.grass).lerp(hz, 0.35).getStyle(), c2: new THREE.Color(S.grassDark).lerp(hz, 0.25).getStyle(), trees: 2, tr: 14, tc: new THREE.Color(S.dark).lerp(hz, 0.3).getStyle() }] });
+  const far = ridgeCard({ seed: (o.seed ?? 6) + 5, layers: [{ y: 0.55, amp: 0.45, f: 0.004, ph: 0.2, c1: new THREE.Color(S.dark).lerp(hz, 0.7).getStyle(), c2: new THREE.Color(S.grassDark).lerp(hz, 0.55).getStyle(), snow: S.roofSnow }] });
+  ctx.world.add(card(far, 220, 40, 0, 6, -95, { order: -2 }), card(near, 150, 18, 0, 4.4, -40, { order: -1 }));
+}
 function rays(ctx, col, list) { const t = softCard(col, 128, 256, 'ray'); const out = []; for (const [x, y, z, w, h, rz, a] of list) { const c = card(t, w, h, x, y, z, { add: true, fog: false, opacity: a, rz, order: 6 }); ctx.world.add(c); out.push(c); } return out; }
 function pal(o = {}) { return { base: o.base ?? S.grass, base2: o.base2 ?? S.grass2, dark: o.dark ?? S.grassDark, light: o.light ?? S.grass2, flowers: S.flowers }; }
 const isWinter = () => S.roofSnow;
@@ -215,6 +224,7 @@ SCENE_DEFS.throne = {
     ctx.fire = { x: -8.25, y: 0.6, z: -0.4 };
     rays(ctx, '#ffe2b0', [[-4.0, 2.6, -2.2, 2.2, 6.5, -0.32, 0.22], [4.0, 2.6, -2.2, 2.2, 6.5, 0.32, 0.2], [0, 3.3, -3.4, 2.4, 6.5, 0.0, 0.16]]);
     glowCard(ctx, '#ff8a3a', 3.2, -8.3, 1.0, -0.4, 0.55);
+    ctx.obj.hfire = part(ctx, (P) => { for (let i = 0; i < 7; i++) P.add(new THREE.ConeGeometry(0.16 + P.r() * 0.1, 0.5 + P.r() * 0.5, 6), ['#ff7a2a', '#ffb040', '#ffd870'][i % 3], { x: -8.3, y: 0.55, z: -0.9 + i * 0.16, mat: 'glow' }); });
     if (ctx.epilogue) {
       bunting(B, -8.8, 6.4, -1, 8.8, 6.4, -1, { n: 28, sag: 0.9 }); bunting(B, -8.8, 6.0, 2.4, 8.8, 6.0, 2.4, { n: 28, sag: 0.9 });
     }
@@ -223,7 +233,7 @@ SCENE_DEFS.throne = {
         ctx.obj.crownOnCushion.visible = !s.f.gotCrown || !!s.f.epilogueGo; ctx.obj.feather.visible = !s.f.featherTaken;
         ctx.obj.tongs.visible = !s.f.tongsTaken; ctx.obj.musicbox.visible = !s.f.boxTaken;
       },
-      update(dt, t) { ctx.flicker(0, 5, t); },
+      update(dt, t) { ctx.flicker(0, 5, t); ctx.obj.hfire.scale.y = 1 + Math.sin(t * 9) * 0.08 + Math.sin(t * 23) * 0.05; },
     };
   },
   hot: {
@@ -249,7 +259,6 @@ SCENE_DEFS.courtyard = {
   ground: { W: 30, D: 22, cx: 0, cz: -2, paint: () => ({
     pal: pal(), seed: 5, flowers: 160,
     cobbles: [{ poly: [[-9, -8], [9, -8], [9, 2.6], [5.6, 3.0], [3.0, 1.6], [-3, 2.2], [-9, 2.6]], mortar: '#8a8276', cols: ['#aaa094', '#9a9084', '#b8ad9e', '#8e857a', '#a49884'], stone: 0.34 }],
-    paths: [{ pts: [[-1, 9], [-0.5, 3]], w: 2.4, col: S.dirt, col2: S.dirt2 }],
     patches: [{ x: 5.6, z: 2.6, r: 1.6, col: '#5a4030', n: 400 }],
   }) },
   walk: [[-8.0, -2.4], [-4.4, -2.4], [-4.0, -4.8], [3.6, -5.0], [4.6, -5.6], [6.4, -5.6], [6.8, -3.0], [7.6, -1.2], [7.6, 1.2], [3.8, 1.0], [3.6, 4.8], [-8.2, 4.8]],
@@ -273,6 +282,7 @@ SCENE_DEFS.courtyard = {
     box(B, 3.4, 1.6, 1.6, '#c8bea9', 6.1, 5.0, -8.6); for (let i = 0; i < 4; i++) box(B, 0.5, 0.5, 1.6, '#c8bea9', 4.8 + i * 0.85, 6.0, -8.6);
     for (let i = 0; i < 6; i++) box(B, 0.08, 1.2, 0.08, '#3a3430', 4.9 + i * 0.48, 3.9, -8.0); // raised portcullis teeth
     banner(B, 3.8, 6.0, -7.1, bcol, { w: 0.8, h: 2.0 }); banner(B, 8.4, 6.0, -7.1, bcol, { w: 0.8, h: 2.0 });
+    farland(ctx, { seed: 9 });
     // view through the gate: village rooftops beyond
     for (const [x, z, ry] of [[5.0, -16, 0.2], [8.6, -17, -0.3], [2.2, -18, 0.4]]) cottage(B, x, z, ry, { w: 2.6, d: 2.2 });
     // well
@@ -370,7 +380,7 @@ SCENE_DEFS.square = {
     ctx.obj.fwater = waterDisc(ctx, 1.4, 0.6, 0.45, -1.2, { scale: 2.2 });
     stall(B, 5.9, 2.6, -0.35, { cols: ['#3a6ab0', '#f3ead6'] });
     B.push(3.3, 0, -2.7, -0.4); for (const sx of [-1, 1]) box(B, 0.1, 1.9, 0.1, '#6a4a2c', sx * 0.6, 0.95, 0); box(B, 1.4, 1.0, 0.08, '#8a6238', 0, 1.45, 0.02); for (let i = 0; i < 3; i++) box(B, 0.34, 0.42, 0.02, '#f4ecd8', -0.42 + i * 0.42, 1.45, 0.07, { rz: (B.r() - 0.5) * 0.2, ao: false }); box(B, 1.6, 0.1, 0.3, '#6a4a2c', 0, 2.0, 0.05); B.pop();
-    lampPost(B, -2.6, 2.6); lampPost(B, 3.6, -5.6);
+    lampPost(B, -6.4, 2.4); lampPost(B, 3.6, -5.6);
     bunting(B, -6.0, 3.6, -2.0, 4.6, 3.9, -3.6, { n: 20, sag: 0.7 }); bunting(B, -4.4, 3.6, -6.6, 4.0, 3.8, -5.0, { n: 16, sag: 0.6 });
     barrel(B, -5.6, -1.2); crate(B, -6.3, -0.8, { s: 0.6 }); crate(B, 7.6, -1.2, { s: 0.5 });
     // framing trees + greenery
@@ -433,6 +443,7 @@ SCENE_DEFS.mill = {
   build(ctx) {
     const B = ctx.B;
     // river across the back + far bank
+    farland(ctx, { seed: 4 });
     ctx.obj.river = waterPlane(ctx, 60, 4.6, 0, -0.62, -6.4, { flow: [0.9, 0.0], scale: 1, speed: 0.4 });
     for (let x = -14; x < 14; x += 0.9) { rock(B, x + B.r() * 0.5, -4.15 - B.r() * 0.3, { s: 0.22 + B.r() * 0.2, y: -0.4, col: '#8a8074' }); if (B.r() < 0.6) grass(B, x, -3.9, { n: 4, y: -0.05 }); }
     for (let x = -14; x < 14; x += 1.4) grass(B, x, -8.9, { n: 5, y: -0.4 });
@@ -453,7 +464,7 @@ SCENE_DEFS.mill = {
       for (let i = 0; i < 12; i++) { const a = (i / 12) * PI * 2; box(P, 0.12, 0.75, 0.62, '#8a6238', Math.cos(a) * 1.55, Math.sin(a) * 1.55, 0, { rz: a + PI / 2 }); box(P, 0.06, 1.4, 0.08, '#6a4a2c', Math.cos(a) * 0.85, Math.sin(a) * 0.85, 0, { rz: a + PI / 2 }); }
       cyl(P, 0.18, 0.18, 0.8, '#4a3a2a', 0, 0, 0, { rx: PI / 2, seg: 8 });
     });
-    ctx.obj.wheel.position.set(-2.55, 0.9, -5.0); ctx.obj.wheel.rotation.y = 0.15 + PI / 2;
+    ctx.obj.wheel.position.set(-2.45, 0.9, -4.7); ctx.obj.wheel.rotation.y = 0.15 + 0.95;
     box(B, 0.3, 2.0, 0.3, '#5a4030', -2.0, 0.5, -4.4); box(B, 0.3, 2.0, 0.3, '#5a4030', -3.0, 0.5, -5.6);
     ctx.obj.brass = part(ctx, (P) => sph(P, 0.08, '#ffd060', 0, 0, 0, { mat: 'glow', ws: 6, hs: 4 }));
     ctx.obj.brass.position.set(-2.3, 0.95, -4.7);
@@ -560,7 +571,7 @@ SCENE_DEFS.woods = {
   npcs: { fennick: { at: [2.9, -0.4], face: 0.5, walk: [2.2, 0.8], make: () => makeFox({ name: 'fennick', top: '#3e6a4e', rig: {} }) } },
 };
 function log(B, x, z, ry) { B.push(x, 0, z, ry); cyl(B, 0.32, 0.36, 2.6, '#6a4a32', 0, 0.3, 0, { rz: PI / 2, seg: 10 }); cyl(B, 0.3, 0.3, 0.02, '#c8a070', 1.31, 0.3, 0, { rz: PI / 2, seg: 10 }); if (!S.roofSnow) for (let i = 0; i < 4; i++) sph(B, 0.12, '#5a8a3a', -0.8 + i * 0.5, 0.6, 0, { sy: 0.4, ao: false }); else box(B, 2.4, 0.08, 0.5, '#f4f8ff', 0, 0.64, 0); B.pop(); }
-function fern(B, x, z) { for (let i = 0; i < 6; i++) { const a = (i / 6) * PI * 2; B.add(new THREE.PlaneGeometry(0.22, 0.8), S.leaf[i % S.leaf.length], { x: x + Math.cos(a) * 0.3, y: 0.3, z: z + Math.sin(a) * 0.3, ry: -a, rx: -0.9, mat: 'paintDS', ao: false }); } }
+function fern(B, x, z) { for (let i = 0; i < 7; i++) { const a = (i / 7) * PI * 2; B.add(new THREE.ConeGeometry(0.12, 0.9, 4), S.leaf[i % S.leaf.length], { x: x + Math.cos(a) * 0.28, y: 0.32, z: z + Math.sin(a) * 0.28, sz: 0.25, ry: -a + PI / 2, rz: Math.cos(a) * 1.0, rx: -Math.sin(a) * 1.0, ao: false }); } }
 
 // ------------------------------------------------------------------ 6. THISTLE'S HOLLOW (glade)
 SCENE_DEFS.glade = {
@@ -675,7 +686,7 @@ SCENE_DEFS.oak = {
     ctx.obj.lids = []; for (const sx of [-1, 1]) { const l = F((P) => { P.add(new THREE.SphereGeometry(0.27, 12, 8, 0, PI * 2, 0, PI / 2), bark, { sz: 0.5, ao: false }); }); l.position.set(sx * 0.55, 3.0, 0.13); ctx.obj.lids.push(l); }
     for (const sx of [-1, 1]) { const b = F((P) => box(P, 0.62, 0.16, 0.2, '#4a3626', 0, 0, 0, { rz: sx * -0.25 })); b.position.set(sx * 0.58, 3.38, 0.16); }
     F((P) => sph(P, 0.22, '#5a4030', 0, 0, 0, { sz: 0.7, sy: 1.3 })).position.set(0, 2.62, 0.25);
-    ctx.obj.mouth = F((P) => { box(P, 0.9, 0.2, 0.14, '#1a100a', 0, 0, 0, { ao: false }); }); ctx.obj.mouth.position.set(0, 2.05, 0.1);
+    ctx.obj.mouth = F((P) => { box(P, 1.1, 0.24, 0.14, '#1a100a', 0, 0, 0, { ao: false }); }); ctx.obj.mouth.position.set(0, 2.2, 0.14);
     // knothole + Bloom Stone
     B.push(-1.5, 0, -3.6, 0); B.add(new THREE.CircleGeometry(0.32, 14), '#1a120a', { x: 0.9, y: 4.6, z: 1.28, ry: 0.45, ao: false, mat: 'glow' }); B.pop();
     ctx.obj.bloom = part(ctx, (P) => sph(P, 0.16, '#5aff6a', 0, 0, 0, { mat: 'glow', ws: 8, hs: 6 }));
@@ -743,13 +754,13 @@ function seaAndHorizon(ctx, y = -6, o = {}) {
 SCENE_DEFS.cliffs = {
   cam: { pos: [0, 4.4, 14.2], look: [0, 2.2, -1.5], fov: 38, drift: 0.12, halfW: 8.5 },
   env: () => ({ sky: { ...S.sky, cloudAmt: 0.65, sunDir: [0.55, 0.3, -0.8] }, fog: [S.sky.horizon, 30, 160], hemi: [S.hemiSky, S.hemiGround, 0.85], key: { pos: [9, 10, 4], col: S.key, I: 2.4 }, rim: { pos: [-8, 6, -10], col: '#a0d0ff', I: 1.1 }, amb: 0.15 }),
-  ground: { W: 34, D: 26, cx: 0, cz: -3, hf: (x, z) => { const edge = 5.6 + z * 0.35; return x > edge + 2.2 ? -9 : x > edge ? -(x - edge) * 2.5 : Math.sin(x * 0.3) * 0.12 + (z < -7 ? (-7 - z) * 0.25 : 0); }, paint: () => ({
+  ground: { W: 34, D: 26, cx: 0, cz: -3, hf: (x, z) => { const edge = 5.6 + z * 0.35; return x > edge ? -Math.min(9, (x - edge) * 2.2 + (x - edge) ** 2 * 0.6) : Math.sin(x * 0.3) * 0.12 + (z < -7 ? (-7 - z) * 0.25 : 0); }, paint: () => ({
     pal: pal(), seed: 29, flowers: 520,
     paths: [{ pts: [[-13, 2.0], [-6, 1.4], [-2.0, -0.4], [-3.4, -2.6]], w: 1.6, col: S.dirt, col2: S.dirt2 }, { pts: [[-2.0, -0.4], [2, 1.4], [5.4, 3.0], [7.4, 4.4]], w: 1.4, col: S.dirt, col2: S.dirt2 }],
     patches: [{ x: 8, z: 0, r: 4, sz: 2, col: '#8a8070', n: 500 }],
   }) },
   walk: [[-8.6, 0.6], [-6.2, -1.6], [-3.0, -2.6], [0.6, -3.4], [3.6, -3.0], [4.6, -1.0], [5.2, 1.0], [5.6, 2.4], [6.6, 3.4], [7.0, 4.8], [-8.6, 4.8]],
-  holes: [oct(-4.6, -4.2, 1.5, 10), rect(2.8, -2.2, 3.6, -1.4), oct(0.9, -2.4, 0.42, 6)],
+  holes: [oct(-4.8, -5.6, 1.2, 10), rect(2.8, -2.2, 3.6, -1.4), oct(0.9, -2.4, 0.42, 6)],
   spawn: { start: [-7.6, 2.0, PI / 2], west: [-7.6, 2.0, PI / 2], cove: [6.8, 4.0, -PI * 0.8], map: [-7.6, 2.0, PI / 2] },
   build(ctx) {
     const B = ctx.B;
@@ -761,7 +772,7 @@ SCENE_DEFS.cliffs = {
     cliffMass(B, 40, -12, -90, 18, 10, 10, { top: S.grass, side: '#9a8e80', low: '#6e6458' });
     for (let i = 0; i < 10; i++) rock(B, 8 + B.r() * 6, -6 + B.r() * 10, { s: 0.6 + B.r(), y: -9, col: '#7a6e62' });
     // lighthouse
-    B.push(-4.6, 0, -4.2, 0);
+    B.push(-4.8, 0, -5.6, 0, 0.74);
     box(B, 3.0, 0.6, 3.0, '#a89e90', 0, 0.3, 0, { jit: 0.1 });
     const prof = [[1.25, 0], [1.05, 7.0], [1.1, 7.0]];
     B.add(new THREE.CylinderGeometry(1.0, 1.3, 7.6, 20, 6), '#ffffff', { y: 4.2, jit: 0.03, aoH: 2.5, colors: (P, col) => { for (let i = 0; i < P.count; i++) { const yy = P.getY(i); if (Math.floor((yy - 0.4) / 1.5) % 2 === 1) { col[i * 3] *= 0.85; col[i * 3 + 1] *= 0.22; col[i * 3 + 2] *= 0.2; } } } });
@@ -771,11 +782,11 @@ SCENE_DEFS.cliffs = {
     for (const y of [3.2, 5.6]) box(B, 0.35, 0.55, 0.1, '#ffd890', 0.2, y, 1.12, { mat: 'glow' });
     B.pop();
     ctx.obj.lamp = part(ctx, (P) => sph(P, 0.42, '#ffe8a0', 0, 0, 0, { mat: 'glow' }));
-    ctx.obj.lamp.position.set(-4.6, 8.9, -4.2);
-    ctx.obj.beam = new THREE.Group(); ctx.obj.beam.position.set(-4.6, 8.9, -4.2); ctx.world.add(ctx.obj.beam);
+    ctx.obj.lamp.position.set(-4.8, 6.59, -5.6); ctx.obj.lamp.scale.setScalar(0.74);
+    ctx.obj.beam = new THREE.Group(); ctx.obj.beam.position.set(-4.8, 6.59, -5.6); ctx.world.add(ctx.obj.beam);
     const bt = softCard('#fff2c0', 128, 256, 'ray');
     for (const a of [0, PI]) { const c = card(bt, 4, 40, 0, 0, 0, { add: true, fog: false, opacity: 0.35, order: 7 }); c.rotation.set(PI / 2, 0, a + PI / 2); c.position.set(Math.cos(a) * 20, 0, Math.sin(a) * 20); ctx.obj.beam.add(c); }
-    ctx.obj.lampHalo = glowCard(ctx, '#ffe8a0', 5, -4.6, 8.9, -3.9, 0.7);
+    ctx.obj.lampHalo = glowCard(ctx, '#ffe8a0', 4, -4.8, 6.59, -5.2, 0.7);
     // keeper's cottage (behind, left)
     cottage(B, -9.2, -5.4, 0.5, { w: 2.8, d: 2.4, roof: '#3a5a8a', plaster: '#f4f0e8' });
     // telescope
@@ -792,12 +803,12 @@ SCENE_DEFS.cliffs = {
     const fogT = fogCard('#f2ede6');
     ctx.obj.fog = []; for (const [x, y, z, w, h] of [[20, -2, -100, 120, 26], [-10, -3, -90, 110, 22], [40, 0, -130, 140, 34]]) { const c = card(fogT, w, h, x, y, z, { opacity: 0.95, fog: false, order: 2 }); ctx.world.add(c); ctx.obj.fog.push(c); }
     ctx.gulls(6, [-8, 4, -12, 12, 10, -2]);
-    ctx.light(0, [-4.6, 8.9, -3.0], '#ffe8a0', 0, 22); ctx.light(1, [-4.6, 2.0, -2.8], '#ffcc80', 0.8, 5);
+    ctx.light(0, [-4.8, 6.6, -4.6], '#ffe8a0', 0, 22); ctx.light(1, [-4.8, 1.6, -4.0], '#ffcc80', 0.8, 5);
     ctx.weather([-10, 0, -9, 10, 9, 6], 0.6);
     return {
       apply(s) {
         const lit = !!s.f.lampLit; ctx.lit = lit; ctx.obj.beam.visible = lit; ctx.obj.lampHalo.visible = lit;
-        ctx.obj.lamp.scale.setScalar(lit ? 1 : 0.6); ctx.lightI[0] = lit ? 6 : 0;
+        ctx.obj.lamp.scale.setScalar(lit ? 0.74 : 0.45); ctx.lightI[0] = lit ? 6 : 0;
         ctx.fogT = lit ? 0 : 1; ctx.obj.isle.visible = lit || ctx.obj.fog[0].material.opacity < 0.9;
         ctx.lampFixed = !!s.f.lampFixed;
       },
@@ -810,7 +821,7 @@ SCENE_DEFS.cliffs = {
     };
   },
   hot: {
-    lighthouse: { p: [-4.6, 4.6, -4.2], s: [3.0, 9.6, 3.0], walk: [-3.6, -2.4] },
+    lighthouse: { p: [-4.8, 3.5, -5.6], s: [2.6, 7.4, 2.6], walk: [-3.8, -2.5] },
     telescope: { p: [3.2, 1.3, -1.8], s: [1.0, 2.2, 1.0], walk: [2.4, -1.2] },
     fog: { p: [10, 1, -60], s: [120, 30, 4], walk: [4.2, -2.4] },
     cottage: { p: [-9.2, 2.2, -5.4], s: [3.2, 4.4, 3.0], walk: [-6.8, -1.4] },
@@ -854,14 +865,16 @@ SCENE_DEFS.cove = {
     // boat (dynamic patch)
     B.push(2.6, 0.32, -1.1, 0.25);
     B.push(0, 0, 0, 0, 1, 0, 0.18);
-    const hull = new THREE.SphereGeometry(1.0, 18, 10, 0, PI * 2, PI / 2, PI / 2); B.add(hull, '#8a5a34', { sx: 0.95, sy: 0.55, sz: 2.0, mat: 'paintDS', jit: 0.06 });
-    tor(B, 1.0, 0.06, '#6a4228', 0, 0, 0, { rx: PI / 2, ts: 24, sz: 2.0 });
-    for (const z of [-0.7, 0.4]) box(B, 1.6, 0.08, 0.3, '#a8784a', 0, -0.1, z);
-    B.add(new THREE.CircleGeometry(0.16, 12), '#140c08', { x: 0.55, y: -0.22, z: 0.5, ry: PI / 2 + 0.3, mat: 'glow', ao: false });
+    B.add(new THREE.SphereGeometry(1.0, 20, 12), '#8a5a34', { y: -0.3, sx: 0.95, sy: 0.62, sz: 2.0, jit: 0.06, aoBase: -0.6 });
+    B.add(new THREE.CircleGeometry(0.9, 20), '#4a2e1c', { y: 0.2, rx: -PI / 2, sz: 1, sy: 2.0, ao: false });
+    tor(B, 0.93, 0.07, '#6a4228', 0, 0.24, 0, { rx: PI / 2, ts: 24, sy: 2.0 });
+    for (let i = 0; i < 5; i++) tor(B, 0.95, 0.015, '#6a4228', 0, -0.05 - i * 0.09, 0, { rx: PI / 2, ts: 24, sy: 2.0, sx: 1 - i * 0.03 });
+    for (const z of [-0.7, 0.4]) box(B, 1.6, 0.08, 0.3, '#a8784a', 0, 0.3, z);
+    B.add(new THREE.CircleGeometry(0.16, 12), '#140c08', { x: 0.92, y: 0.0, z: 0.5, ry: PI / 2, mat: 'glow', ao: false });
     B.pop(); B.pop();
     box(B, 0.14, 0.06, 2.6, '#a8784a', 4.6, 0.04, -0.4, { ry: 0.6 }); box(B, 0.14, 0.06, 2.4, '#a8784a', 4.9, 0.04, -0.2, { ry: 0.7 });
     ctx.obj.patch = part(ctx, (P) => sph(P, 0.18, '#e8a83a', 0, 0, 0, { sz: 0.4, mat: 'glow' }));
-    ctx.obj.patch.position.set(3.0, 0.15, -0.55); ctx.obj.patch.rotation.y = 0.25 + PI / 2;
+    ctx.obj.patch.position.set(3.55, 0.35, -0.75); ctx.obj.patch.rotation.y = 0.25 + PI / 2;
     // crab rock + tidepool + driftwood
     rock(B, -3.4, 2.4, { s: 0.6, col: '#8a8074' });
     ctx.obj.tide = waterDisc(ctx, 0.75, -1.5, 0.04, 1.5, { scale: 3 });

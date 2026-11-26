@@ -1,0 +1,11 @@
+{"url":"http://127.0.0.1:8106/games/hollowcrown/index.html?webgl&q=low","w":960,"h":540,"steps":[
+ {"eval":"localStorage.clear()"},
+ {"eval":"document.querySelector('#sd-start').click()","ms":1500,"shot":"i_chapter.png"},
+ {"ms":5000,"wait":1,"shot":"i_narr.png"},
+ {"key":"Space","ms":300},{"key":"Space","ms":300},{"key":"Space","ms":300},{"key":"Space","ms":2500,"wait":1,"shot":"i_queen_line.png"},
+ {"key":"Space","ms":600},{"key":"Space","ms":600},
+ {"eval":"(()=>{const v=new (window.__cam.constructor)();return 1})()"},
+ {"eval":"__cam.game.hint()"},
+ {"move":[300,300],"wait":2,"shot":"i_hover.png"},
+ {"eval":"__cam.game.state().inv"}
+]}

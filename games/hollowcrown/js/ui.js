@@ -46,15 +46,15 @@ export class UI {
       a.armAuto = () => { clearTimeout(timer); if (this.opts.autoAdvance) timer = setTimeout(a.done, (1400 + text.length * 48) * ({ slow: 1.4, normal: 1, fast: 0.75, instant: 0.75 }[this.opts.textSpeed] || 1)); };
       if (!a.typing) { tx.textContent = text; a.armAuto(); return; }
       let i = 0, last = performance.now();
-      const step = (now) => {
+      const step = () => { // timer-driven so text never stalls on a slow frame
         if (!a.typing) return;
-        i += ((now - last) / 1000) * speed; last = now;
+        const now = performance.now(); i += ((now - last) / 1000) * speed; last = now;
         const n = Math.min(text.length, Math.floor(i));
         tx.textContent = text.slice(0, n);
         if (n >= text.length) { a.typing = false; a.armAuto(); return; }
-        requestAnimationFrame(step);
+        setTimeout(step, 30);
       };
-      requestAnimationFrame(step);
+      setTimeout(step, 30);
       this.place();
     });
     this.o.onSpeak?.(who, false, 0);

@@ -9,6 +9,7 @@ const p = await b.newPage({ viewport: { width: spec.w || 1280, height: spec.h ||
 const errs = [];
 p.on('pageerror', (e) => errs.push('PAGE: ' + e.message));
 p.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.type() + ': ' + m.text().slice(0, 300)); });
+if (spec.init) await p.addInitScript(spec.init);
 const t0 = Date.now();
 await p.goto(spec.url);
 try { await p.waitForFunction(() => window.__bootError || (window.__cam && window.__cam.dataReady && window.__cam.frames > 2), null, { timeout: 240000 }); } catch (e) { errs.push('TIMEOUT boot'); }

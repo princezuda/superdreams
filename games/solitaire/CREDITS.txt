@@ -1,0 +1,4 @@
+Solitaire Suite — credits
+Card faces (vector suits, original geometric court cards), backs, felt and all sounds are generated in code
+(cards.js, audio.js). FreeCell deals use our own seeded shuffle + built-in solver (rules.js), not any third-party numbering.
+Rejected assets: none considered — public card packs read poorly at 34–50 px phone widths.

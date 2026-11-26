@@ -243,7 +243,7 @@ ensurePipe('galaxy', galaxy.scene);
 // ---------------------------------------------------------------- galaxy mode
 function ensurePipe(key, scene) { if (!pipes[key] || pipes[key].scene !== scene) { pipes[key] = Object.assign(createPipeline(renderer, scene, camera, key === 'galaxy' ? undefined : { bloom: { strength: 0.42, radius: 0.38, threshold: 0.9 } }), { scene }); } return pipes[key]; }
 function goGalaxy(intro = false) {
-  closeSide(); $('eyebar').classList.remove('show');
+  endCine(); closeSide(); $('eyebar').classList.remove('show');
   if (!galaxy || galaxy.st !== st) { setLoad('Charting the Lantern Cluster', 0.4); galaxy = new Galaxy(renderer, st); }
   galaxy.st = st; galaxy.sync();
   mode = 'galaxy'; showHud(true); setToolbarVisible(false);
@@ -683,7 +683,7 @@ function processLog() {
 // FABLE: choreograph this — scaffold collapse, crane lift-off, rising fanfare stinger synced to the reveal, crowd cheer.
 function wonder(l) {
   const D = LANDMARK_BY_ID[l.kind], c = world.landmarkCenter(l), h = D.height || 30;
-  cine = { prev: { ...pcam.g }, t: 0, dur: 7, l, c, h };
+  cine = { prev: { ...pcam.g }, t: 0, dur: 7, l, c, h, t0: performance.now() };
   pcam.set({ x: c.x, z: c.z, dist: Math.max(40, h * 2.1), pitch: 0.28, yaw: pcam.g.yaw - 0.4, yo: Math.min(h * 0.35, 30) });
   $('wE').textContent = 'Wonder complete'; $('wT').textContent = D.name; $('wP').textContent = D.lore;
   $('wonder').classList.add('show'); showHud(false); closeSide();
@@ -692,9 +692,10 @@ function wonder(l) {
   world.puff(c.x, c.z, 3, 40);
 }
 function skipCine() { if (!cine) return; cine.t = cine.dur; }
+function endCine() { if (!cine) return; $('wonder').classList.remove('show'); pcam.set({ ...cine.prev, yo: 0 }); cine = null; }
 function stepCine(dt) {
   if (!cine) return;
-  cine.t += dt; pcam.g.yaw += dt * 0.09;
+  cine.t = Math.max(cine.t, (performance.now() - cine.t0) / 1000); pcam.g.yaw += dt * 0.09;
   if (cine.t >= cine.dur) { $('wonder').classList.remove('show'); showHud(true); pcam.set({ ...cine.prev, x: cine.c.x, z: cine.c.z, yo: 0 }); const l = cine.l; cine = null; selectB(l); }
 }
 // FABLE: finale needs a composed victory theme and a slow aerial fly-through of every wonder.
@@ -712,6 +713,7 @@ function finale() {
 // FABLE: footstep/ambient layers per planet type and landmark-specific soundscapes when strolling.
 const eye = { pos: new THREE.Vector3(), yaw: 0, pitch: 0.1, fov: 60, stroll: true, fly: false, idle: 0, l: null, ang: 0 };
 function enterEye(l) {
+  endCine();
   const c = world.landmarkCenter(l), D = LANDMARK_BY_ID[l.kind];
   eye.l = l; eye.c = c; eye.r = l.s * CELL * 0.5 + 9; eye.ang = pcam.c.yaw; eye.fly = false; eye.stroll = true; eye.h = D.height || 30;
   eye.pos.set(c.x + Math.sin(eye.ang) * eye.r, 0, c.z + Math.cos(eye.ang) * eye.r);
@@ -753,6 +755,7 @@ function makeGallery() {
 }
 let RoomEnv = null;
 async function openGallery(i = 0, fromMenu = false) {
+  endCine();
   if (!RoomEnv) RoomEnv = (await import('three/addons/environments/RoomEnvironment.js')).RoomEnvironment;
   if (!gallery) gallery = makeGallery();
   galleryFromMenu = fromMenu; ui.galleryPrevMode = mode === 'gallery' ? ui.galleryPrevMode : mode;
@@ -766,10 +769,10 @@ function showGalleryItem(i) {
   if (gallery.obj) gallery.scene.remove(gallery.obj);
   const g = bake(D.build(makeKit({ seed: 7 + galleryIdx })));
   gallery.obj = g; gallery.scene.add(g);
-  const h = D.id === 'elevator' ? 60 : D.height;
+  const h = D.id === 'elevator' ? 80 : D.height;
   const w = D.footprint * 4;
-  lcam.ground = () => h * 0.45;
-  lcam.set({ x: 0, y: 0, z: 0, yaw: 0.6, pitch: 0.24, dist: Math.max(30, h * 1.45, w * 2.6) }, true);
+  lcam.ground = () => h * 0.6;
+  lcam.set({ x: 0, y: 0, z: 0, yaw: 0.6, pitch: 0.15, dist: Math.max(36, h * 1.95, w * 2.8) }, true);
   const unlocked = !st || st.unlocked.includes(D.id);
   $('gCard').innerHTML = `<div style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#ffd27a">${galleryIdx + 1} / ${LANDMARKS.length} · ${esc(D.kind)}</div><h2 style="margin:4px 0 6px;font-size:22px">${esc(D.name)}</h2><p style="font-size:13px;line-height:1.45;margin:0 0 6px">${esc(D.lore)}</p><p style="font-size:13px;margin:0 0 8px"><b style="color:#ffd27a">After dark:</b> ${esc(D.night)}</p>${VISITOR_TYPES.map((v) => `<div class="vt"><span style="color:${v.color}">${v.name}</span><div class="bar"><i style="width:${D.appeal[v.id] * 20}%;background:${v.color}"></i></div><span>${D.appeal[v.id]}</span></div>`).join('')}<p style="font-size:12px;margin:8px 0 0;color:var(--dim)">Boosted by: ${Object.entries(D.boosts).filter(([, m]) => m > 1).map(([k]) => esc(SIM.TRAIT_NAMES[k])).join(', ')} · ${SIM.fmt(D.cost)} · ${D.tier.toFixed(1)}★ base${unlocked ? '' : ' · <span style="color:#ffb46a">locked</span>'}</p>`;
 }

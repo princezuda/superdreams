@@ -378,7 +378,7 @@ const PLANET_LOOKS = {
   terran: { ocean: '#0c3a6a', low: '#3f6a34', high: '#8a7a58', ice: '#e8eef4', sea: 0.02, iceLat: 0.78, cloud: 0.75, atmo: '#5aa8ff', lights: 1, lava: 0 },
   ocean: { ocean: '#0a3e72', low: '#2c7a6a', high: '#c8c098', ice: '#eaf2f8', sea: 0.22, iceLat: 0.82, cloud: 0.85, atmo: '#58b8ff', lights: 0.4, lava: 0 },
   desert: { ocean: '#7a4a2a', low: '#c08a50', high: '#e8c890', ice: '#f0e8dc', sea: -0.18, iceLat: 0.92, cloud: 0.25, atmo: '#ffb878', lights: 0.6, lava: 0 },
-  ice: { ocean: '#5a7a98', low: '#c4d4e4', high: '#f4f8ff', ice: '#ffffff', sea: -0.06, iceLat: 0.5, cloud: 0.45, atmo: '#a8d8ff', lights: 0, lava: 0 },
+  ice: { ocean: '#4a6a88', low: '#9fb4c8', high: '#cfdbe8', ice: '#e2eaf3', sea: -0.06, iceLat: 0.5, cloud: 0.45, atmo: '#a8d8ff', lights: 0, lava: 0 },
   lava: { ocean: '#1a0e0a', low: '#2a1a14', high: '#4a3428', ice: '#3a2a22', sea: -0.03, iceLat: 2, cloud: 0.2, atmo: '#ff7040', lights: 0, lava: 1 },
   barren: { ocean: '#4a4440', low: '#6a625a', high: '#9a9086', ice: '#c8c4c0', sea: -0.3, iceLat: 0.9, cloud: 0, atmo: '#9a9aa8', lights: 0, lava: 0 },
   gas: { ocean: '#c8a070', low: '#e8d0a8', high: '#9a5a3a', ice: '#f0e4d0', sea: 0, iceLat: 2, cloud: 0, atmo: '#ffd8a0', lights: 0, lava: 0, gas: 1 },
@@ -412,7 +412,7 @@ export function planetModel(pl, hueShift = 0) {
       const icy = smoothstep(iceLat.sub(0.04), iceLat.add(0.04), abs(n.y).add(h.mul(0.25)));
       surf = mix(surf, ice, icy);
     }
-    let col = surf.mul(diff.mul(1.35).add(0.012));
+    let col = surf.mul(diff.mul(1.2).add(0.012));
     // ocean glint
     const H = normalize(Ld.add(V)); col = col.add(vec3(1.0, 0.95, 0.85).mul(pow(max(dot(N, H), 0.0), 70.0)).mul(float(1).sub(land)).mul(day).mul(L.gas ? 0.0 : 0.55));
     // clouds

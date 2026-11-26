@@ -1,0 +1,3 @@
+Neon Drift — credits
+All geometry, TSL shaders (planet grid, portals, atmosphere) and Web Audio SFX are generated in code in this folder plus the
+shared kit. No third-party assets. Rejected assets: none considered.

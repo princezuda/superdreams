@@ -1,0 +1,30 @@
+{
+  "id": "drift-snake",
+  "title": "Neon Drift",
+  "genre": "Casual",
+  "subgenre": "Arcade Snake",
+  "tier": "AA",
+  "tagline": "Steer a ribbon of light around tiny neon planets — eat orbs, grow longer, never touch your own glow.",
+  "description": "A 3D take on the snake arcade classic played on the curved surface of little gridded planets. Steer left and right while a chase camera banks over the horizon, collect light orbs (gold ones are worth five) and watch your glowing trail grow. Charge three planets — Cobalt, Magenta and Solar — to light up the whole system. Portal mode adds paired wormhole gates that fling you across the globe; Duel is a two-player hotseat split-screen where the last light standing wins the round.",
+  "playTime": "3–10 min runs",
+  "controls": "←/→ or A/D steer (Duel: P1 A/D, P2 ←/→) · touch: hold the left/right half of the screen or use the on-screen pads · Esc/P pause",
+  "modes": ["Classic (3 planets)", "Portal (wraparound wormholes)", "Duel (2-player split-screen hotseat)"],
+  "themes": ["Cobalt", "Magenta", "Solar"],
+  "levels": false,
+  "remix": [
+    { "key": "theme", "label": "Planet palette", "type": "choice", "choices": [{ "v": "auto", "label": "Follow the run" }, { "v": "cobalt", "label": "Cobalt" }, { "v": "magenta", "label": "Magenta" }, { "v": "solar", "label": "Solar" }], "default": "auto" },
+    { "key": "colors.p1", "label": "Player 1 light", "type": "color", "default": "#38f0ff" },
+    { "key": "colors.p2", "label": "Player 2 light", "type": "color", "default": "#ff5ad8" },
+    { "key": "difficulty", "label": "Difficulty", "type": "choice", "choices": [{ "v": "easy", "label": "Easy" }, { "v": "normal", "label": "Normal" }, { "v": "hard", "label": "Hard" }], "default": "normal" },
+    { "key": "mode", "label": "Default mode", "type": "choice", "choices": [{ "v": "classic", "label": "Classic" }, { "v": "portal", "label": "Portal" }, { "v": "duel", "label": "Duel" }], "default": "classic" },
+    { "key": "speed", "label": "Speed", "type": "range", "min": 0.6, "max": 1.6, "step": 0.1, "default": 1 },
+    { "key": "orbs", "label": "Orbs on the planet", "type": "range", "min": 3, "max": 16, "step": 1, "default": 7 },
+    { "key": "growth", "label": "Growth per orb", "type": "range", "min": 1, "max": 8, "step": 1, "default": 3 },
+    { "key": "rocks", "label": "Crystal pylons", "type": "range", "min": 0, "max": 25, "step": 1, "default": 10 },
+    { "key": "gridGlow", "label": "Grid glow", "type": "range", "min": 0.2, "max": 2, "step": 0.1, "default": 1 },
+    { "key": "roundsToWin", "label": "Duel: rounds to win", "type": "range", "min": 1, "max": 5, "step": 1, "default": 3 }
+  ],
+  "credits": [],
+  "fablePass": ["Music: driving synthwave bed with tempo tied to length", "Head: animated comet flare + light-wake ripples on the grid", "Finale: three charged planets orbiting in a camera flyby", "Crash: slow-motion shatter of the trail into sparks"],
+  "thumb": "thumb.jpg"
+}

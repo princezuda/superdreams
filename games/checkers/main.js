@@ -557,7 +557,7 @@ function endGame() {
   const mins = Math.max(1, Math.round((performance.now() - st.start) / 60000));
   document.getElementById('end-stats').innerHTML = [
     [Math.ceil(s.ply / 2), 'moves'], [`${s.captured[RED]}–${s.captured[BLACK]}`, 'captures'], [st.longest, 'best chain'],
-    [`${st.kings[RED]}–${st.kings[BLACK]}`, 'kings'], [s.lost[RED] + s.lost[BLACK], cfg.mode === 'normal' || cfg.mode === 'graves' || cfg.mode === 'portals' ? 'lost to void' : 'lost to hazards'], [`${mins}m`, 'played'],
+    [`${st.kings[RED]}–${st.kings[BLACK]}`, 'kings'], [s.lost[RED] + s.lost[BLACK], cfg.mode === 'blackholes' ? 'lost to the void' : 'lost to hazards'], [`${mins}m`, 'played'],
   ].map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
   setTimeout(() => { if (G.phase === 'over') document.getElementById('end').classList.remove('hidden'); }, 1100 / Math.min(G.speed, 4));
   updateHUD();

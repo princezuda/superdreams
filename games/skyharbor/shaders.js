@@ -4,7 +4,7 @@ import * as THREE from 'three/webgpu';
 import {
   Fn, uniform, vec2, vec3, vec4, float, mix, smoothstep, step, abs, max, min, pow, dot, normalize, length, fract, floor, sin, cos,
   positionGeometry, normalGeometry, positionWorld, normalWorld, positionLocal, positionView, positionWorldDirection, cameraPosition,
-  attribute, time, mx_fractal_noise_float, mx_noise_float, mx_worley_noise_float, fog, reflect, uv, clamp, exp, texture, atan, select, instanceIndex,
+  attribute, time, fwidth, mx_fractal_noise_float, mx_noise_float, mx_worley_noise_float, fog, reflect, uv, clamp, exp, texture, atan, select, instanceIndex,
 } from 'three/tsl';
 
 const C = (h) => new THREE.Color(h);
@@ -190,10 +190,13 @@ export function buildingMaterial() {
   const wP = step(0.22, ux).mul(step(ux, 0.78)).mul(step(0.3, uy)).mul(step(uy, 0.82));
   const wR = step(0.32, uy).mul(step(uy, 0.86)).mul(step(0.04, ux));
   const wC = step(0.05, ux).mul(step(ux, 0.95)).mul(step(0.07, uy)).mul(step(uy, 0.96));
-  const win = wP.mul(eqf(style, 1)).add(wR.mul(eqf(style, 2))).add(wC.mul(eqf(style, 3))).mul(side).mul(step(0.0, fy)).toVar();
+  // distant façades: when a window cell shrinks below ~2px, fade the hard grid to its average coverage (kills moiré speckle)
+  const aa = smoothstep(0.25, 0.6, max(fwidth(fx), fwidth(fy)));
+  const avg = eqf(style, 1).mul(0.29).add(eqf(style, 2).mul(0.52)).add(eqf(style, 3).mul(0.8));
+  const win = mix(wP.mul(eqf(style, 1)).add(wR.mul(eqf(style, 2))).add(wC.mul(eqf(style, 3))), avg, aa).mul(side).mul(step(0.0, fy)).toVar();
   const h = hash3(vec3(cx, cy, n.x.mul(3.1).add(n.z.mul(7.3)).add(base.mul(1.7))));
   const flick = fract(h.add(floor(time.mul(0.03).add(h.mul(17))).mul(0.618)));
-  const lit = step(float(1).sub(litC), flick);
+  const lit = mix(step(float(1).sub(litC), flick), litC, aa);
   const lc = mix(U.windowA, U.windowB, step(0.82, fract(h.mul(7.13))));
   const glass = mix(vec3(0.16, 0.2, 0.26), U.horizon.mul(0.62), uy.mul(0.55).add(0.25)).mul(float(1).sub(U.night.mul(0.75)));
   const roof = float(1).sub(side);

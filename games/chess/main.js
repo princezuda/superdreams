@@ -113,6 +113,7 @@ function applyLook() {
   const envId = cfg.environment === 'auto' ? T.env : (ENV_IDS.includes(cfg.environment) ? cfg.environment : ENV_OF_THEME[cfg.environment]);
   look.fx = cfg.captureFx === 'auto' ? T.fx : cfg.captureFx;
   look.T = T; look.colors = colors;
+  // FABLE: per-world ambient music bed (study piano, space drone, galactic pad, synthwave, lute & wind, arcane chimes), crossfaded here.
   // environment (background, fog, props)
   if (look.env !== envId) {
     look.envObj?.dispose(); scene.backgroundNode = null; scene.fog = null;
@@ -259,13 +260,14 @@ async function playMove(input, { animate = true, replay = false } = {}) {
   updateHighlights(); renderMoves(); updateHUD();
   if (replay) return d;
   if (G.status.over) { endGame(G.status); return d; }
-  if (G.status.check) { sfx.check(); }
+  if (G.status.check) { sfx.check(); } // FABLE: world-specific check sting + pulse across the board
   saveGame();
   if (G.puzzle && !puzzleProgress(d)) return d;
   maybeAI();
   return d;
 }
 
+// FABLE: per-piece move personality (knight rears before the hop, ships bank, dragons flap, wizards glide on a rune trail).
 function slide(mesh, to, { dur = 0.4, hop = 0.1, delay = 0, tilt = 0 } = {}) {
   const from = mesh.position.clone(), r0 = mesh.rotation.x;
   return tween(dur, (k) => {

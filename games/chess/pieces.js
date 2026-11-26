@@ -251,7 +251,7 @@ function scifi(type) {
 }
 
 // ======================================================================= FANTASY — stone & gold
-const plinth = (k) => { k.lathe([[0, 0], [0.33, 0], [0.33, 0.07], [0.3, 0.095], [0.24, 0.1], [0, 0.1]], { seg: 8, flat: true }); k.torus(0.31, 0.012, { p: [0, 0.075, 0], a: 1, rs: 4, ts: 8, r: [0, Math.PI / 8, 0] }); };
+const plinth = (k) => { k.lathe([[0, 0], [0.33, 0], [0.33, 0.07], [0.3, 0.095], [0.24, 0.1], [0, 0.1]], { seg: 8, flat: true }); k.lathe([[0.333, 0.052], [0.336, 0.056], [0.336, 0.066], [0.333, 0.07]], { seg: 8, flat: true, a: 1 }); }; // gold band on the same 8 facets
 function fantasy(type) {
   const k = new Kit(); plinth(k);
   if (type === 1) { // footsoldier: helm + round shield

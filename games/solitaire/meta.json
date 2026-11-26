@@ -1,0 +1,29 @@
+{
+  "id": "solitaire",
+  "title": "Solitaire Suite",
+  "genre": "Card",
+  "subgenre": "Patience / Solitaire",
+  "tier": "AA",
+  "tagline": "Klondike, Spider and FreeCell on crisp, readable cards — every FreeCell deal guaranteed winnable.",
+  "description": "Three classic patience games in one polished suite. Large-index cards designed for phones, drag or tap-to-move, unlimited undo, hints, one-tap auto-finish and the bouncing win cascade. Klondike (Draw 1, Draw 3, limited passes), Spider (1, 2 or 4 suits) and FreeCell (4 or 3 cells) — every FreeCell deal is checked by a built-in solver before you see it. Deals are numbered: replay one, type in a friend's number, or race the same cards. Statistics track win rates, best times and fewest moves per variant, and an unfinished game is saved automatically.",
+  "playTime": "5–15 min per deal",
+  "controls": "Drag cards, or tap a card to send it to its best spot · tap the stock to draw/deal · U/Ctrl+Z undo · H hint · Space draw · Esc pause",
+  "modes": ["Klondike (Draw 1 / Draw 3 / 3 passes)", "Spider (1 / 2 / 4 suits)", "FreeCell (4 / 3 cells, solver-verified)", "Deal Lab: play any numbered deal"],
+  "themes": ["Green felt", "Blue velvet", "Wine", "Night", "Wood"],
+  "levels": false,
+  "remix": [
+    { "key": "theme", "label": "Table", "type": "choice", "choices": [{ "v": "green", "label": "Green felt" }, { "v": "blue", "label": "Blue velvet" }, { "v": "wine", "label": "Wine" }, { "v": "night", "label": "Night" }, { "v": "wood", "label": "Wood" }], "default": "green" },
+    { "key": "colors.accent", "label": "Highlight colour", "type": "color", "default": "#ffd36e" },
+    { "key": "colors.back", "label": "Card back colour", "type": "color", "default": "#2a5fd0" },
+    { "key": "difficulty", "label": "Difficulty", "type": "choice", "choices": [{ "v": "easy", "label": "Easy" }, { "v": "medium", "label": "Medium" }, { "v": "hard", "label": "Hard" }], "default": "easy" },
+    { "key": "mode", "label": "Game", "type": "choice", "choices": [{ "v": "klondike", "label": "Klondike" }, { "v": "spider", "label": "Spider" }, { "v": "freecell", "label": "FreeCell" }], "default": "klondike" },
+    { "key": "deal", "label": "Fixed deal number (0 = random)", "type": "range", "min": 0, "max": 99999, "step": 1, "default": 0 },
+    { "key": "fourColor", "label": "Four-colour deck", "type": "bool", "default": false },
+    { "key": "autoComplete", "label": "Offer auto-finish", "type": "bool", "default": true },
+    { "key": "animSpeed", "label": "Animation speed", "type": "range", "min": 0.5, "max": 3, "step": 0.25, "default": 1 },
+    { "key": "leftHanded", "label": "Left-handed layout", "type": "bool", "default": false }
+  ],
+  "credits": [],
+  "fablePass": ["Music: soft lounge loop", "Card pickup tilt + physically lit 3D flip", "Win cascade: optional confetti + table glow", "Court cards: illustrated portraits replacing the geometric busts"],
+  "thumb": "thumb.jpg"
+}
